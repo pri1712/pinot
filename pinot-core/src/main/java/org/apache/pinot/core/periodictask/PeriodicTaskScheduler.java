@@ -109,8 +109,7 @@ public class PeriodicTaskScheduler {
           } catch (SchedulerException e) {
             LOGGER.error("Failed to schedule Quartz job for task: {}", periodicTaskTaskName, e);
           }
-        }
-        else {
+        } else {
           long intervalInSeconds = periodicTask.getIntervalInSeconds();
           if (intervalInSeconds <= 0) {
             LOGGER.info("Skip scheduling periodic task: {} for periodic execution (it can be manually triggered)",

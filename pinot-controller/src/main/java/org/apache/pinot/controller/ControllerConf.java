@@ -18,7 +18,7 @@
  */
 package org.apache.pinot.controller;
 
-import com.google.api.Control;
+
 import com.google.common.base.Preconditions;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -320,7 +320,7 @@ public class ControllerConf extends PinotConfiguration {
         "controller.realtimeConsumerMonitor.frequencyPeriod";
     public static final String RT_CONSUMER_MONITOR_INITIAL_DELAY_IN_SECONDS =
         "controller.realtimeConsumerMonitor.initialDelayInSeconds";
-    public static String RT_CONSUMER_MONITOR_CRON_EXPRESSION =
+    public static final String RT_CONSUMER_MONITOR_CRON_EXPRESSION =
         "controller.realtimeConsumerMonitor.cronExpression";
     public static final String DEFAULT_RT_CONSUMER_MONITOR_FREQUENCY_PERIOD = "-1s"; // Disabled by default
   }
@@ -670,7 +670,7 @@ public class ControllerConf extends PinotConfiguration {
   }
 
   public String getRetentionControllerCronExpression() {
-    return ControllerPeriodicTasksConf.RETENTION_MANAGER_CRON_EXPRESSION;
+    return getProperty(ControllerPeriodicTasksConf.RETENTION_MANAGER_CRON_EXPRESSION);
   }
 
   public void setRetentionControllerFrequencyInSeconds(int retentionFrequencyInSeconds) {
@@ -700,7 +700,7 @@ public class ControllerConf extends PinotConfiguration {
   }
 
   public String getOfflineSegmentIntervalCheckerCronExpression() {
-    return ControllerPeriodicTasksConf.OFFLINE_SEGMENT_INTERVAL_CHECKER_CRON_EXPRESSION;
+    return getProperty(ControllerPeriodicTasksConf.OFFLINE_SEGMENT_INTERVAL_CHECKER_CRON_EXPRESSION);
   }
 
   public void setOfflineSegmentIntervalCheckerFrequencyInSeconds(int validationFrequencyInSeconds) {
@@ -729,7 +729,7 @@ public class ControllerConf extends PinotConfiguration {
   }
 
   public String getRealtimeSegmentValidationCronExpression() {
-    return ControllerPeriodicTasksConf.REALTIME_SEGMENT_VALIDATION_CRON_EXPRESSION;
+    return getProperty(ControllerPeriodicTasksConf.REALTIME_SEGMENT_VALIDATION_CRON_EXPRESSION);
   }
 
   public void setRealtimeSegmentValidationFrequencyInSeconds(int validationFrequencyInSeconds) {
@@ -756,7 +756,7 @@ public class ControllerConf extends PinotConfiguration {
   }
 
   public String getRealtimeOffsetAutoResetBackfillCronExpression() {
-    return ControllerPeriodicTasksConf.REALTIME_OFFSET_AUTO_RESET_BACKFILL_CRON_EXPRESSION;
+    return getProperty(ControllerPeriodicTasksConf.REALTIME_OFFSET_AUTO_RESET_BACKFILL_CRON_EXPRESSION);
   }
 
   public void setRealtimeOffsetAutoResetBackfillFrequencyInSeconds(int offsetAutoResetBackfillFrequencyInSeconds) {
@@ -785,7 +785,7 @@ public class ControllerConf extends PinotConfiguration {
   }
 
   public String getBrokerResourceCronExpression() {
-    return ControllerPeriodicTasksConf.BROKER_RESOURCE_VALIDATION_CRON_EXPRESSION;
+    return getProperty(ControllerPeriodicTasksConf.BROKER_RESOURCE_VALIDATION_CRON_EXPRESSION);
   }
 
   public void setBrokerResourceValidationFrequencyInSeconds(int validationFrequencyInSeconds) {
@@ -812,7 +812,7 @@ public class ControllerConf extends PinotConfiguration {
   }
 
   public String getStatusCheckerCronExpression() {
-    return ControllerPeriodicTasksConf.STATUS_CHECKER_CRON_EXPRESSION;
+    return getProperty(ControllerPeriodicTasksConf.STATUS_CHECKER_CRON_EXPRESSION);
   }
 
   public void setStatusCheckerFrequencyInSeconds(int statusCheckerFrequencyInSeconds) {
@@ -834,7 +834,7 @@ public class ControllerConf extends PinotConfiguration {
   }
 
   public String getRebalanceCheckerCronExpression() {
-    return ControllerPeriodicTasksConf.REBALANCE_CHECKER_CRON_EXPRESSION;
+    return getProperty(ControllerPeriodicTasksConf.REBALANCE_CHECKER_CRON_EXPRESSION);
   }
 
   public long getRebalanceCheckerInitialDelayInSeconds() {
@@ -852,7 +852,7 @@ public class ControllerConf extends PinotConfiguration {
   }
 
   public String getTenantRebalanceCheckerCronExpression() {
-    return ControllerPeriodicTasksConf.TENANT_REBALANCE_CHECKER_CRON_EXPRESSION;
+    return getProperty(ControllerPeriodicTasksConf.TENANT_REBALANCE_CHECKER_CRON_EXPRESSION);
   }
 
   public long getTenantRebalanceCheckerInitialDelayInSeconds() {
@@ -870,7 +870,7 @@ public class ControllerConf extends PinotConfiguration {
   }
 
   public String getRealtimeConsumerMonitorCronExpression() {
-    return ControllerPeriodicTasksConf.RT_CONSUMER_MONITOR_CRON_EXPRESSION;
+    return getProperty(ControllerPeriodicTasksConf.RT_CONSUMER_MONITOR_CRON_EXPRESSION);
   }
 
   public long getRealtimeConsumerMonitorInitialDelayInSeconds() {
@@ -888,7 +888,7 @@ public class ControllerConf extends PinotConfiguration {
   }
 
   public String getTaskMetricsEmitterCronExpression() {
-    return ControllerPeriodicTasksConf.TASK_METRICS_EMITTER_CRON_EXPRESSION;
+    return getProperty(ControllerPeriodicTasksConf.TASK_METRICS_EMITTER_CRON_EXPRESSION);
   }
 
   public void setTaskMetricsEmitterFrequencyInSeconds(int taskMetricsEmitterFrequencyInSeconds) {
@@ -897,7 +897,7 @@ public class ControllerConf extends PinotConfiguration {
   }
 
   public void setTaskMetricsEmitterCronExpression(String taskMetricsEmitterCronExpression) {
-    setProperty(ControllerPeriodicTasksConf.TASK_METRICS_EMITTER_CRON_EXPRESSION,taskMetricsEmitterCronExpression);
+    setProperty(ControllerPeriodicTasksConf.TASK_METRICS_EMITTER_CRON_EXPRESSION, taskMetricsEmitterCronExpression);
   }
 
   public int getStatusCheckerWaitForPushTimeInSeconds() {
@@ -929,7 +929,7 @@ public class ControllerConf extends PinotConfiguration {
   }
 
   public String getSegmentRelocatorCronExpression() {
-    return ControllerPeriodicTasksConf.SEGMENT_RELOCATOR_CRON_EXPRESSION;
+    return getProperty(ControllerPeriodicTasksConf.SEGMENT_RELOCATOR_CRON_EXPRESSION);
   }
 
   public void setSegmentRelocatorFrequencyInSeconds(int segmentRelocatorFrequencyInSeconds) {
@@ -1061,7 +1061,7 @@ public class ControllerConf extends PinotConfiguration {
   }
 
   public String getTaskManagerCronExpression() {
-    return ControllerPeriodicTasksConf.TASK_MANAGER_CRON_EXPRESSION;
+    return getProperty(ControllerPeriodicTasksConf.TASK_MANAGER_CRON_EXPRESSION);
   }
 
   public void setTaskManagerFrequencyInSeconds(int frequencyInSeconds) {
@@ -1083,7 +1083,7 @@ public class ControllerConf extends PinotConfiguration {
   }
 
   public String getStaleInstancesCleanupTaskCronExpression() {
-    return ControllerPeriodicTasksConf.STALE_INSTANCES_CLEANUP_TASK_CRON_EXPRESSION;
+    return getProperty(ControllerPeriodicTasksConf.STALE_INSTANCES_CLEANUP_TASK_CRON_EXPRESSION);
   }
 
   public void setStaleInstanceCleanupTaskFrequencyInSeconds(String frequencyPeriod) {
@@ -1296,7 +1296,7 @@ public class ControllerConf extends PinotConfiguration {
   }
 
   public String getOfflineSegmentValidationCronExpression() {
-    return ControllerPeriodicTasksConf.OFFLINE_SEGMENT_VALIDATION_CRON_EXPRESSION;
+    return getProperty(ControllerPeriodicTasksConf.OFFLINE_SEGMENT_VALIDATION_CRON_EXPRESSION);
   }
 
   public void setOfflineSegmentValidationFrequencyInSeconds(int validationFrequencyInSeconds) {
