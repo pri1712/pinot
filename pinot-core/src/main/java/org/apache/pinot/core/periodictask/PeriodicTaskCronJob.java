@@ -43,8 +43,8 @@ public class PeriodicTaskCronJob implements Job {
     if (periodicTask != null) {
       try {
         periodicTask.run();
-      } catch (Throwable t) {
-        LOGGER.warn("Caught exception while running Task: {}", periodicTask.getTaskName(), t);
+      } catch (Exception e) {
+        LOGGER.warn("Caught exception while running Task: {}", periodicTask.getTaskName(), e);
       }
     }
   }

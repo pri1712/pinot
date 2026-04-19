@@ -92,7 +92,7 @@ public class PeriodicTaskScheduler {
         periodicTask.start();
         String cronExpression = periodicTask.getCronExpression();
         String periodicTaskTaskName = periodicTask.getTaskName();
-        if (cronExpression != null && !cronExpression.isEmpty()) {
+        if (cronExpression != null && !cronExpression.trim().isEmpty()) {
           try {
             LOGGER.info("Scheduling periodic task {} with cron expression: {}", periodicTask, cronExpression);
 
@@ -105,7 +105,7 @@ public class PeriodicTaskScheduler {
                 .withSchedule(CronScheduleBuilder.cronSchedule(cronExpression))
                 .build();
             _quartzScheduler.scheduleJob(jobDetail, trigger);
-          } catch (SchedulerException e) {
+          } catch (SchedulerException | RuntimeException e) {
             LOGGER.error("Failed to schedule Quartz job for task: {}", periodicTaskTaskName, e);
           }
         } else {

@@ -40,7 +40,7 @@ public abstract class BasePeriodicTask implements PeriodicTask {
   protected final String _taskName;
   protected final long _intervalInSeconds;
   protected final long _initialDelayInSeconds;
-  protected String _cronExpression;
+  protected final String _cronExpression;
   protected final ReentrantLock _runLock;
 
   // Lock used to synchronize life-cycle functions
