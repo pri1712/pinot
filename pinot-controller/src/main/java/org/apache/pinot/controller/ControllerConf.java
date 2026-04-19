@@ -135,7 +135,6 @@ public class ControllerConf extends PinotConfiguration {
     public static final String STATUS_CHECKER_WAIT_FOR_PUSH_TIME_PERIOD =
         "controller.statuschecker.waitForPushTimePeriod";
     public static final String TASK_MANAGER_FREQUENCY_PERIOD = "controller.task.frequencyPeriod";
-    public static final String TASK_MANAGER_CRON_EXPRESSION = "controller.task.cronExpression";
     public static final String TASK_MANAGER_SKIP_LATE_CRON_SCHEDULE = "controller.task.skipLateCronSchedule";
     public static final String TASK_MANAGER_MAX_CRON_SCHEDULE_DELAY_IN_SECONDS =
         "controller.task.maxCronScheduleDelayInSeconds";
@@ -794,7 +793,6 @@ public class ControllerConf extends PinotConfiguration {
     setProperty(ControllerPeriodicTasksConf.BROKER_RESOURCE_VALIDATION_CRON_EXPRESSION, cronExpression);
   }
 
-
   public long getBrokerResourceValidationInitialDelayInSeconds() {
     return getProperty(ControllerPeriodicTasksConf.BROKER_RESOURCE_VALIDATION_INITIAL_DELAY_IN_SECONDS,
         getPeriodicTaskInitialDelayInSeconds());
@@ -1058,17 +1056,9 @@ public class ControllerConf extends PinotConfiguration {
     return (int) convertPeriodToSeconds(period);
   }
 
-  public String getTaskManagerCronExpression() {
-    return getProperty(ControllerPeriodicTasksConf.TASK_MANAGER_CRON_EXPRESSION);
-  }
-
   public void setTaskManagerFrequencyInSeconds(int frequencyInSeconds) {
     setProperty(ControllerPeriodicTasksConf.TASK_MANAGER_FREQUENCY_PERIOD,
         Long.toString(frequencyInSeconds) + "s");
-  }
-
-  public void setTaskManagerCronExpression(String cronExpression) {
-    setProperty(ControllerPeriodicTasksConf.TASK_MANAGER_CRON_EXPRESSION, cronExpression);
   }
 
   public int getStaleInstancesCleanupTaskFrequencyInSeconds() {

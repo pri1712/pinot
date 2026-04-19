@@ -156,7 +156,7 @@ public class PinotTaskManager extends ControllerPeriodicTask<Void> {
       PoolingHttpClientConnectionManager connectionManager, ResourceUtilizationManager resourceUtilizationManager) {
     super("PinotTaskManager", controllerConf.getTaskManagerFrequencyInSeconds(),
         controllerConf.getPinotTaskManagerInitialDelaySeconds(), helixResourceManager, leadControllerManager,
-        controllerMetrics, controllerConf.getTaskManagerCronExpression());
+        controllerMetrics, null);
     _helixTaskResourceManager = helixTaskResourceManager;
     _resourceUtilizationManager = resourceUtilizationManager;
     _taskManagerStatusCache = taskManagerStatusCache;
@@ -1343,17 +1343,5 @@ public class PinotTaskManager extends ControllerPeriodicTask<Void> {
       // Add default configs if not present
       configs.putIfAbsent(MinionConstants.MergeTask.MAX_DISK_USAGE_PERCENTAGE, maxDiskUsagePercentageStr);
     };
-  }
-
-  /**
-   * PinotTaskManager has an internal quartz scheduler for minion tasks.
-   * If we allow the PeriodicTaskScheduler to trigger this manager via CRON, we risk
-   * a race condition where tasks are generated twice.
-   * * By returning null here, we force the global scheduler to route this task to the
-   * fixed-delay executor.
-   */
-  @Override
-  public String getCronExpression() {
-    return null;
   }
 }
