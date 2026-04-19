@@ -147,6 +147,16 @@ public class PeriodicTaskScheduler {
       LOGGER.info("Stopping all periodic tasks: {}", _periodicTasks);
       _periodicTasks.values().parallelStream().forEach(PeriodicTask::stop);
     }
+
+    if (_quartzScheduler != null) {
+      try {
+        LOGGER.info("Stopping Quartz scheduler");
+        _quartzScheduler.shutdown(true);
+        _quartzScheduler = null;
+      } catch (SchedulerException e) {
+        LOGGER.error("Failed to shutdown Quartz scheduler", e);
+      }
+    }
   }
 
   /// Returns true if the task exists (regardless of whether it is scheduled to run periodically or not).
