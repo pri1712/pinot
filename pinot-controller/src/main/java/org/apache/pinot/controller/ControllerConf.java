@@ -102,35 +102,49 @@ public class ControllerConf extends PinotConfiguration {
     DUAL, PINOT_ONLY, HELIX_ONLY
   }
 
+  //TODO 14051: will have to add configs here for cron expression.
   public static class ControllerPeriodicTasksConf {
     // frequency configs
     public static final String RETENTION_MANAGER_FREQUENCY_PERIOD = "controller.retention.frequencyPeriod";
+    public static final String RETENTION_MANAGER_CRON_EXPRESSION = "controller.retention.cronExpression";
     public static final String OFFLINE_SEGMENT_INTERVAL_CHECKER_FREQUENCY_PERIOD =
         "controller.offline.segment.interval.checker.frequencyPeriod";
+    public static final String OFFLINE_SEGMENT_INTERVAL_CHECKER_FREQUENCY_CRON_EXPRESSION =
+        "controller.offline.segment.interval.cronExpression";
     public static final String REALTIME_SEGMENT_VALIDATION_FREQUENCY_PERIOD =
         "controller.realtime.segment.validation.frequencyPeriod";
+    public static final String REALTIME_SEGMENT_VALIDATION_CRON_EXPRESSION =
+        "controller.realtime.segment.validation.cronExpression";
     public static final String REALTIME_SEGMENT_VALIDATION_INITIAL_DELAY_IN_SECONDS =
         "controller.realtime.segment.validation.initialDelayInSeconds";
     public static final String REALTIME_OFFSET_AUTO_RESET_BACKFILL_ENABLED =
         "controller.realtime.offsetAutoReset.backfill.enabled";
     public static final String REALTIME_OFFSET_AUTO_RESET_BACKFILL_FREQUENCY_PERIOD =
         "controller.realtime.offsetAutoReset.backfill.frequencyPeriod";
+    public static final String REALTIME_OFFSET_AUTO_RESEST_BACKFILL_CRON_EXPRESSION =
+        "controller.realtime.offsetAutoResest.backfill.cronExpression";
     public static final String REALTIME_OFFSET_AUTO_RESET_BACKFILL_INITIAL_DELAY_IN_SECONDS =
         "controller.realtime.offsetAutoReset.backfill.initialDelayInSeconds";
     public static final String BROKER_RESOURCE_VALIDATION_FREQUENCY_PERIOD =
         "controller.broker.resource.validation.frequencyPeriod";
+    public static final String BROKER_RESOURCE_VALIDATION_CRON_EXPRESSION =
+        "controller.broker.resource.validation.cronExpression";
     public static final String BROKER_RESOURCE_VALIDATION_INITIAL_DELAY_IN_SECONDS =
         "controller.broker.resource.validation.initialDelayInSeconds";
     public static final String STATUS_CHECKER_FREQUENCY_PERIOD = "controller.statuschecker.frequencyPeriod";
+    public static final String STATUS_CHECKER_CRON_EXPRESSION = "controller.statuschecker.cronExpression";
     public static final String STATUS_CHECKER_WAIT_FOR_PUSH_TIME_PERIOD =
         "controller.statuschecker.waitForPushTimePeriod";
     public static final String TASK_MANAGER_FREQUENCY_PERIOD = "controller.task.frequencyPeriod";
+    public static final String TASK_MANAGER_CRON_EXPRESSION = "controller.task.cronExpression";
     public static final String TASK_MANAGER_SKIP_LATE_CRON_SCHEDULE = "controller.task.skipLateCronSchedule";
     public static final String TASK_MANAGER_MAX_CRON_SCHEDULE_DELAY_IN_SECONDS =
         "controller.task.maxCronScheduleDelayInSeconds";
 
     public static final String STALE_INSTANCES_CLEANUP_TASK_FREQUENCY_PERIOD =
         "controller.stale.instances.cleanup.task.frequencyPeriod";
+    public static final String STALE_INSTANCES_CLEANUP_TASK_CRON_EXPRESSION =
+        "controller.stale.instances.cleanup.task.cronExpression";
     public static final String STALE_INSTANCES_CLEANUP_TASK_INITIAL_DELAY_SECONDS =
         "controller.stale.instances.cleanup.task.initialDelaySeconds";
     public static final String STALE_INSTANCES_CLEANUP_TASK_INSTANCES_RETENTION_PERIOD =
@@ -138,6 +152,8 @@ public class ControllerConf extends PinotConfiguration {
 
     public static final String TASK_METRICS_EMITTER_FREQUENCY_PERIOD =
         "controller.minion.task.metrics.emitter.frequencyPeriod";
+    public static final String TASK_METRICS_EMITTER_CRON_EXPRESSION =
+        "controller.minion.task.metrics.emitter.cronExpression";
 
     public static final String PINOT_TASK_MANAGER_SCHEDULER_ENABLED = "controller.task.scheduler.enabled";
     // This is the expiry for the ended tasks. Helix cleans up the task info from ZK after the expiry time from the
@@ -177,7 +193,7 @@ public class ControllerConf extends PinotConfiguration {
     public static final boolean DEFAULT_ENABLE_DISTRIBUTED_LOCKING = false;
 
     public static final String SEGMENT_RELOCATOR_FREQUENCY_PERIOD = "controller.segment.relocator.frequencyPeriod";
-
+    public static final String SEGMENT_RELOCATOR_CRON_EXPRESSION = "controller.segment.relocator.expression";
     public static final String SEGMENT_RELOCATOR_REASSIGN_INSTANCES = "controller.segment.relocator.reassignInstances";
     public static final String SEGMENT_RELOCATOR_BOOTSTRAP = "controller.segment.relocator.bootstrap";
     public static final String SEGMENT_RELOCATOR_DOWNTIME = "controller.segment.relocator.downtime";
@@ -204,6 +220,7 @@ public class ControllerConf extends PinotConfiguration {
         "controller.segmentRelocator.batchSizePerServer";
 
     public static final String REBALANCE_CHECKER_FREQUENCY_PERIOD = "controller.rebalance.checker.frequencyPeriod";
+    public static final String REBALANCE_CHECKER_CRON_EXPRESSION = "controller.rebalance.checker.cronExpression";
     // Because segment level validation is expensive and requires heavy ZK access, we run segment level validation
     // with a separate interval
     public static final String SEGMENT_LEVEL_VALIDATION_INTERVAL_PERIOD =
@@ -223,13 +240,16 @@ public class ControllerConf extends PinotConfiguration {
         "controller.offlineSegmentIntervalChecker.initialDelayInSeconds";
     public static final String OFFLINE_SEGMENT_VALIDATION_FREQUENCY_PERIOD =
         "controller.offline.segment.validation.frequencyPeriod";
-
+    public static final String OFFLINE_SEGMENT_VALIDATION_CRON_EXPRESSION =
+        "controller.offline.segment.validation.cronExpression";
     public static final String SEGMENT_RELOCATOR_INITIAL_DELAY_IN_SECONDS =
         "controller.segmentRelocator.initialDelayInSeconds";
     public static final String REBALANCE_CHECKER_INITIAL_DELAY_IN_SECONDS =
         "controller.rebalanceChecker.initialDelayInSeconds";
     public static final String TENANT_REBALANCE_CHECKER_FREQUENCY_PERIOD =
         "controller.tenant.rebalance.checker.frequencyPeriod";
+    public static final String TENANT_REBALANCE_CHECKER_CRON_EXPRESSION =
+        "controller.tenant.rebalance.checker.cronExpression";
     public static final String TENANT_REBALANCE_CHECKER_INITIAL_DELAY_IN_SECONDS =
         "controller.tenant.rebalance.checker.initialDelayInSeconds";
 

@@ -198,7 +198,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 
-public class PinotHelixResourceManager {
+public class
+PinotHelixResourceManager {
   private static final Logger LOGGER = LoggerFactory.getLogger(PinotHelixResourceManager.class);
   private static final long CACHE_ENTRY_EXPIRE_TIME_HOURS = 6L;
   private static final RetryPolicy DEFAULT_RETRY_POLICY = RetryPolicies.exponentialBackoffRetryPolicy(5, 1000L, 2.0f);
