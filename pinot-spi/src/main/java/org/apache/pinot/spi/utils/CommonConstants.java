@@ -2181,6 +2181,8 @@ public class CommonConstants {
 
     public static final String RESPONSE_STORE_CLEANER_FREQUENCY_PERIOD =
         "controller.cluster.response.store.cleaner.frequencyPeriod";
+    public static final String RESPONSE_STORE_CLEANER_CRON_EXPRESSION =
+        "controller.cluster.response.store.cleaner.expression";
     public static final String DEFAULT_RESPONSE_STORE_CLEANER_FREQUENCY_PERIOD = "1h";
     public static final String RESPONSE_STORE_CLEANER_INITIAL_DELAY =
         "controller.cluster.response.store.cleaner.initialDelay";

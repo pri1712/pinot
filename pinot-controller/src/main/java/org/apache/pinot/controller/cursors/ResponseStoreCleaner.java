@@ -80,7 +80,7 @@ public class ResponseStoreCleaner extends ControllerPeriodicTask<Void> {
       LeadControllerManager leadControllerManager, ControllerMetrics controllerMetrics, Executor executor,
       PoolingHttpClientConnectionManager connectionManager) {
     super(TASK_NAME, getFrequencyInSeconds(config), getInitialDelayInSeconds(config),
-        pinotHelixResourceManager, leadControllerManager, controllerMetrics, );
+        pinotHelixResourceManager, leadControllerManager, controllerMetrics, getCronExpression(config));
     _controllerConf = config;
     _executor = executor;
     _connectionManager = connectionManager;
@@ -111,6 +111,10 @@ public class ResponseStoreCleaner extends ControllerPeriodicTask<Void> {
     }
 
     return frequencyInSeconds;
+  }
+
+  private static String getCronExpression(ControllerConf config) {
+    return config.getProperty(CommonConstants.CursorConfigs.RESPONSE_STORE_CLEANER_CRON_EXPRESSION);
   }
 
   /**

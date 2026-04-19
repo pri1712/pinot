@@ -73,6 +73,12 @@ public class PeriodicTaskScheduler {
       _executorService = Executors.newScheduledThreadPool(_periodicTasks.size());
       for (PeriodicTask periodicTask : periodicTasks) {
         periodicTask.start();
+        String cronExpression = periodicTask.getCronExpression();
+        if (cronExpression != null && !cronExpression.isEmpty()) {
+          //if user supplies cron expression
+          LOGGER.info("Scheduling periodic task {} with cron expression: {}", periodicTask, cronExpression);
+
+        }
         String periodicTaskTaskName = periodicTask.getTaskName();
         long intervalInSeconds = periodicTask.getIntervalInSeconds();
         if (intervalInSeconds <= 0) {
