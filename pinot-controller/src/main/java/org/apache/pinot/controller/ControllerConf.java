@@ -103,7 +103,6 @@ public class ControllerConf extends PinotConfiguration {
     DUAL, PINOT_ONLY, HELIX_ONLY
   }
 
-  //TODO 14051: will have to add configs here for cron expression.
   public static class ControllerPeriodicTasksConf {
     // frequency configs
     public static final String RETENTION_MANAGER_FREQUENCY_PERIOD = "controller.retention.frequencyPeriod";

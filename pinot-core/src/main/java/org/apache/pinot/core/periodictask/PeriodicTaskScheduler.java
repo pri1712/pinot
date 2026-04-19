@@ -40,7 +40,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 
-// TODO: this class is also important for 14051.
 /**
  * Periodic task scheduler will schedule a list of tasks based on their initial delay time and interval time. Tasks
  * can also scheduled of immediate execution by calling the scheduleNow() method.
@@ -67,7 +66,7 @@ public class PeriodicTaskScheduler {
 
   /**
    * Starts scheduling periodic tasks.
-   * #TODO: 14051 this does it based on a fixed schedule, we need to make sure that it is doable via cron too
+   *
    */
   public synchronized void start() {
     if (_executorService != null) {
