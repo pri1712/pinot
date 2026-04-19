@@ -79,13 +79,16 @@ public class PeriodicTaskScheduler {
       Collection<PeriodicTask> periodicTasks = _periodicTasks.values();
       LOGGER.info("Starting periodic task scheduler with tasks: {}", periodicTasks);
       _executorService = Executors.newScheduledThreadPool(_periodicTasks.size());
-
-      try {
-        _quartzScheduler = StdSchedulerFactory.getDefaultScheduler();
-        _quartzScheduler.start();
-      } catch (SchedulerException e) {
-        LOGGER.error("Failed to initialize Quartz scheduler. Aborting periodic task scheduling.", e);
-        throw new RuntimeException(e);
+      boolean hasCronTasks = periodicTasks.stream().map(PeriodicTask::getCronExpression)
+          .anyMatch(cronExpression -> cronExpression != null && !cronExpression.trim().isEmpty());
+      if (hasCronTasks) {
+        try {
+          _quartzScheduler = StdSchedulerFactory.getDefaultScheduler();
+          _quartzScheduler.start();
+        } catch (SchedulerException e) {
+          LOGGER.error("Failed to initialize Quartz scheduler. Aborting periodic task scheduling.", e);
+          throw new RuntimeException(e);
+        }
       }
 
       for (PeriodicTask periodicTask : periodicTasks) {

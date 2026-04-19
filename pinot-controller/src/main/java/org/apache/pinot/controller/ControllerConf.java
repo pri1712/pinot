@@ -109,7 +109,7 @@ public class ControllerConf extends PinotConfiguration {
     public static final String OFFLINE_SEGMENT_INTERVAL_CHECKER_FREQUENCY_PERIOD =
         "controller.offline.segment.interval.checker.frequencyPeriod";
     public static final String OFFLINE_SEGMENT_INTERVAL_CHECKER_CRON_EXPRESSION =
-        "controller.offline.segment.interval.cronExpression";
+        "controller.offline.segment.interval.checker.cronExpression";
     public static final String REALTIME_SEGMENT_VALIDATION_FREQUENCY_PERIOD =
         "controller.realtime.segment.validation.frequencyPeriod";
     public static final String REALTIME_SEGMENT_VALIDATION_CRON_EXPRESSION =
