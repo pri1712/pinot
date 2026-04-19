@@ -18,7 +18,6 @@
  */
 package org.apache.pinot.controller;
 
-
 import com.google.common.base.Preconditions;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -225,8 +224,7 @@ public class ControllerConf extends PinotConfiguration {
     // with a separate interval
     public static final String SEGMENT_LEVEL_VALIDATION_INTERVAL_PERIOD =
         "controller.segment.level.validation.intervalPeriod";
-    public static final String SEGMENT_LEVEL_VALIDATION_CRON_EXPRESSION =
-        "controller.segment.level.validation.cronExpression";
+
     public static final String AUTO_RESET_ERROR_SEGMENTS_VALIDATION =
         "controller.segment.error.autoReset";
     public static final String ENABLE_PARTIAL_OFFLINE_REPLICA_REPAIR =
