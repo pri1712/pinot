@@ -207,7 +207,7 @@ public class PeriodicTaskSchedulerTest {
   }
 
   @Test
-  public void testQuartzCronScheduling() throws Exception {
+  public void testCronScheduling() throws Exception {
     AtomicInteger numTimesRunCalled = new AtomicInteger();
 
     //let the frequency be 3600 seconds (1 hour) to prove that the cron job triggered the task.
