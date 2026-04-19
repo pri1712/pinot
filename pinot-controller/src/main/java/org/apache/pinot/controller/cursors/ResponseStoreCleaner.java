@@ -80,7 +80,7 @@ public class ResponseStoreCleaner extends ControllerPeriodicTask<Void> {
       LeadControllerManager leadControllerManager, ControllerMetrics controllerMetrics, Executor executor,
       PoolingHttpClientConnectionManager connectionManager) {
     super(TASK_NAME, getFrequencyInSeconds(config), getInitialDelayInSeconds(config),
-        pinotHelixResourceManager, leadControllerManager, controllerMetrics);
+        pinotHelixResourceManager, leadControllerManager, controllerMetrics, );
     _controllerConf = config;
     _executor = executor;
     _connectionManager = connectionManager;

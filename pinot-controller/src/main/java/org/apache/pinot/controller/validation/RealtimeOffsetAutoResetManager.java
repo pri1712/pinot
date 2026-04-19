@@ -57,7 +57,7 @@ public class RealtimeOffsetAutoResetManager extends ControllerPeriodicTask<Realt
       ControllerMetrics controllerMetrics) {
     super("RealtimeOffsetAutoResetManager", config.getRealtimeOffsetAutoResetBackfillFrequencyInSeconds(),
         config.getRealtimeOffsetAutoResetBackfillInitialDelaySeconds(), pinotHelixResourceManager,
-        leadControllerManager, controllerMetrics);
+        leadControllerManager, controllerMetrics, config.getRealtimeOffsetAutoResetBackfillCronExpression());
     _llcRealtimeSegmentManager = llcRealtimeSegmentManager;
     _pinotHelixResourceManager = pinotHelixResourceManager;
     _tableToHandler = new ConcurrentHashMap<>();

@@ -40,6 +40,7 @@ public abstract class BasePeriodicTask implements PeriodicTask {
   protected final String _taskName;
   protected final long _intervalInSeconds;
   protected final long _initialDelayInSeconds;
+  protected String _cronExpression;
   protected final ReentrantLock _runLock;
 
   // Lock used to synchronize life-cycle functions
@@ -61,9 +62,15 @@ public abstract class BasePeriodicTask implements PeriodicTask {
   }
 
   public BasePeriodicTask(String taskName, long runFrequencyInSeconds, long initialDelayInSeconds) {
+    this(taskName, runFrequencyInSeconds, initialDelayInSeconds, null);
+  }
+
+  public BasePeriodicTask(String taskName, long runFrequencyInSeconds, long initialDelayInSeconds,
+      String cronExpression) {
     _taskName = taskName;
     _intervalInSeconds = runFrequencyInSeconds;
     _initialDelayInSeconds = initialDelayInSeconds;
+    _cronExpression = cronExpression;
     _runLock = new ReentrantLock();
     _lifeCycleLock = new Object();
   }
@@ -81,6 +88,11 @@ public abstract class BasePeriodicTask implements PeriodicTask {
   @Override
   public long getInitialDelayInSeconds() {
     return _initialDelayInSeconds;
+  }
+
+  @Override
+  public String getCronExpression() {
+    return _cronExpression;
   }
 
   /**

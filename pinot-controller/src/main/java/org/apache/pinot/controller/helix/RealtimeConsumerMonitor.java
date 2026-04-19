@@ -51,7 +51,7 @@ public class RealtimeConsumerMonitor extends ControllerPeriodicTask<RealtimeCons
       ConsumingSegmentInfoReader consumingSegmentInfoReader) {
     super("RealtimeConsumerMonitor", controllerConf.getRealtimeConsumerMonitorRunFrequency(),
         controllerConf.getRealtimeConsumerMonitorInitialDelayInSeconds(), pinotHelixResourceManager,
-        leadControllerManager, controllerMetrics);
+        leadControllerManager, controllerMetrics, controllerConf.getRealtimeConsumerMonitorCronExpression());
     _consumingSegmentInfoReader = consumingSegmentInfoReader;
   }
 
