@@ -1344,4 +1344,16 @@ public class PinotTaskManager extends ControllerPeriodicTask<Void> {
       configs.putIfAbsent(MinionConstants.MergeTask.MAX_DISK_USAGE_PERCENTAGE, maxDiskUsagePercentageStr);
     };
   }
+
+  /**
+   * PinotTaskManager has an internal quartz scheduler for minion tasks.
+   * If we allow the PeriodicTaskScheduler to trigger this manager via CRON, we risk
+   * a race condition where tasks are generated twice.
+   * * By returning null here, we force the global scheduler to route this task to the
+   * fixed-delay executor.
+   */
+  @Override
+  public String getCronExpression() {
+    return null;
+  }
 }

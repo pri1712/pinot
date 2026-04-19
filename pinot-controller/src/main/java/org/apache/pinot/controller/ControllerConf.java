@@ -781,7 +781,7 @@ public class ControllerConf extends PinotConfiguration {
     return (int) convertPeriodToSeconds(period);
   }
 
-  public String getBrokerResourceCronExpression() {
+  public String getBrokerResourceValidationCronExpression() {
     return getProperty(ControllerPeriodicTasksConf.BROKER_RESOURCE_VALIDATION_CRON_EXPRESSION);
   }
 
@@ -790,9 +790,10 @@ public class ControllerConf extends PinotConfiguration {
         Long.toString(validationFrequencyInSeconds) + "s");
   }
 
-  public void setBrokerResourceCronExpression(String cronExpression) {
+  public void setBrokerResourceValidationCronExpression(String cronExpression) {
     setProperty(ControllerPeriodicTasksConf.BROKER_RESOURCE_VALIDATION_CRON_EXPRESSION, cronExpression);
   }
+
 
   public long getBrokerResourceValidationInitialDelayInSeconds() {
     return getProperty(ControllerPeriodicTasksConf.BROKER_RESOURCE_VALIDATION_INITIAL_DELAY_IN_SECONDS,
