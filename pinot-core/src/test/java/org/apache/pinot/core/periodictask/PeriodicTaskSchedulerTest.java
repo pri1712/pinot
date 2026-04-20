@@ -211,7 +211,7 @@ public class PeriodicTaskSchedulerTest {
     AtomicInteger numTimesRunCalled = new AtomicInteger();
 
     //let the frequency be 3600 seconds (1 hour) to prove that the cron job triggered the task.
-    List<PeriodicTask> periodicTasks = List.of(new BasePeriodicTask("CronTask", 3600L, 0L, "0/1 * * * * ?") {
+    List<PeriodicTask> periodicTasks = List.of(new BasePeriodicTask("CronTask", 3600L, 3600L, "0/1 * * * * ?") {
       @Override
       protected void runTask(Properties periodicTaskProperties) {
         numTimesRunCalled.incrementAndGet();

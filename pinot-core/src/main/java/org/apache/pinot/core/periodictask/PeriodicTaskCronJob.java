@@ -18,6 +18,7 @@
  */
 package org.apache.pinot.core.periodictask;
 
+import org.quartz.DisallowConcurrentExecution;
 import org.quartz.Job;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
@@ -25,6 +26,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 
+@DisallowConcurrentExecution
 public class PeriodicTaskCronJob implements Job {
   private static final Logger LOGGER = LoggerFactory.getLogger(PeriodicTaskCronJob.class);
   public static final String PERIODIC_TASK_KEY = "PeriodicTask";
