@@ -220,10 +220,13 @@ public class PeriodicTaskSchedulerTest {
 
     PeriodicTaskScheduler taskScheduler = new PeriodicTaskScheduler();
     taskScheduler.init(periodicTasks);
-    taskScheduler.start();
 
-    Thread.sleep(1500L);
-    taskScheduler.stop();
+    try {
+      taskScheduler.start();
+      Thread.sleep(1500L);
+    } finally {
+      taskScheduler.stop();
+    }
 
     assertTrue(numTimesRunCalled.get() >= 1, "Task should have been triggered by Quartz CRON scheduler");
   }
@@ -231,7 +234,7 @@ public class PeriodicTaskSchedulerTest {
   @Test
   public void testLegacyFallbackScheduling() throws Exception {
     AtomicInteger numTimesRunCalled = new AtomicInteger();
-    //fallback to the default fixed delay method
+    //fallback to the default fixed delay method to prove it still works fine with code changes
     List<PeriodicTask> periodicTasks = List.of(new BasePeriodicTask("LegacyFallbackTask", 1L, 0L, null) {
       @Override
       protected void runTask(Properties periodicTaskProperties) {
@@ -241,10 +244,13 @@ public class PeriodicTaskSchedulerTest {
 
     PeriodicTaskScheduler taskScheduler = new PeriodicTaskScheduler();
     taskScheduler.init(periodicTasks);
-    taskScheduler.start();
 
-    Thread.sleep(1500L);
-    taskScheduler.stop();
+    try {
+      taskScheduler.start();
+      Thread.sleep(1500L);
+    } finally {
+      taskScheduler.stop();
+    }
 
     assertTrue(numTimesRunCalled.get() >= 1, "Task should have been triggered by legacy fixed-delay scheduler");
   }

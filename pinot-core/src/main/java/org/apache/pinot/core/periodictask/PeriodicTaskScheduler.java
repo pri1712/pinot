@@ -86,12 +86,12 @@ public class PeriodicTaskScheduler {
           _quartzScheduler = StdSchedulerFactory.getDefaultScheduler();
           _quartzScheduler.start();
         } catch (SchedulerException e) {
-          LOGGER.error("Failed to initialize Quartz scheduler. Aborting periodic task scheduling.", e);
-          throw new RuntimeException(e);
+          LOGGER.error("Failed to initialize Quartz scheduler. Falling back to fixed delay based periodic tasks.", e);
         }
       }
 
       for (PeriodicTask periodicTask : periodicTasks) {
+        boolean scheduledCronJob = false;
         periodicTask.start();
         String cronExpression = periodicTask.getCronExpression();
         String periodicTaskTaskName = periodicTask.getTaskName();
@@ -108,10 +108,13 @@ public class PeriodicTaskScheduler {
                 .withSchedule(CronScheduleBuilder.cronSchedule(cronExpression))
                 .build();
             _quartzScheduler.scheduleJob(jobDetail, trigger);
+            scheduledCronJob = true;
           } catch (SchedulerException | RuntimeException e) {
             LOGGER.error("Failed to schedule Quartz job for task: {}", periodicTaskTaskName, e);
           }
-        } else {
+        }
+        //fallback to legacy method if the cron job was not able to schedule for any multitude of reasons.
+        if (!scheduledCronJob) {
           long intervalInSeconds = periodicTask.getIntervalInSeconds();
           if (intervalInSeconds <= 0) {
             LOGGER.info("Skip scheduling periodic task: {} for periodic execution (it can be manually triggered)",
@@ -131,7 +134,7 @@ public class PeriodicTaskScheduler {
               LOGGER.warn("Caught exception while running Task: {}", periodicTaskTaskName, e);
             }
           }, periodicTask.getInitialDelayInSeconds(), intervalInSeconds, TimeUnit.SECONDS);
-          }
+        }
       }
     }
   }
