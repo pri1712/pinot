@@ -94,7 +94,7 @@ public class SegmentStatusChecker extends ControllerPeriodicTask<SegmentStatusCh
       TableSizeReader tableSizeReader) {
     super("SegmentStatusChecker", config.getStatusCheckerFrequencyInSeconds(),
         config.getStatusCheckerInitialDelayInSeconds(), pinotHelixResourceManager, leadControllerManager,
-        controllerMetrics);
+        controllerMetrics, config.getStatusCheckerCronExpression());
     _waitForPushTimeSeconds = config.getStatusCheckerWaitForPushTimeInSeconds();
     _tableSizeReader = tableSizeReader;
   }

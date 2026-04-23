@@ -78,7 +78,7 @@ public class RealtimeSegmentValidationManager extends ControllerPeriodicTask<Rea
       ResourceUtilizationManager resourceUtilizationManager) {
     super("RealtimeSegmentValidationManager", config.getRealtimeSegmentValidationFrequencyInSeconds(),
         config.getRealtimeSegmentValidationManagerInitialDelaySeconds(), pinotHelixResourceManager,
-        leadControllerManager, controllerMetrics);
+        leadControllerManager, controllerMetrics, config.getRealtimeSegmentValidationCronExpression());
     _llcRealtimeSegmentManager = llcRealtimeSegmentManager;
     _validationMetrics = validationMetrics;
     _controllerMetrics = controllerMetrics;

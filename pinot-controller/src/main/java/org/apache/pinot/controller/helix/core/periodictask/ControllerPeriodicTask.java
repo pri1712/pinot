@@ -57,8 +57,8 @@ public abstract class ControllerPeriodicTask<C> extends BasePeriodicTask impleme
 
   public ControllerPeriodicTask(String taskName, long runFrequencyInSeconds, long initialDelayInSeconds,
       PinotHelixResourceManager pinotHelixResourceManager, LeadControllerManager leadControllerManager,
-      ControllerMetrics controllerMetrics) {
-    super(taskName, runFrequencyInSeconds, initialDelayInSeconds);
+      ControllerMetrics controllerMetrics, String cronExpression) {
+    super(taskName, runFrequencyInSeconds, initialDelayInSeconds, cronExpression);
     _pinotHelixResourceManager = pinotHelixResourceManager;
     _leadControllerManager = leadControllerManager;
     _controllerMetrics = controllerMetrics;

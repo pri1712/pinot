@@ -28,6 +28,14 @@ import java.util.Properties;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+import org.quartz.CronScheduleBuilder;
+import org.quartz.CronTrigger;
+import org.quartz.JobBuilder;
+import org.quartz.JobDetail;
+import org.quartz.Scheduler;
+import org.quartz.SchedulerException;
+import org.quartz.TriggerBuilder;
+import org.quartz.impl.StdSchedulerFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -40,6 +48,7 @@ public class PeriodicTaskScheduler {
   private static final Logger LOGGER = LoggerFactory.getLogger(PeriodicTaskScheduler.class);
 
   private ScheduledExecutorService _executorService;
+  private Scheduler _quartzScheduler;
   private Map<String, PeriodicTask> _periodicTasks;
 
   /**
@@ -57,6 +66,7 @@ public class PeriodicTaskScheduler {
 
   /**
    * Starts scheduling periodic tasks.
+   *
    */
   public synchronized void start() {
     if (_executorService != null) {
@@ -69,28 +79,62 @@ public class PeriodicTaskScheduler {
       Collection<PeriodicTask> periodicTasks = _periodicTasks.values();
       LOGGER.info("Starting periodic task scheduler with tasks: {}", periodicTasks);
       _executorService = Executors.newScheduledThreadPool(_periodicTasks.size());
-      for (PeriodicTask periodicTask : periodicTasks) {
-        periodicTask.start();
-        String periodicTaskTaskName = periodicTask.getTaskName();
-        long intervalInSeconds = periodicTask.getIntervalInSeconds();
-        if (intervalInSeconds <= 0) {
-          LOGGER.info("Skip scheduling periodic task: {} for periodic execution (it can be manually triggered)",
-              periodicTaskTaskName);
-          continue;
+      boolean hasCronTasks = periodicTasks.stream().map(PeriodicTask::getCronExpression)
+          .anyMatch(cronExpression -> cronExpression != null && !cronExpression.trim().isEmpty());
+      if (hasCronTasks) {
+        try {
+          _quartzScheduler = StdSchedulerFactory.getDefaultScheduler();
+          _quartzScheduler.start();
+        } catch (SchedulerException e) {
+          LOGGER.error("Failed to initialize Quartz scheduler. Falling back to fixed delay based periodic tasks.", e);
         }
-        _executorService.scheduleWithFixedDelay(() -> {
+      }
+
+      for (PeriodicTask periodicTask : periodicTasks) {
+        boolean scheduledCronJob = false;
+        periodicTask.start();
+        String cronExpression = periodicTask.getCronExpression();
+        String periodicTaskTaskName = periodicTask.getTaskName();
+        if (cronExpression != null && !cronExpression.trim().isEmpty()) {
           try {
-            LOGGER.info("Starting {} with running frequency of {} seconds.", periodicTaskTaskName, intervalInSeconds);
-            periodicTask.run();
-          } catch (Throwable e) {
-            // catch all errors to prevent subsequent executions from being silently suppressed
-            // <pre>
-            // See <a href="https://docs.oracle.com/javase/8/docs/api/java/util/concurrent/ScheduledExecutorService
-            // .html#scheduleWithFixedDelay-java.lang.Runnable-long-long-java.util.concurrent.TimeUnit-">Ref</a>
-            // </pre>
-            LOGGER.warn("Caught exception while running Task: {}", periodicTaskTaskName, e);
+            LOGGER.info("Scheduling periodic task {} with cron expression: {}", periodicTask, cronExpression);
+
+            JobDetail jobDetail = JobBuilder.newJob(PeriodicTaskCronJob.class)
+                .withIdentity(periodicTaskTaskName)
+                .build();
+            jobDetail.getJobDataMap().put(PeriodicTaskCronJob.PERIODIC_TASK_KEY, periodicTask);
+            CronTrigger trigger = TriggerBuilder.newTrigger()
+                .withIdentity(periodicTaskTaskName + "-CronTrigger")
+                .withSchedule(CronScheduleBuilder.cronSchedule(cronExpression))
+                .build();
+            _quartzScheduler.scheduleJob(jobDetail, trigger);
+            scheduledCronJob = true;
+          } catch (SchedulerException | RuntimeException e) {
+            LOGGER.error("Failed to schedule Quartz job for task: {}", periodicTaskTaskName, e);
           }
-        }, periodicTask.getInitialDelayInSeconds(), intervalInSeconds, TimeUnit.SECONDS);
+        }
+        //fallback to legacy method if the cron job was not able to schedule for any multitude of reasons.
+        if (!scheduledCronJob) {
+          long intervalInSeconds = periodicTask.getIntervalInSeconds();
+          if (intervalInSeconds <= 0) {
+            LOGGER.info("Skip scheduling periodic task: {} for periodic execution (it can be manually triggered)",
+                periodicTaskTaskName);
+            continue;
+          }
+          _executorService.scheduleWithFixedDelay(() -> {
+            try {
+              LOGGER.info("Starting {} with running frequency of {} seconds.", periodicTaskTaskName, intervalInSeconds);
+              periodicTask.run();
+            } catch (Throwable e) {
+              // catch all errors to prevent subsequent executions from being silently suppressed
+              // <pre>
+              // See <a href="https://docs.oracle.com/javase/8/docs/api/java/util/concurrent/ScheduledExecutorService
+              // .html#scheduleWithFixedDelay-java.lang.Runnable-long-long-java.util.concurrent.TimeUnit-">Ref</a>
+              // </pre>
+              LOGGER.warn("Caught exception while running Task: {}", periodicTaskTaskName, e);
+            }
+          }, periodicTask.getInitialDelayInSeconds(), intervalInSeconds, TimeUnit.SECONDS);
+        }
       }
     }
   }
@@ -108,6 +152,16 @@ public class PeriodicTaskScheduler {
     if (_periodicTasks != null) {
       LOGGER.info("Stopping all periodic tasks: {}", _periodicTasks);
       _periodicTasks.values().parallelStream().forEach(PeriodicTask::stop);
+    }
+
+    if (_quartzScheduler != null) {
+      try {
+        LOGGER.info("Stopping Quartz scheduler");
+        _quartzScheduler.shutdown(true);
+        _quartzScheduler = null;
+      } catch (SchedulerException e) {
+        LOGGER.error("Failed to shutdown Quartz scheduler", e);
+      }
     }
   }
 

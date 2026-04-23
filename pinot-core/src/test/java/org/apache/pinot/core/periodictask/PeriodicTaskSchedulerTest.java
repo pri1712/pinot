@@ -205,4 +205,53 @@ public class PeriodicTaskSchedulerTest {
     // Confirm that all threads requested execution, even though only half the threads completed execution.
     assertEquals(attempts.get(), numThreads);
   }
+
+  @Test
+  public void testCronScheduling() throws Exception {
+    AtomicInteger numTimesRunCalled = new AtomicInteger();
+
+    //let the frequency be 3600 seconds (1 hour) to prove that the cron job triggered the task.
+    List<PeriodicTask> periodicTasks = List.of(new BasePeriodicTask("CronTask", 3600L, 3600L, "0/1 * * * * ?") {
+      @Override
+      protected void runTask(Properties periodicTaskProperties) {
+        numTimesRunCalled.incrementAndGet();
+      }
+    });
+
+    PeriodicTaskScheduler taskScheduler = new PeriodicTaskScheduler();
+    taskScheduler.init(periodicTasks);
+
+    try {
+      taskScheduler.start();
+      Thread.sleep(1500L);
+    } finally {
+      taskScheduler.stop();
+    }
+
+    assertTrue(numTimesRunCalled.get() >= 1, "Task should have been triggered by Quartz CRON scheduler");
+  }
+
+  @Test
+  public void testLegacyFallbackScheduling() throws Exception {
+    AtomicInteger numTimesRunCalled = new AtomicInteger();
+    //fallback to the default fixed delay method to prove it still works fine with code changes
+    List<PeriodicTask> periodicTasks = List.of(new BasePeriodicTask("LegacyFallbackTask", 1L, 0L, null) {
+      @Override
+      protected void runTask(Properties periodicTaskProperties) {
+        numTimesRunCalled.incrementAndGet();
+      }
+    });
+
+    PeriodicTaskScheduler taskScheduler = new PeriodicTaskScheduler();
+    taskScheduler.init(periodicTasks);
+
+    try {
+      taskScheduler.start();
+      Thread.sleep(1500L);
+    } finally {
+      taskScheduler.stop();
+    }
+
+    assertTrue(numTimesRunCalled.get() >= 1, "Task should have been triggered by legacy fixed-delay scheduler");
+  }
 }
