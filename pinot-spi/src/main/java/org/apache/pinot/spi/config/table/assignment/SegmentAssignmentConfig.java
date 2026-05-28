@@ -21,6 +21,7 @@ package org.apache.pinot.spi.config.table.assignment;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyDescription;
+import javax.annotation.Nullable;
 import org.apache.pinot.spi.config.BaseJsonConfig;
 
 
@@ -30,12 +31,28 @@ public class SegmentAssignmentConfig extends BaseJsonConfig {
   @JsonProperty("segmentAssignmentStrategy")
   private final String _assignmentStrategy;
 
+  @JsonPropertyDescription("Name of the column used for partition level segment assignment, when set segments are assigned to instances based on the partition derived from this column")
+  @JsonProperty("partitionColumn")
+  private final String _partitionColumn;
+
   @JsonCreator
   public SegmentAssignmentConfig(@JsonProperty(value = "segmentAssignmentStrategy") String assignmentStrategy) {
+    this(assignmentStrategy,null);
+  }
+
+  @JsonCreator
+  public SegmentAssignmentConfig(@JsonProperty(value = "segmentAssignmentStrategy") String assignmentStrategy,
+      @Nullable @JsonProperty(value = "partitionColumn") String partitionColumn) {
     _assignmentStrategy = assignmentStrategy;
+    _partitionColumn = partitionColumn;
   }
 
   public String getAssignmentStrategy() {
     return _assignmentStrategy;
+  }
+
+  @Nullable
+  public String getPartitionColumn() {
+    return _partitionColumn;
   }
 }

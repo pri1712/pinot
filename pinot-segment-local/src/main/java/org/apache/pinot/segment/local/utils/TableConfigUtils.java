@@ -2142,6 +2142,16 @@ public final class TableConfigUtils {
       }
     }
 
+    //check SegmentAssignmentConfigMap for partition column
+    Map<String,SegmentAssignmentConfig> segmentAssignmentConfigMap = tableConfig.getSegmentAssignmentConfigMap();
+    if (!MapUtils.isEmpty(segmentAssignmentConfigMap)) {
+      for (SegmentAssignmentConfig segmentAssignmentConfig : segmentAssignmentConfigMap.values()) {
+        if (StringUtils.isNotEmpty(segmentAssignmentConfig.getPartitionColumn())) {
+          return segmentAssignmentConfig.getPartitionColumn();
+        }
+      }
+    }
+
     // for backward-compatibility, If partitionColumn value isn't there in InstanceReplicaGroupPartitionConfig
     // check ReplicaGroupStrategyConfig for partitionColumn
     //noinspection deprecation

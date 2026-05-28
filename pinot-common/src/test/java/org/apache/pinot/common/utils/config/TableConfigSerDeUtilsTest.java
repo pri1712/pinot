@@ -351,6 +351,25 @@ public class TableConfigSerDeUtilsTest {
       checkTierConfigList(tableConfigToCompare);
     }
     {
+      //with segment assignment configmap having partition column details
+      Map<String,SegmentAssignmentConfig> segmentAssignmentConfigMap = new HashMap<>();
+      segmentAssignmentConfigMap.put(InstancePartitionsType.OFFLINE.toString()
+      , new SegmentAssignmentConfig("replicaGroupSegmentAssignmentStrategy","memberId"));
+
+      TableConfig tableConfig = tableConfigBuilder.setSegmentAssignmentConfigMap(segmentAssignmentConfigMap).build();
+
+      checkSegmentsValidationAndRetentionConfig(tableConfig);
+
+      //Serialize then deserialize
+      TableConfig tableConfigToCompare = JsonUtils.stringToObject(tableConfig.toJsonString(), TableConfig.class);
+      assertEquals(tableConfigToCompare, tableConfig);
+      checkSegmentsValidationAndRetentionConfig(tableConfigToCompare);
+
+      tableConfigToCompare = TableConfigSerDeUtils.fromZNRecord(TableConfigSerDeUtils.toZNRecord(tableConfig));
+      assertEquals(tableConfigToCompare, tableConfig);
+      checkSegmentsValidationAndRetentionConfig(tableConfigToCompare);
+    }
+    {
       // With tuner config
       String name = "testTuner";
       Map<String, String> props = new HashMap<>();

@@ -4206,4 +4206,29 @@ public class TableConfigUtilsTest {
     assertTrue(violations.isEmpty(),
         "Expected no violations for partial-upsert strategy and default-strategy changes, but got: " + violations);
   }
+
+  @Test
+  public void testGetPartitionColumnWithSegmentAssignmentConfig() {
+    Map<String,SegmentAssignmentConfig> segmentAssignmentConfigMap = new HashMap<>();
+    segmentAssignmentConfigMap.put(InstancePartitionsType.OFFLINE.toString(),
+    new SegmentAssignmentConfig("replicaGroupSegmentAssignmentStrategy", PARTITION_COLUMN));
+
+    TableConfig tableConfig = new TableConfigBuilder(TableType.OFFLINE).setTableName(TABLE_NAME)
+        .setSegmentAssignmentConfigMap(segmentAssignmentConfigMap).build();
+
+    assertEquals(TableConfigUtils.getPartitionColumn(tableConfig),PARTITION_COLUMN);
+  }
+
+  @Test
+  public void testGetPartitionColumnWithSegmentAssignmentConfigNullPartition() {
+    Map<String,SegmentAssignmentConfig> segmentAssignmentConfigMap = new HashMap<>();
+    segmentAssignmentConfigMap.put(InstancePartitionsType.OFFLINE.toString(),
+        new SegmentAssignmentConfig("replicaGroupSegmentAssignmentStrategy"));
+
+    TableConfig tableConfig = new TableConfigBuilder(TableType.OFFLINE).setTableName(TABLE_NAME)
+        .setSegmentAssignmentConfigMap(segmentAssignmentConfigMap).build();
+
+    assertNull(TableConfigUtils.getPartitionColumn(tableConfig));
+  }
+
 }
