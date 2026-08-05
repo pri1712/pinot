@@ -50,10 +50,9 @@ import org.apache.pinot.spi.data.readers.GenericRow;
 public class ProtoBufRecordExtractor extends BaseRecordExtractor<Message> {
 
   // Cached field descriptors initialized lazily on first message extraction to avoid repeated lookups
-  // via findFieldByName. The cache is invalidated by identity comparison on the Descriptor object:
-  // schema evolution (e.g. a new column added in the registry) produces a new Descriptor instance with
-  // the same full name but a different schema ID, so full-name equality is insufficient.
-  private Descriptors.Descriptor _cachedDescriptor;
+  // via findFieldByName. The cache is invalidated when the descriptor's full name changes (handles schema
+  // evolution within a single reader).
+  private String _descriptorFullName;
   private Descriptors.FieldDescriptor[] _fieldDescriptors;
   private String[] _fieldNames;
 
@@ -88,15 +87,14 @@ public class ProtoBufRecordExtractor extends BaseRecordExtractor<Message> {
       _fieldDescriptors = i < numFields ? Arrays.copyOf(fieldDescriptors, i) : fieldDescriptors;
       _fieldNames = i < numFields ? Arrays.copyOf(fieldNames, i) : fieldNames;
     }
-    _cachedDescriptor = descriptor;
+    _descriptorFullName = descriptor.getFullName();
   }
 
   @Override
   public GenericRow extract(Message from, GenericRow to) {
     Descriptors.Descriptor descriptor = from.getDescriptorForType();
-    // Identity check: a schema evolution in the registry produces a new Descriptor instance even when the
-    // full name is unchanged. Using != catches that case; full-name equality does not.
-    if (_cachedDescriptor != descriptor) {
+    // Initialize or reinitialize cache if descriptor changed (handles schema evolution).
+    if (_descriptorFullName == null || !_descriptorFullName.equals(descriptor.getFullName())) {
       initFieldDescriptors(descriptor);
     }
     // The cache only contains live descriptors — fields requested but not in the source schema were filtered

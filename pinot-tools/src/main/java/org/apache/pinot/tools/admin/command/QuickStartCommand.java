@@ -136,14 +136,7 @@ public class QuickStartCommand extends AbstractBaseAdminCommand implements Comma
     Set<Class<? extends QuickStartBase>> quickStarts = allQuickStarts();
     for (Class<? extends QuickStartBase> quickStart : quickStarts) {
       QuickStartBase quickStartBase = quickStart.getDeclaredConstructor().newInstance();
-      String upperCaseType = type.toUpperCase();
-      if (quickStartBase.types().contains(upperCaseType)) {
-        if (quickStartBase.deprecatedTypes().contains(upperCaseType)) {
-          String canonicalType = quickStartBase.types().get(0);
-          LOGGER.warn("QuickStart type {} has been merged into {} and is kept only as an alias. "
-              + "Use -type {} instead; it runs these sample queries along with the rest", upperCaseType, canonicalType,
-              canonicalType);
-        }
+      if (quickStartBase.types().contains(type.toUpperCase())) {
         return quickStartBase;
       }
     }
@@ -193,13 +186,7 @@ public class QuickStartCommand extends AbstractBaseAdminCommand implements Comma
       throws InstantiationException, IllegalAccessException, InvocationTargetException, NoSuchMethodException {
     List<String> validTypes = new ArrayList<>();
     for (Class<? extends QuickStartBase> quickStart : quickStarts) {
-      QuickStartBase quickStartBase = quickStart.getDeclaredConstructor().newInstance();
-      // Deprecated aliases still resolve, but should not be advertised to someone picking a type for the first time.
-      for (String type : quickStartBase.types()) {
-        if (!quickStartBase.deprecatedTypes().contains(type)) {
-          validTypes.add(type);
-        }
-      }
+      validTypes.addAll(quickStart.getDeclaredConstructor().newInstance().types());
     }
     return validTypes;
   }

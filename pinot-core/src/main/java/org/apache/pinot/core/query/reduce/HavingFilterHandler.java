@@ -23,7 +23,9 @@ import org.apache.pinot.core.query.reduce.filter.RowMatcher;
 import org.apache.pinot.core.query.reduce.filter.RowMatcherFactory;
 
 
-/// Handler for HAVING clause.
+/**
+ * Handler for HAVING clause.
+ */
 public class HavingFilterHandler {
   private final RowMatcher _rowMatcher;
 
@@ -32,7 +34,9 @@ public class HavingFilterHandler {
     _rowMatcher = RowMatcherFactory.getRowMatcher(havingFilter, postAggregationHandler, nullHandlingEnabled);
   }
 
-  /// Returns `true` if the given row matches the HAVING clause, `false` otherwise.
+  /**
+   * Returns {@code true} if the given row matches the HAVING clause, {@code false} otherwise.
+   */
   public boolean isMatch(Object[] row) {
     return _rowMatcher.isMatch(row);
   }

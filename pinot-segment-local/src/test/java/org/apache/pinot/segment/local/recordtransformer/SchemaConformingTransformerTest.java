@@ -932,8 +932,10 @@ public class SchemaConformingTransformerTest {
     assertEquals(outputRecord.getFieldToValueMap(), expectedOutputRecordMap);
   }
 
-  /// Transforms the given row (given as a JSON string) using the transformer
-  /// @return The transformed row
+  /**
+   * Transforms the given row (given as a JSON string) using the transformer
+   * @return The transformed row
+   */
   private GenericRow transformRow(TableConfig tableConfig, Schema schema, String inputRecordJSONString) {
     Map<String, Object> inputRecordMap = jsonStringToMap(inputRecordJSONString);
     GenericRow record = createRowFromMap(inputRecordMap);
@@ -942,7 +944,9 @@ public class SchemaConformingTransformerTest {
     return transformer.transform(List.of(record)).get(0);
   }
 
-  /// @return A map representing the given JSON string
+  /**
+   * @return A map representing the given JSON string
+   */
   private Map<String, Object> jsonStringToMap(String jsonString) {
     try {
       TypeReference<Map<String, Object>> typeRef = new TypeReference<>() {
@@ -953,7 +957,9 @@ public class SchemaConformingTransformerTest {
     }
   }
 
-  /// @return A new generic row with all the kv-pairs from the given map
+  /**
+   * @return A new generic row with all the kv-pairs from the given map
+   */
   private GenericRow createRowFromMap(Map<String, Object> map) {
     GenericRow record = new GenericRow();
     for (Map.Entry<String, Object> entry : map.entrySet()) {

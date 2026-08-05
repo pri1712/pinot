@@ -37,7 +37,9 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 
-/// Tests for the ValidationManagers.
+/**
+ * Tests for the ValidationManagers.
+ */
 @Test(groups = "stateless")
 public class ValidationManagerStatelessTest extends ControllerTest {
   private static final String TEST_TABLE_NAME = "testTable";
@@ -102,8 +104,10 @@ public class ValidationManagerStatelessTest extends ControllerTest {
         .equals(_helixResourceManager.getAllInstancesForBrokerTenant(TagNameUtils.DEFAULT_TENANT_NAME)));
   }
 
-  /// Verifies that rebuildBrokerResourceFromHelixTags works for a logical table partition when a new broker
-  /// is added manually and the ideal state is out of sync (Issue #15751).
+  /**
+   * Verifies that rebuildBrokerResourceFromHelixTags works for a logical table partition when a new broker
+   * is added manually and the ideal state is out of sync (Issue #15751).
+   */
   @Test
   public void testRebuildBrokerResourceWhenBrokerAddedForLogicalTable()
       throws Exception {

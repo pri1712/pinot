@@ -111,8 +111,10 @@ public abstract class QueryRunnerTestBase extends QueryTestSet {
     }
   }
 
-  /// Dispatch query to each pinot-server. The logic should mimic QueryDispatcher.submit() but does not actually make
-  /// ser/de dispatches.
+  /**
+   * Dispatch query to each pinot-server. The logic should mimic QueryDispatcher.submit() but does not actually make
+   * ser/de dispatches.
+   */
   protected QueryDispatcher.QueryResult queryRunner(String sql, boolean trace) {
     long startTimeMs = System.currentTimeMillis();
     long requestId = REQUEST_ID_GEN.getAndIncrement();

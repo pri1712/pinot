@@ -46,9 +46,11 @@ import org.apache.pinot.query.planner.physical.v2.nodes.PhysicalSort;
 import org.apache.pinot.query.planner.physical.v2.nodes.PhysicalWindow;
 
 
-/// Assign trait constraints to the plan. The Physical Planner should ensure that these constraints are met by
-/// inserting Exchange wherever required. This operates with Physical RelNodes because Calcite emits Logical RelNodes,
-/// many of which drop traits on copy.
+/**
+ * Assign trait constraints to the plan. The Physical Planner should ensure that these constraints are met by
+ * inserting Exchange wherever required. This operates with Physical RelNodes because Calcite emits Logical RelNodes,
+ * many of which drop traits on copy.
+ */
 public class TraitAssignment {
   private final Supplier<Integer> _planIdGenerator;
 
@@ -106,7 +108,9 @@ public class TraitAssignment {
     return setOp.copy(setOp.getTraitSet(), newInputs);
   }
 
-  /// Sort is always computed by coalescing to a single stream. Hence, we add a SINGLETON trait to the sort input.
+  /**
+   * Sort is always computed by coalescing to a single stream. Hence, we add a SINGLETON trait to the sort input.
+   */
   @VisibleForTesting
   RelNode assignSort(PhysicalSort sort) {
     RelNode input = sort.getInput();
@@ -115,13 +119,16 @@ public class TraitAssignment {
     return sort.copy(sort.getTraitSet(), List.of(input));
   }
 
-  /// Handles lookup and dynamic filter for semi-join case separately.
-  ///
-  ///   TODO(mse-physical): Support colocated join hint. See
-  ///   [F2](https://github.com/apache/pinot/issues/15455)).
-  ///
-  ///   TODO(mse-physical): Instead of random exchange on the left, we should simply skip exchange.
-  ///     See [F3](https://github.com/apache/pinot/issues/15455).
+  /**
+   * Handles lookup and dynamic filter for semi-join case separately.
+   * <p>
+   *   TODO(mse-physical): Support colocated join hint. See
+   *   <a href="https://github.com/apache/pinot/issues/15455">F2</a>).
+   *   <br />
+   *   TODO(mse-physical): Instead of random exchange on the left, we should simply skip exchange.
+   *     See <a href="https://github.com/apache/pinot/issues/15455">F3</a>.
+   * </p>
+   */
   @VisibleForTesting
   RelNode assignJoin(Join join) {
     // Case-1: Lookup joins — no distribution traits needed. LookupJoinRule (post-pass) handles
@@ -172,8 +179,10 @@ public class TraitAssignment {
     return join.copy(join.getTraitSet(), List.of(leftInput, rightInput));
   }
 
-  /// When group-by keys are empty, we can use SINGLETON distribution. Otherwise, we use hash distribution on the
-  /// group-by keys.
+  /**
+   * When group-by keys are empty, we can use SINGLETON distribution. Otherwise, we use hash distribution on the
+   * group-by keys.
+   */
   @VisibleForTesting
   RelNode assignAggregate(PhysicalAggregate aggregate) {
     RelNode input = aggregate.getInput(0);
@@ -187,7 +196,9 @@ public class TraitAssignment {
     return aggregate.copy(aggregate.getTraitSet(), List.of(input));
   }
 
-  /// Assigns traits to the input of window, accounting for partition-by and order-by clauses.
+  /**
+   * Assigns traits to the input of window, accounting for partition-by and order-by clauses.
+   */
   @VisibleForTesting
   RelNode assignWindow(PhysicalWindow window) {
     Preconditions.checkState(window.groups.size() <= 1,

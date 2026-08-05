@@ -27,13 +27,17 @@ import java.util.List;
 import org.apache.pinot.query.planner.physical.v2.PRelNode;
 
 
-/// An abstract executor for a single physical optimization rule. Implementations can define their own order of how
-/// a tree of [PRelNode] should be processed.
+/**
+ * An abstract executor for a single physical optimization rule. Implementations can define their own order of how
+ * a tree of {@link PRelNode} should be processed.
+ */
 public abstract class RuleExecutor implements PRelNodeTransformer {
   protected final Deque<PRelNode> _parents = new ArrayDeque<>();
 
-  /// Calls [#execute(PRelNode)] for a sub-list of inputs of the current node. This ensures that the Deque to
-  /// track parents is updated accurately.
+  /**
+   * Calls {@link #execute(PRelNode)} for a sub-list of inputs of the current node. This ensures that the Deque to
+   * track parents is updated accurately.
+   */
   protected PRelNode executeForInputs(PRelNode currentNode, int fromIndex, int toIndex) {
     int numInputs = currentNode.getPRelInputs().size();
     Preconditions.checkState(fromIndex <= toIndex && fromIndex >= 0 && toIndex <= numInputs,

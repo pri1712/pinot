@@ -37,7 +37,6 @@ import io.netty.channel.socket.ServerSocketChannel;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.util.internal.PlatformDependent;
-import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 import org.apache.pinot.common.config.NettyConfig;
@@ -49,8 +48,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 
-/// The `QueryServer` is the Netty server that runs on Pinot Server to handle the instance requests sent from
-/// Pinot Brokers.
+/**
+ * The {@code QueryServer} is the Netty server that runs on Pinot Server to handle the instance requests sent from Pinot
+ * Brokers.
+ */
 public class QueryServer {
   private static final Logger LOGGER = LoggerFactory.getLogger(QueryServer.class);
   private final int _port;
@@ -64,19 +65,23 @@ public class QueryServer {
   private final ConcurrentHashMap<SocketChannel, Boolean> _allChannels = new ConcurrentHashMap<>();
 
 
-  /// Create an unsecured server instance
-  ///
-  /// @param port bind port
-  /// @param nettyConfig configurations for netty library
+  /**
+   * Create an unsecured server instance
+   *
+   * @param port bind port
+   * @param nettyConfig configurations for netty library
+   */
   public QueryServer(int port, NettyConfig nettyConfig, ChannelHandler instanceRequestHandler) {
     this(port, nettyConfig, null, instanceRequestHandler);
   }
 
-  /// Create a server instance with TLS config
-  ///
-  /// @param port bind port
-  /// @param nettyConfig configurations for netty library
-  /// @param tlsConfig TLS/SSL config
+  /**
+   * Create a server instance with TLS config
+   *
+   * @param port bind port
+   * @param nettyConfig configurations for netty library
+   * @param tlsConfig TLS/SSL config
+   */
   public QueryServer(int port, NettyConfig nettyConfig, TlsConfig tlsConfig, ChannelHandler instanceRequestHandler) {
     _port = port;
     _tlsConfig = tlsConfig;
@@ -112,10 +117,12 @@ public class QueryServer {
     try {
       ServerBootstrap serverBootstrap = new ServerBootstrap();
 
-      PooledByteBufAllocator bufAllocatorWithLimits =
-          PooledByteBufAllocatorWithLimits.getSharedBufferAllocatorWithLimits();
-      PooledByteBufAllocatorMetric metric = bufAllocatorWithLimits.metric();
+      PooledByteBufAllocator bufAllocator = PooledByteBufAllocator.DEFAULT;
+      PooledByteBufAllocatorMetric metric = bufAllocator.metric();
       ServerMetrics metrics = ServerMetrics.get();
+      PooledByteBufAllocator bufAllocatorWithLimits =
+          PooledByteBufAllocatorWithLimits.getBufferAllocatorWithLimits(metric);
+      metric = bufAllocatorWithLimits.metric();
       metrics.setOrUpdateGlobalGauge(ServerGauge.NETTY_POOLED_USED_DIRECT_MEMORY, metric::usedDirectMemory);
       metrics.setOrUpdateGlobalGauge(ServerGauge.NETTY_POOLED_USED_HEAP_MEMORY, metric::usedHeapMemory);
       metrics.setOrUpdateGlobalGauge(ServerGauge.NETTY_POOLED_ARENAS_DIRECT, metric::numDirectArenas);
@@ -178,10 +185,5 @@ public class QueryServer {
   @VisibleForTesting
   int getConnectedChannelCount() {
     return _allChannels.size();
-  }
-
-  @VisibleForTesting
-  Set<SocketChannel> getConnectedChannels() {
-    return _allChannels.keySet();
   }
 }

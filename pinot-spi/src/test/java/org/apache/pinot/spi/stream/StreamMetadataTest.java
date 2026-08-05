@@ -20,6 +20,7 @@ package org.apache.pinot.spi.stream;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import org.testng.annotations.Test;
 
@@ -55,7 +56,7 @@ public class StreamMetadataTest {
     StreamConfig streamConfig = mock(StreamConfig.class);
     PartitionGroupMetadata pg = new PartitionGroupMetadata(0, mock(StreamPartitionMsgOffset.class));
 
-    StreamMetadata sm = new StreamMetadata(streamConfig, 100, List.of(pg));
+    StreamMetadata sm = new StreamMetadata(streamConfig, 100, Collections.singletonList(pg));
 
     assertEquals(sm.getNumPartitions(), 100);
     assertEquals(sm.getPartitionGroupMetadataList().size(), 1);
@@ -81,7 +82,7 @@ public class StreamMetadataTest {
     StreamConfig streamConfig = mock(StreamConfig.class);
     PartitionGroupMetadata pg = new PartitionGroupMetadata(0, mock(StreamPartitionMsgOffset.class));
 
-    StreamMetadata sm = new StreamMetadata(streamConfig, 1, List.of(pg));
+    StreamMetadata sm = new StreamMetadata(streamConfig, 1, Collections.singletonList(pg));
     sm.getPartitionGroupMetadataList().add(new PartitionGroupMetadata(1, mock(StreamPartitionMsgOffset.class)));
   }
 
@@ -89,7 +90,7 @@ public class StreamMetadataTest {
   public void testEmptyPartitionGroupMetadataList() {
     StreamConfig streamConfig = mock(StreamConfig.class);
 
-    StreamMetadata sm = new StreamMetadata(streamConfig, 5, List.of());
+    StreamMetadata sm = new StreamMetadata(streamConfig, 5, Collections.emptyList());
 
     assertEquals(sm.getNumPartitions(), 5);
     assertEquals(sm.getPartitionGroupMetadataList().size(), 0);

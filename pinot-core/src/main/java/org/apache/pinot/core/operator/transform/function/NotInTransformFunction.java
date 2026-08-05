@@ -25,7 +25,9 @@ import org.apache.pinot.core.operator.ColumnContext;
 import org.apache.pinot.core.operator.blocks.ValueBlock;
 
 
-/// The NOT_IN transform function is the negate version of the [InTransformFunction].
+/**
+ * The NOT_IN transform function is the negate version of the {@link InTransformFunction}.
+ */
 public class NotInTransformFunction extends InTransformFunction {
 
   @Override

@@ -24,7 +24,9 @@ import javax.annotation.Nullable;
 import javax.net.ssl.SSLContext;
 
 
-/// The `BrokerContext` class is a singleton class which contains all broker related context.
+/**
+ * The <code>BrokerContext</code> class is a singleton class which contains all broker related context.
+ */
 public class BrokerContext {
   private static final BrokerContext INSTANCE = new BrokerContext();
 

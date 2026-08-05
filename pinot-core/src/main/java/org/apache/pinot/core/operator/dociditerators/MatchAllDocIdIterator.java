@@ -22,7 +22,9 @@ import org.apache.pinot.core.common.BlockDocIdIterator;
 import org.apache.pinot.segment.spi.Constants;
 
 
-/// The `MatchAllDocIdIterator` is the iterator for MatchAllDocIdSet where all documents are matching.
+/**
+ * The {@code MatchAllDocIdIterator} is the iterator for MatchAllDocIdSet where all documents are matching.
+ */
 public final class MatchAllDocIdIterator implements BlockDocIdIterator {
   private final int _numDocs;
 

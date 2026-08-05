@@ -20,6 +20,7 @@ package org.apache.pinot.core.operator.query;
 
 import com.google.common.base.CaseFormat;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.apache.pinot.common.request.context.ExpressionContext;
@@ -37,7 +38,6 @@ import org.apache.pinot.core.operator.blocks.results.SelectionResultsBlock;
 import org.apache.pinot.core.query.request.context.QueryContext;
 import org.apache.pinot.core.query.selection.SelectionOperatorUtils;
 import org.apache.pinot.segment.spi.IndexSegment;
-import org.apache.pinot.spi.query.QueryScanCostContext;
 import org.roaringbitmap.RoaringBitmap;
 
 
@@ -124,12 +124,6 @@ public class SelectionOnlyOperator extends BaseOperator<SelectionResultsBlock> {
       int numDocsToAdd = Math.min(_numRowsToKeep - _rows.size(), valueBlock.getNumDocs());
       _rows.ensureCapacity(_rows.size() + numDocsToAdd);
       _numDocsScanned += numDocsToAdd;
-      QueryScanCostContext scanCost = getScanCostContext();
-      if (scanCost != null) {
-        scanCost.addDocsScanned(numDocsToAdd);
-        scanCost.addEntriesScannedPostFilter(
-            (long) numDocsToAdd * _projectOperator.getNumColumnsProjected());
-      }
       if (_nullHandlingEnabled) {
         for (int i = 0; i < numExpressions; i++) {
           _nullBitmaps[i] = _blockValSets[i].getNullBitmap();
@@ -158,7 +152,7 @@ public class SelectionOnlyOperator extends BaseOperator<SelectionResultsBlock> {
 
   @Override
   public List<Operator> getChildOperators() {
-    return List.of(_projectOperator);
+    return Collections.singletonList(_projectOperator);
   }
 
   @Override

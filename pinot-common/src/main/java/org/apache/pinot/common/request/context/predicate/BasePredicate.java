@@ -21,7 +21,9 @@ package org.apache.pinot.common.request.context.predicate;
 import org.apache.pinot.common.request.context.ExpressionContext;
 
 
-/// Abstract predicate with left-hand side expression
+/**
+ * Abstract predicate with left-hand side expression
+ */
 public abstract class BasePredicate implements Predicate {
 
   protected ExpressionContext _lhs;

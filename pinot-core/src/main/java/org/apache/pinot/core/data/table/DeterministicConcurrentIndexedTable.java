@@ -33,7 +33,9 @@ public class DeterministicConcurrentIndexedTable extends IndexedTable {
     super(dataSchema, hasFinalInput, queryContext, resultSize, trimSize, trimThreshold,
         new ConcurrentSkipListMap<>(), executorService);
   }
-  /// Thread safe implementation of upsert for inserting [Record] into [Table]
+  /**
+   * Thread safe implementation of upsert for inserting {@link Record} into {@link Table}
+   */
   @Override
   public boolean upsert(Key key, Record record) {
     upsertWithoutOrderBy(key, record);

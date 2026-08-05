@@ -22,7 +22,9 @@ import org.testng.Assert;
 import org.testng.annotations.Test;
 
 
-/// Test for [HashFunctionSelector]
+/**
+ * Test for {@link HashFunctionSelector}
+ */
 public class HashFunctionSelectorTest {
 
   private final HashFunctionSelector.SvHasher _abshashcode = HashFunctionSelector.getSvHasher("abshashcode");

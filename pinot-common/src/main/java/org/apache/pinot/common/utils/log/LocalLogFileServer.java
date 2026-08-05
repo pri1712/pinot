@@ -31,7 +31,9 @@ import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.StreamingOutput;
 
-/// A real log file server.
+/**
+ * A real log file server.
+ */
 public class LocalLogFileServer implements LogFileServer {
   private final File _logRootDir;
   private final Path _logRootDirPath;

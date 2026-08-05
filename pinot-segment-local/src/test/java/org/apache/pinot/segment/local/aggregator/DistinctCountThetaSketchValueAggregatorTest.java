@@ -18,11 +18,12 @@
  */
 package org.apache.pinot.segment.local.aggregator;
 
-import java.util.List;
+import java.util.Collections;
 import java.util.stream.IntStream;
-import org.apache.datasketches.theta.ThetaSketch;
-import org.apache.datasketches.theta.ThetaUnion;
-import org.apache.datasketches.theta.UpdatableThetaSketch;
+import org.apache.datasketches.theta.Sketch;
+import org.apache.datasketches.theta.Sketches;
+import org.apache.datasketches.theta.Union;
+import org.apache.datasketches.theta.UpdateSketch;
 import org.apache.pinot.spi.utils.CommonConstants;
 import org.testng.annotations.Test;
 
@@ -36,20 +37,20 @@ public class DistinctCountThetaSketchValueAggregatorTest {
 
   @Test
   public void initialShouldCreateSingleItemSketch() {
-    DistinctCountThetaSketchValueAggregator agg = new DistinctCountThetaSketchValueAggregator(List.of());
+    DistinctCountThetaSketchValueAggregator agg = new DistinctCountThetaSketchValueAggregator(Collections.emptyList());
     assertEquals(toSketch(agg.getInitialAggregatedValue("hello world")).getEstimate(), 1.0);
   }
 
   @Test
   public void initialShouldParseASketch() {
-    UpdatableThetaSketch input = UpdatableThetaSketch.builder().build();
+    UpdateSketch input = Sketches.updateSketchBuilder().build();
     IntStream.range(0, 1000).forEach(input::update);
-    ThetaSketch result = input.compact();
-    DistinctCountThetaSketchValueAggregator agg = new DistinctCountThetaSketchValueAggregator(List.of());
+    Sketch result = input.compact();
+    DistinctCountThetaSketchValueAggregator agg = new DistinctCountThetaSketchValueAggregator(Collections.emptyList());
     byte[] bytes = agg.serializeAggregatedValue(result);
-    ThetaSketch initSketch = toSketch(agg.getInitialAggregatedValue(bytes));
-    ThetaUnion union =
-        ThetaUnion.builder().setNominalEntries(CommonConstants.Helix.DEFAULT_THETA_SKETCH_NOMINAL_ENTRIES).buildUnion();
+    Sketch initSketch = toSketch(agg.getInitialAggregatedValue(bytes));
+    Union union =
+        Union.builder().setNominalEntries(CommonConstants.Helix.DEFAULT_THETA_SKETCH_NOMINAL_ENTRIES).buildUnion();
     union.union(initSketch);
     assertEquals(initSketch.getEstimate(), result.getEstimate());
     // and should update the max size
@@ -58,50 +59,50 @@ public class DistinctCountThetaSketchValueAggregatorTest {
 
   @Test
   public void initialShouldParseMultiValueSketches() {
-    UpdatableThetaSketch input1 = UpdatableThetaSketch.builder().build();
+    UpdateSketch input1 = Sketches.updateSketchBuilder().build();
     input1.update("hello");
-    UpdatableThetaSketch input2 = UpdatableThetaSketch.builder().build();
+    UpdateSketch input2 = Sketches.updateSketchBuilder().build();
     input2.update("world");
-    DistinctCountThetaSketchValueAggregator agg = new DistinctCountThetaSketchValueAggregator(List.of());
+    DistinctCountThetaSketchValueAggregator agg = new DistinctCountThetaSketchValueAggregator(Collections.emptyList());
     byte[][] bytes = {agg.serializeAggregatedValue(input1), agg.serializeAggregatedValue(input2)};
     assertEquals(toSketch(agg.getInitialAggregatedValue(bytes)).getEstimate(), 2.0);
   }
 
   @Test
   public void applyAggregatedValueShouldUnion() {
-    UpdatableThetaSketch input1 = UpdatableThetaSketch.builder().build();
+    UpdateSketch input1 = Sketches.updateSketchBuilder().build();
     IntStream.range(0, 1000).forEach(input1::update);
-    ThetaSketch result1 = input1.compact();
-    UpdatableThetaSketch input2 = UpdatableThetaSketch.builder().build();
+    Sketch result1 = input1.compact();
+    UpdateSketch input2 = Sketches.updateSketchBuilder().build();
     IntStream.range(0, 1000).forEach(input2::update);
-    ThetaSketch result2 = input2.compact();
-    DistinctCountThetaSketchValueAggregator agg = new DistinctCountThetaSketchValueAggregator(List.of());
-    ThetaSketch result = toSketch(agg.applyAggregatedValue(result1, result2));
-    ThetaUnion union =
-        ThetaUnion.builder().setNominalEntries(CommonConstants.Helix.DEFAULT_THETA_SKETCH_NOMINAL_ENTRIES).buildUnion();
+    Sketch result2 = input2.compact();
+    DistinctCountThetaSketchValueAggregator agg = new DistinctCountThetaSketchValueAggregator(Collections.emptyList());
+    Sketch result = toSketch(agg.applyAggregatedValue(result1, result2));
+    Union union =
+        Union.builder().setNominalEntries(CommonConstants.Helix.DEFAULT_THETA_SKETCH_NOMINAL_ENTRIES).buildUnion();
     union.union(result1);
     union.union(result2);
-    ThetaSketch merged = union.getResult();
+    Sketch merged = union.getResult();
     assertEquals(result.getEstimate(), merged.getEstimate());
     assertEquals(agg.getMaxAggregatedValueByteSize(), union.getCurrentBytes());
   }
 
   @Test
   public void applyRawValueShouldUnion() {
-    UpdatableThetaSketch input1 = UpdatableThetaSketch.builder().build();
+    UpdateSketch input1 = Sketches.updateSketchBuilder().build();
     IntStream.range(0, 1000).forEach(input1::update);
-    ThetaSketch result1 = input1.compact();
-    UpdatableThetaSketch input2 = UpdatableThetaSketch.builder().build();
+    Sketch result1 = input1.compact();
+    UpdateSketch input2 = Sketches.updateSketchBuilder().build();
     IntStream.range(0, 1000).forEach(input2::update);
-    ThetaSketch result2 = input2.compact();
-    DistinctCountThetaSketchValueAggregator agg = new DistinctCountThetaSketchValueAggregator(List.of());
+    Sketch result2 = input2.compact();
+    DistinctCountThetaSketchValueAggregator agg = new DistinctCountThetaSketchValueAggregator(Collections.emptyList());
     byte[] result2bytes = agg.serializeAggregatedValue(result2);
-    ThetaSketch result = toSketch(agg.applyRawValue(result1, result2bytes));
-    ThetaUnion union =
-        ThetaUnion.builder().setNominalEntries(CommonConstants.Helix.DEFAULT_THETA_SKETCH_NOMINAL_ENTRIES).buildUnion();
+    Sketch result = toSketch(agg.applyRawValue(result1, result2bytes));
+    Union union =
+        Union.builder().setNominalEntries(CommonConstants.Helix.DEFAULT_THETA_SKETCH_NOMINAL_ENTRIES).buildUnion();
     union.union(result1);
     union.union(result2);
-    ThetaSketch merged = union.getResult();
+    Sketch merged = union.getResult();
     assertEquals(result.getEstimate(), merged.getEstimate());
     // and should update the max size
     assertEquals(agg.getMaxAggregatedValueByteSize(), union.getCurrentBytes());
@@ -109,13 +110,13 @@ public class DistinctCountThetaSketchValueAggregatorTest {
 
   @Test
   public void applyRawValueShouldAdd() {
-    UpdatableThetaSketch input1 = UpdatableThetaSketch.builder().build();
+    UpdateSketch input1 = Sketches.updateSketchBuilder().build();
     input1.update("hello".hashCode());
-    ThetaSketch result1 = input1.compact();
-    DistinctCountThetaSketchValueAggregator agg = new DistinctCountThetaSketchValueAggregator(List.of());
-    ThetaSketch result = toSketch(agg.applyRawValue(result1, "world"));
-    ThetaUnion union =
-        ThetaUnion.builder().setNominalEntries(CommonConstants.Helix.DEFAULT_THETA_SKETCH_NOMINAL_ENTRIES).buildUnion();
+    Sketch result1 = input1.compact();
+    DistinctCountThetaSketchValueAggregator agg = new DistinctCountThetaSketchValueAggregator(Collections.emptyList());
+    Sketch result = toSketch(agg.applyRawValue(result1, "world"));
+    Union union =
+        Union.builder().setNominalEntries(CommonConstants.Helix.DEFAULT_THETA_SKETCH_NOMINAL_ENTRIES).buildUnion();
     union.union(result);
     assertEquals(result.getEstimate(), 2.0);
     // and should update the max size
@@ -124,14 +125,14 @@ public class DistinctCountThetaSketchValueAggregatorTest {
 
   @Test
   public void applyRawValueShouldSupportMultiValue() {
-    UpdatableThetaSketch input1 = UpdatableThetaSketch.builder().build();
+    UpdateSketch input1 = Sketches.updateSketchBuilder().build();
     input1.update("hello");
-    ThetaSketch result1 = input1.compact();
-    DistinctCountThetaSketchValueAggregator agg = new DistinctCountThetaSketchValueAggregator(List.of());
+    Sketch result1 = input1.compact();
+    DistinctCountThetaSketchValueAggregator agg = new DistinctCountThetaSketchValueAggregator(Collections.emptyList());
     String[] strings = {"hello", "world", "this", "is", "some", "strings"};
-    ThetaSketch result = toSketch(agg.applyRawValue(result1, (Object) strings));
-    ThetaUnion union =
-        ThetaUnion.builder().setNominalEntries(CommonConstants.Helix.DEFAULT_THETA_SKETCH_NOMINAL_ENTRIES).buildUnion();
+    Sketch result = toSketch(agg.applyRawValue(result1, (Object) strings));
+    Union union =
+        Union.builder().setNominalEntries(CommonConstants.Helix.DEFAULT_THETA_SKETCH_NOMINAL_ENTRIES).buildUnion();
     union.union(result);
     assertEquals(result.getEstimate(), 6.0);
     // and should update the max size
@@ -140,7 +141,7 @@ public class DistinctCountThetaSketchValueAggregatorTest {
 
   @Test
   public void getInitialValueShouldSupportDifferentTypes() {
-    DistinctCountThetaSketchValueAggregator agg = new DistinctCountThetaSketchValueAggregator(List.of());
+    DistinctCountThetaSketchValueAggregator agg = new DistinctCountThetaSketchValueAggregator(Collections.emptyList());
     assertEquals(toSketch(agg.getInitialAggregatedValue(12345)).getEstimate(), 1.0);
     assertEquals(toSketch(agg.getInitialAggregatedValue(12345L)).getEstimate(), 1.0);
     assertEquals(toSketch(agg.getInitialAggregatedValue(12.345f)).getEstimate(), 1.0);
@@ -150,7 +151,7 @@ public class DistinctCountThetaSketchValueAggregatorTest {
 
   @Test
   public void getInitialValueShouldSupportMultiValueTypes() {
-    DistinctCountThetaSketchValueAggregator agg = new DistinctCountThetaSketchValueAggregator(List.of());
+    DistinctCountThetaSketchValueAggregator agg = new DistinctCountThetaSketchValueAggregator(Collections.emptyList());
     Integer[] ints = {12345};
     assertEquals(toSketch(agg.getInitialAggregatedValue(ints)).getEstimate(), 1.0);
     Long[] longs = {12345L};
@@ -167,20 +168,20 @@ public class DistinctCountThetaSketchValueAggregatorTest {
 
   @Test
   public void shouldRetainSketchOrdering() {
-    UpdatableThetaSketch input = UpdatableThetaSketch.builder().build();
+    UpdateSketch input = Sketches.updateSketchBuilder().build();
     IntStream.range(0, 10).forEach(input::update);
-    ThetaSketch unordered = input.compact(false, null);
-    ThetaSketch ordered = input.compact(true, null);
-    DistinctCountThetaSketchValueAggregator agg = new DistinctCountThetaSketchValueAggregator(List.of());
+    Sketch unordered = input.compact(false, null);
+    Sketch ordered = input.compact(true, null);
+    DistinctCountThetaSketchValueAggregator agg = new DistinctCountThetaSketchValueAggregator(Collections.emptyList());
     assertTrue(toSketch(agg.cloneAggregatedValue(ordered)).isOrdered());
     assertFalse(toSketch(agg.cloneAggregatedValue(unordered)).isOrdered());
   }
 
-  private ThetaSketch toSketch(Object value) {
-    if (value instanceof ThetaUnion) {
-      return ((ThetaUnion) value).getResult();
-    } else if (value instanceof ThetaSketch) {
-      return (ThetaSketch) value;
+  private Sketch toSketch(Object value) {
+    if (value instanceof Union) {
+      return ((Union) value).getResult();
+    } else if (value instanceof Sketch) {
+      return (Sketch) value;
     } else {
       throw new IllegalStateException(
           "Unsupported data type for Theta Sketch aggregation: " + value.getClass().getSimpleName());

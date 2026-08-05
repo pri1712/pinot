@@ -29,6 +29,7 @@ import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.Statement;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -100,7 +101,7 @@ public class RealtimeKinesisIntegrationTest extends BaseKinesisIntegrationTest {
 
   @Override
   public List<String> getNoDictionaryColumns() {
-    return List.of();
+    return Collections.emptyList();
   }
 
   @Override

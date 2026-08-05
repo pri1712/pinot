@@ -333,7 +333,6 @@ public class PinotFunctionEnvGenerator {
         case TIMESTAMP:
         case STRING:
         case JSON:
-        case UUID:
           schemaBuilder.addDimensionField(columnName, param.getDataType(),
               fieldSpec -> {
                 fieldSpec.setSingleValueField(true);

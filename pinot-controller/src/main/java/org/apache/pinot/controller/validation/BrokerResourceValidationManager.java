@@ -35,16 +35,17 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 
-/// Rebuilds the broker resource if the instance set has changed
+/**
+ * Rebuilds the broker resource if the instance set has changed
+ */
 public class BrokerResourceValidationManager extends ControllerPeriodicTask<BrokerResourceValidationManager.Context> {
   private static final Logger LOGGER = LoggerFactory.getLogger(BrokerResourceValidationManager.class);
 
   public BrokerResourceValidationManager(ControllerConf config, PinotHelixResourceManager pinotHelixResourceManager,
       LeadControllerManager leadControllerManager, ControllerMetrics controllerMetrics) {
     super("BrokerResourceValidationManager", config.getBrokerResourceValidationFrequencyInSeconds(),
-            config.getBrokerResourceValidationInitialDelayInSeconds(),
-        config.getBrokerResourceValidationCronExpression(), pinotHelixResourceManager,
-        leadControllerManager, controllerMetrics);
+        config.getBrokerResourceValidationInitialDelayInSeconds(), pinotHelixResourceManager, leadControllerManager,
+        controllerMetrics);
   }
 
   @Override

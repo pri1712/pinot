@@ -20,20 +20,21 @@
 package org.apache.pinot.segment.local.customobject;
 
 import java.util.stream.IntStream;
-import org.apache.datasketches.theta.ThetaSetOperationBuilder;
-import org.apache.datasketches.theta.ThetaSketch;
-import org.apache.datasketches.theta.UpdatableThetaSketch;
+import org.apache.datasketches.theta.SetOperationBuilder;
+import org.apache.datasketches.theta.Sketch;
+import org.apache.datasketches.theta.Sketches;
+import org.apache.datasketches.theta.UpdateSketch;
 import org.testng.Assert;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 
 public class ThetaSketchAccumulatorTest {
-  private ThetaSetOperationBuilder _setOperationBuilder;
+  private SetOperationBuilder _setOperationBuilder;
 
   @BeforeMethod
   public void setUp() {
-    _setOperationBuilder = new ThetaSetOperationBuilder();
+    _setOperationBuilder = new SetOperationBuilder();
   }
 
   @Test
@@ -45,9 +46,9 @@ public class ThetaSketchAccumulatorTest {
 
   @Test
   public void testAccumulatorWithSingleSketch() {
-    UpdatableThetaSketch input = UpdatableThetaSketch.builder().build();
+    UpdateSketch input = Sketches.updateSketchBuilder().build();
     IntStream.range(0, 1000).forEach(input::update);
-    ThetaSketch sketch = input.compact();
+    Sketch sketch = input.compact();
 
     ThetaSketchAccumulator accumulator = new ThetaSketchAccumulator(_setOperationBuilder, 2);
     accumulator.apply(sketch);
@@ -58,12 +59,12 @@ public class ThetaSketchAccumulatorTest {
 
   @Test
   public void testAccumulatorMerge() {
-    UpdatableThetaSketch input1 = UpdatableThetaSketch.builder().build();
+    UpdateSketch input1 = Sketches.updateSketchBuilder().build();
     IntStream.range(0, 1000).forEach(input1::update);
-    ThetaSketch sketch1 = input1.compact();
-    UpdatableThetaSketch input2 = UpdatableThetaSketch.builder().build();
+    Sketch sketch1 = input1.compact();
+    UpdateSketch input2 = Sketches.updateSketchBuilder().build();
     IntStream.range(1000, 2000).forEach(input2::update);
-    ThetaSketch sketch2 = input2.compact();
+    Sketch sketch2 = input2.compact();
 
     ThetaSketchAccumulator accumulator1 = new ThetaSketchAccumulator(_setOperationBuilder, 3);
     accumulator1.apply(sketch1);
@@ -76,12 +77,12 @@ public class ThetaSketchAccumulatorTest {
 
   @Test
   public void testThresholdBehavior() {
-    UpdatableThetaSketch input1 = UpdatableThetaSketch.builder().build();
+    UpdateSketch input1 = Sketches.updateSketchBuilder().build();
     IntStream.range(0, 1000).forEach(input1::update);
-    ThetaSketch sketch1 = input1.compact();
-    UpdatableThetaSketch input2 = UpdatableThetaSketch.builder().build();
+    Sketch sketch1 = input1.compact();
+    UpdateSketch input2 = Sketches.updateSketchBuilder().build();
     IntStream.range(1000, 2000).forEach(input2::update);
-    ThetaSketch sketch2 = input2.compact();
+    Sketch sketch2 = input2.compact();
 
     ThetaSketchAccumulator accumulator = new ThetaSketchAccumulator(_setOperationBuilder, 3);
     accumulator.apply(sketch1);

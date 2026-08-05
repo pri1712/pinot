@@ -31,6 +31,10 @@ public class MergeRollupTaskExecutorFactory implements PinotTaskExecutorFactory 
   private MinionConf _minionConf;
 
   @Override
+  public void init(MinionTaskZkMetadataManager zkMetadataManager) {
+  }
+
+  @Override
   public void init(MinionTaskZkMetadataManager zkMetadataManager, MinionConf minionConf) {
     _minionConf = minionConf;
   }

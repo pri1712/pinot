@@ -44,7 +44,9 @@ import org.apache.pinot.spi.data.FieldSpec.DataType;
 import org.apache.pinot.spi.data.MetricFieldSpec;
 
 
-/// The `StarTreeLoaderUtils` class provides utility methods to load star-tree indexes.
+/**
+ * The {@code StarTreeLoaderUtils} class provides utility methods to load star-tree indexes.
+ */
 public class StarTreeLoaderUtils {
   private StarTreeLoaderUtils() {
   }

@@ -21,6 +21,7 @@ package org.apache.pinot.query.runtime.operator;
 import com.google.common.base.Joiner;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Stopwatch;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -28,9 +29,9 @@ import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import org.apache.pinot.common.datatable.StatMap;
-import org.apache.pinot.common.metrics.MseMeter;
-import org.apache.pinot.common.metrics.MseMetrics;
-import org.apache.pinot.common.metrics.MseTimer;
+import org.apache.pinot.common.metrics.ServerMeter;
+import org.apache.pinot.common.metrics.ServerMetrics;
+import org.apache.pinot.common.metrics.ServerTimer;
 import org.apache.pinot.common.proto.Plan;
 import org.apache.pinot.common.response.broker.BrokerResponseNativeV2;
 import org.apache.pinot.common.utils.config.QueryOptionsUtils;
@@ -38,6 +39,7 @@ import org.apache.pinot.core.common.Operator;
 import org.apache.pinot.core.plan.ExplainInfo;
 import org.apache.pinot.query.runtime.blocks.ErrorMseBlock;
 import org.apache.pinot.query.runtime.blocks.MseBlock;
+import org.apache.pinot.query.runtime.blocks.SuccessMseBlock;
 import org.apache.pinot.query.runtime.operator.set.SetOperator;
 import org.apache.pinot.query.runtime.plan.MultiStageQueryStats;
 import org.apache.pinot.query.runtime.plan.OpChainExecutionContext;
@@ -61,14 +63,16 @@ public abstract class MultiStageOperator implements Operator<MseBlock>, AutoClos
     _operatorId = Joiner.on("_").join(getClass().getSimpleName(), _context.getStageId(), _context.getServer());
   }
 
-  /// Returns the logger for the operator.
-  ///
-  /// This method is used to generic multi-stage operator messages using the name of the specific operator.
-  /// Implementations should not allocate new loggers for each call but instead reuse some (probably static and final)
-  /// attribute.
+  /**
+   * Returns the logger for the operator.
+   * <p>
+   * This method is used to generic multi-stage operator messages using the name of the specific operator.
+   * Implementations should not allocate new loggers for each call but instead reuse some (probably static and final)
+   * attribute.
+   */
   protected abstract Logger logger();
 
-  public abstract OperatorTypeDescriptor getOperatorType();
+  public abstract Type getOperatorType();
 
   public abstract void registerExecution(long time, int numRows, long memoryUsedBytes, long gcTimeMs);
 
@@ -91,9 +95,11 @@ public abstract class MultiStageOperator implements Operator<MseBlock>, AutoClos
     QueryThreadContext.checkTerminationAndSampleUsagePeriodically(numRecordsProcessed, scope, getDeadlineMs());
   }
 
-  /// Returns the next block from the operator. It should return non-empty data blocks followed by an end-of-stream
-  /// (EOS) block when all the data is processed, or an error block if an error occurred. After it returns EOS or error
-  /// block, no more call should be made.
+  /**
+   * Returns the next block from the operator. It should return non-empty data blocks followed by an end-of-stream (EOS)
+   * block when all the data is processed, or an error block if an error occurred. After it returns EOS or error block,
+   * no more call should be made.
+   */
   @Override
   public MseBlock nextBlock() {
     if (logger().isDebugEnabled()) {
@@ -128,12 +134,14 @@ public abstract class MultiStageOperator implements Operator<MseBlock>, AutoClos
   protected abstract MseBlock getNextBlock()
       throws Exception;
 
-  /// Signals the operator to terminate early.
-  ///
-  /// After this method is called, the operator should stop processing any more input and return a
-  /// [org.apache.pinot.query.runtime.blocks.SuccessMseBlock] block as soon as possible.
-  /// This method should be called when the consumer of the operator does not need any more data and wants to stop the
-  /// execution early to save resources.
+  /**
+   * Signals the operator to terminate early.
+   *
+   * After this method is called, the operator should stop processing any more input and return a
+   * {@link SuccessMseBlock} block as soon as possible.
+   * This method should be called when the consumer of the operator does not need any more data and wants to stop the
+   * execution early to save resources.
+   */
   protected void earlyTerminate() {
     _isEarlyTerminated = true;
     for (MultiStageOperator child : getChildOperators()) {
@@ -144,10 +152,12 @@ public abstract class MultiStageOperator implements Operator<MseBlock>, AutoClos
   @Override
   public abstract List<MultiStageOperator> getChildOperators();
 
-  /// Calculates and returns the stats for the operator.
-  ///
-  /// Each time this method is called, a new instance of the stats is created. This is because the stats are mutable and
-  /// can be updated by the operator or the caller after the stats are returned.
+  /**
+   * Calculates and returns the stats for the operator.
+   *
+   * Each time this method is called, a new instance of the stats is created. This is because the stats are mutable and
+   * can be updated by the operator or the caller after the stats are returned.
+   */
   public final MultiStageQueryStats calculateStats() {
     MultiStageQueryStats upstreamStats = calculateUpstreamStats();
 
@@ -212,7 +222,7 @@ public abstract class MultiStageOperator implements Operator<MseBlock>, AutoClos
   }
 
   protected Map<String, Plan.ExplainNode.AttributeValue> getExplainAttributes() {
-    return Map.of();
+    return Collections.emptyMap();
   }
 
   private long getGcTimeMillis() {
@@ -222,15 +232,17 @@ public abstract class MultiStageOperator implements Operator<MseBlock>, AutoClos
     return ThreadResourceUsageProvider.getGcTime();
   }
 
-  /// This enum is used to identify the operation type.
-  ///
-  /// This is mostly used in the context of stats collection, where we use this enum in the serialization form in order
-  /// to identify the type of the stats in an efficient way.
-  ///
-  /// IMPORTANT: Each enum entry has an explicit `id` used for serialization. When adding new operator types,
-  /// always append them at the end and assign the next available ID. Never reuse or change existing IDs as this
-  /// would break backward compatibility with older versions.
-  public enum Type implements OperatorTypeDescriptor {
+  /**
+   * This enum is used to identify the operation type.
+   * <p>
+   * This is mostly used in the context of stats collection, where we use this enum in the serialization form in order
+   * to identify the type of the stats in an efficient way.
+   * <p>
+   * IMPORTANT: Each enum entry has an explicit {@code id} used for serialization. When adding new operator types,
+   * always append them at the end and assign the next available ID. Never reuse or change existing IDs as this
+   * would break backward compatibility with older versions.
+   */
+  public enum Type {
     AGGREGATE(0, AggregateOperator.StatKey.class) {
       @Override
       public void mergeInto(BrokerResponseNativeV2 response, StatMap<?> map) {
@@ -247,7 +259,7 @@ public abstract class MultiStageOperator implements Operator<MseBlock>, AutoClos
       /// So far this keys do not need to be modified from here because they are incremented in a per-worker basis:
       /// ServerMeter.AGGREGATE_TIMES_NUM_GROUPS_LIMIT_REACHED
       /// ServerMeter.AGGREGATE_TIMES_NUM_GROUPS_WARNING_LIMIT_REACHED
-      /// public void updateMseMetrics(StatMap<?> map, MseMetrics mseMetrics);
+      /// public void updateServerMetrics(StatMap<?> map, ServerMetrics serverMetrics);
     },
     FILTER(1, FilterOperator.StatKey.class) {
       @Override
@@ -268,15 +280,15 @@ public abstract class MultiStageOperator implements Operator<MseBlock>, AutoClos
       }
 
       @Override
-      public void updateMseMetrics(StatMap<?> map, MseMetrics mseMetrics) {
-        super.updateMseMetrics(map, mseMetrics);
+      public void updateServerMetrics(StatMap<?> map, ServerMetrics serverMetrics) {
+        super.updateServerMetrics(map, serverMetrics);
         @SuppressWarnings("unchecked")
         StatMap<HashJoinOperator.StatKey> stats = (StatMap<HashJoinOperator.StatKey>) map;
         boolean maxRowsInJoinReached = stats.getBoolean(HashJoinOperator.StatKey.MAX_ROWS_IN_JOIN_REACHED);
         if (maxRowsInJoinReached) {
-          mseMetrics.addMeteredGlobalValue(MseMeter.HASH_JOIN_TIMES_MAX_ROWS_REACHED, 1);
+          serverMetrics.addMeteredGlobalValue(ServerMeter.HASH_JOIN_TIMES_MAX_ROWS_REACHED, 1);
         }
-        mseMetrics.addTimedValue(MseTimer.HASH_JOIN_BUILD_TABLE_CPU_TIME_MS,
+        serverMetrics.addTimedValue(ServerTimer.HASH_JOIN_BUILD_TABLE_CPU_TIME_MS,
             stats.getLong(HashJoinOperator.StatKey.TIME_BUILDING_HASH_TABLE_MS), TimeUnit.MILLISECONDS);
       }
     },
@@ -317,23 +329,23 @@ public abstract class MultiStageOperator implements Operator<MseBlock>, AutoClos
       }
 
       @Override
-      public void updateMseMetrics(StatMap<?> map, MseMetrics mseMetrics) {
-        super.updateMseMetrics(map, mseMetrics);
+      public void updateServerMetrics(StatMap<?> map, ServerMetrics serverMetrics) {
+        super.updateServerMetrics(map, serverMetrics);
         @SuppressWarnings("unchecked")
         StatMap<BaseMailboxReceiveOperator.StatKey> stats = (StatMap<BaseMailboxReceiveOperator.StatKey>) map;
 
-        mseMetrics.addMeteredGlobalValue(MseMeter.IN_MEMORY_MESSAGES,
+        serverMetrics.addMeteredGlobalValue(ServerMeter.MULTI_STAGE_IN_MEMORY_MESSAGES,
             stats.getInt(BaseMailboxReceiveOperator.StatKey.IN_MEMORY_MESSAGES));
-        mseMetrics.addMeteredGlobalValue(MseMeter.RAW_MESSAGES,
+        serverMetrics.addMeteredGlobalValue(ServerMeter.MULTI_STAGE_RAW_MESSAGES,
             stats.getInt(BaseMailboxReceiveOperator.StatKey.RAW_MESSAGES));
-        mseMetrics.addMeteredGlobalValue(MseMeter.RAW_BYTES,
+        serverMetrics.addMeteredGlobalValue(ServerMeter.MULTI_STAGE_RAW_BYTES,
             stats.getLong(BaseMailboxReceiveOperator.StatKey.DESERIALIZED_BYTES));
 
-        mseMetrics.addTimedValue(MseTimer.DESERIALIZATION_CPU_TIME_MS,
+        serverMetrics.addTimedValue(ServerTimer.MULTI_STAGE_DESERIALIZATION_CPU_TIME_MS,
             stats.getLong(BaseMailboxReceiveOperator.StatKey.DESERIALIZATION_TIME_MS), TimeUnit.MILLISECONDS);
-        mseMetrics.addTimedValue(MseTimer.RECEIVE_DOWNSTREAM_WAIT_CPU_TIME_MS,
+        serverMetrics.addTimedValue(ServerTimer.RECEIVE_DOWNSTREAM_WAIT_CPU_TIME_MS,
             stats.getLong(BaseMailboxReceiveOperator.StatKey.DOWNSTREAM_WAIT_MS), TimeUnit.MILLISECONDS);
-        mseMetrics.addTimedValue(MseTimer.RECEIVE_UPSTREAM_WAIT_CPU_TIME_MS,
+        serverMetrics.addTimedValue(ServerTimer.RECEIVE_UPSTREAM_WAIT_CPU_TIME_MS,
             stats.getLong(BaseMailboxReceiveOperator.StatKey.UPSTREAM_WAIT_MS), TimeUnit.MILLISECONDS);
       }
     },
@@ -346,10 +358,10 @@ public abstract class MultiStageOperator implements Operator<MseBlock>, AutoClos
       }
 
       @Override
-      public void updateMseMetrics(StatMap<?> map, MseMetrics mseMetrics) {
+      public void updateServerMetrics(StatMap<?> map, ServerMetrics serverMetrics) {
         @SuppressWarnings("unchecked")
         StatMap<MailboxSendOperator.StatKey> stats = (StatMap<MailboxSendOperator.StatKey>) map;
-        mseMetrics.addTimedValue(MseTimer.SERIALIZATION_CPU_TIME_MS,
+        serverMetrics.addTimedValue(ServerTimer.MULTI_STAGE_SERIALIZATION_CPU_TIME_MS,
             stats.getLong(MailboxSendOperator.StatKey.SERIALIZATION_TIME_MS), TimeUnit.MILLISECONDS);
       }
     },
@@ -405,11 +417,11 @@ public abstract class MultiStageOperator implements Operator<MseBlock>, AutoClos
       }
 
       @Override
-      public void updateMseMetrics(StatMap<?> map, MseMetrics mseMetrics) {
+      public void updateServerMetrics(StatMap<?> map, ServerMetrics serverMetrics) {
         @SuppressWarnings("unchecked")
         StatMap<WindowAggregateOperator.StatKey> stats = (StatMap<WindowAggregateOperator.StatKey>) map;
         if (stats.getBoolean(WindowAggregateOperator.StatKey.MAX_ROWS_IN_WINDOW_REACHED)) {
-          mseMetrics.addMeteredGlobalValue(MseMeter.WINDOW_TIMES_MAX_ROWS_REACHED, 1);
+          serverMetrics.addMeteredGlobalValue(ServerMeter.WINDOW_TIMES_MAX_ROWS_REACHED, 1);
         }
       }
     },
@@ -428,18 +440,10 @@ public abstract class MultiStageOperator implements Operator<MseBlock>, AutoClos
         StatMap<UnnestOperator.StatKey> stats = (StatMap<UnnestOperator.StatKey>) map;
         response.mergeMaxRowsInOperator(stats.getLong(UnnestOperator.StatKey.EMITTED_ROWS));
       }
-    },
-    REPEAT(16, RepeatOperator.StatKey.class) {
-      @Override
-      public void mergeInto(BrokerResponseNativeV2 response, StatMap<?> map) {
-        @SuppressWarnings("unchecked")
-        StatMap<RepeatOperator.StatKey> stats = (StatMap<RepeatOperator.StatKey>) map;
-        response.mergeMaxRowsInOperator(stats.getLong(RepeatOperator.StatKey.EMITTED_ROWS));
-      }
     };
 
     // When adding new operator types, update MAX_ID if the new ID exceeds the current max
-    private static final int MAX_ID = 16;
+    private static final int MAX_ID = 15;
     private static final Type[] ID_TO_TYPE = new Type[MAX_ID + 1];
 
     static {
@@ -465,15 +469,19 @@ public abstract class MultiStageOperator implements Operator<MseBlock>, AutoClos
       _statKeyClass = statKeyClass;
     }
 
-    /// Returns the stable ID used for serialization.
-    ///
-    /// This ID is guaranteed to remain constant across versions, unlike [#ordinal()] which can change
-    /// if enum entries are reordered.
+    /**
+     * Returns the stable ID used for serialization.
+     * <p>
+     * This ID is guaranteed to remain constant across versions, unlike {@link #ordinal()} which can change
+     * if enum entries are reordered.
+     */
     public int getId() {
       return _id;
     }
 
-    /// Returns the Type for the given serialization ID, or null if no such type exists.
+    /**
+     * Returns the Type for the given serialization ID, or null if no such type exists.
+     */
     @Nullable
     public static Type fromId(int id) {
       if (id >= 0 && id < ID_TO_TYPE.length) {
@@ -482,21 +490,25 @@ public abstract class MultiStageOperator implements Operator<MseBlock>, AutoClos
       return null;
     }
 
-    /// Gets the class of the stat key for this operator type.
-    ///
-    /// Notice that this is not including the generic type parameter, because Java generic types are not expressive
-    /// enough indicate what we want to say, so generics here are more problematic than useful.
+    /**
+     * Gets the class of the stat key for this operator type.
+     * <p>
+     * Notice that this is not including the generic type parameter, because Java generic types are not expressive
+     * enough indicate what we want to say, so generics here are more problematic than useful.
+     */
     public Class getStatKeyClass() {
       return _statKeyClass;
     }
 
-    /// Merges the stats from the given map into the given broker response.
-    ///
-    /// Each literal has its own implementation of this method, which assumes the given map is of the correct type
-    /// (compatible with [#getStatKeyClass()]). This is a way to avoid casting in the caller.
+    /**
+     * Merges the stats from the given map into the given broker response.
+     * <p>
+     * Each literal has its own implementation of this method, which assumes the given map is of the correct type
+     * (compatible with {@link #getStatKeyClass()}). This is a way to avoid casting in the caller.
+     */
     public abstract void mergeInto(BrokerResponseNativeV2 response, StatMap<?> map);
 
-    public void updateMseMetrics(StatMap<?> map, MseMetrics mseMetrics) {
+    public void updateServerMetrics(StatMap<?> map, ServerMetrics serverMetrics) {
       // Do nothing by default
     }
   }

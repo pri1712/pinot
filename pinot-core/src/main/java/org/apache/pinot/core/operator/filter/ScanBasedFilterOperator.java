@@ -20,6 +20,7 @@ package org.apache.pinot.core.operator.filter;
 
 import com.google.common.base.CaseFormat;
 import com.google.common.base.Preconditions;
+import java.util.Collections;
 import java.util.List;
 import org.apache.pinot.core.common.BlockDocIdIterator;
 import org.apache.pinot.core.common.BlockDocIdSet;
@@ -68,7 +69,7 @@ public class ScanBasedFilterOperator extends BaseColumnFilterOperator {
 
   @Override
   public List<Operator> getChildOperators() {
-    return List.of();
+    return Collections.emptyList();
   }
 
   @Override
@@ -91,8 +92,10 @@ public class ScanBasedFilterOperator extends BaseColumnFilterOperator {
     attributeBuilder.putString("predicate", _predicateEvaluator.getPredicate().toString());
   }
 
-  /// Returns the metadata of the data source associated with the scan filter.
-  /// TODO: Replace this with a priority method for all filter operators
+  /**
+   * Returns the metadata of the data source associated with the scan filter.
+   * TODO: Replace this with a priority method for all filter operators
+   */
   public DataSourceMetadata getDataSourceMetadata() {
     return _dataSource.getDataSourceMetadata();
   }

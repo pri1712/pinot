@@ -20,6 +20,7 @@ package org.apache.pinot.core.query.selection;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.PriorityQueue;
@@ -33,17 +34,32 @@ import org.apache.pinot.spi.query.QueryThreadContext;
 import org.roaringbitmap.RoaringBitmap;
 
 
-/// The `SelectionOperatorService` class provides the services for selection queries with
-/// `ORDER BY`.
-///
-/// Expected behavior:
-///
-/// - Return selection results with the same order of columns as user passed in.
-///   - Eg. SELECT colB, colA, colC FROM table -> \[valB, valA, valC\]
-/// - For 'SELECT \*', return columns with alphabetically order.
-///   - Eg. SELECT \* FROM table -> \[valA, valB, valC\]
-/// - Order by does not change the order of columns in selection results.
-///   - Eg. SELECT colB, colA, colC FROM table ORDER BY calC -> \[valB, valA, valC\]
+/**
+ *
+ * The <code>SelectionOperatorService</code> class provides the services for selection queries with
+ * <code>ORDER BY</code>.
+ * <p>Expected behavior:
+ * <ul>
+ *   <li>
+ *     Return selection results with the same order of columns as user passed in.
+ *     <ul>
+ *       <li>Eg. SELECT colB, colA, colC FROM table -> [valB, valA, valC]</li>
+ *     </ul>
+ *   </li>
+ *   <li>
+ *     For 'SELECT *', return columns with alphabetically order.
+ *     <ul>
+ *       <li>Eg. SELECT * FROM table -> [valA, valB, valC]</li>
+ *     </ul>
+ *   </li>
+ *   <li>
+ *     Order by does not change the order of columns in selection results.
+ *     <ul>
+ *       <li>Eg. SELECT colB, colA, colC FROM table ORDER BY calC -> [valB, valA, valC]</li>
+ *     </ul>
+ *   </li>
+ * </ul>
+ */
 public class SelectionOperatorService {
   private final QueryContext _queryContext;
   private final DataSchema _dataSchema;
@@ -53,7 +69,7 @@ public class SelectionOperatorService {
   private final int _numRowsToKeep;
   // TODO: consider moving this to a util class
 
-  /// Util class used for n-way merge
+  /** Util class used for n-way merge */
   private static class MergeItem {
     final Object[] _row;
     final int _dataTableId;
@@ -75,9 +91,11 @@ public class SelectionOperatorService {
     assert queryContext.getOrderByExpressions() != null;
   }
 
-  /// Reduce multiple sorted dataTables into a single resultTable, ordered, limited, and offset
-  /// @param dataTables dataTables to be reduced
-  /// @return resultTable
+  /**
+   * Reduce multiple sorted dataTables into a single resultTable, ordered, limited, and offset
+   * @param dataTables dataTables to be reduced
+   * @return resultTable
+   */
   public ResultTable reduceWithOrdering(Collection<DataTable> dataTables) {
     if (dataTables.size() == 1) {
       // short circuit single table case
@@ -92,9 +110,11 @@ public class SelectionOperatorService {
     return new ResultTable(_dataSchema, mergedRows);
   }
 
-  /// Merge sorted dataTables using N-way merge
-  /// @param dataTables sorted dataTables
-  /// @return sorted rows
+  /**
+   * Merge sorted dataTables using N-way merge
+   * @param dataTables sorted dataTables
+   * @return sorted rows
+   */
   private List<Object[]> nWayMergeDataTables(List<DataTable> dataTables) {
     Comparator<Object[]> comparator = OrderByComparatorFactory.getComparator(_queryContext.getOrderByExpressions(),
         _queryContext.isNullHandlingEnabled());
@@ -153,7 +173,7 @@ public class SelectionOperatorService {
     int numRows = dataTable.getNumberOfRows();
 
     if (numRows <= _offset) {
-      return List.of();
+      return Collections.emptyList();
     }
 
     int start = _offset;
@@ -181,7 +201,7 @@ public class SelectionOperatorService {
     return resultRows;
   }
 
-  /// get nullBitmaps for dataTables
+  /** get nullBitmaps for dataTables */
   private RoaringBitmap[][] getdataTableNullBitmaps(List<DataTable> dataTables) {
     RoaringBitmap[][] dataTableNullBitmaps = new RoaringBitmap[dataTables.size()][];
     if (!_queryContext.isNullHandlingEnabled()) {
@@ -194,7 +214,7 @@ public class SelectionOperatorService {
     return dataTableNullBitmaps;
   }
 
-  /// get a single row from dataTable with null handling if nullBitmaps provided
+  /** get a single row from dataTable with null handling if nullBitmaps provided */
   private Object[] getDataTableRow(DataTable dataTable, int rowId, @Nullable RoaringBitmap[] nullBitmaps) {
     QueryThreadContext.checkTerminationAndSampleUsagePeriodically(rowId, "SelectionOperatorService#getDataTableRow");
     Object[] row = SelectionOperatorUtils.extractRowFromDataTable(dataTable, rowId);

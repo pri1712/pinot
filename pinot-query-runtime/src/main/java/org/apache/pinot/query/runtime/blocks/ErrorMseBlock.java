@@ -21,6 +21,7 @@ package org.apache.pinot.query.runtime.blocks;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.common.base.Preconditions;
+import java.util.Collections;
 import java.util.EnumMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -34,6 +35,7 @@ import org.apache.pinot.spi.utils.JsonUtils;
 
 
 /// A block that represents a failed execution.
+///
 public class ErrorMseBlock implements MseBlock.Eos {
   private final int _stageId;
   private final int _workerId;
@@ -85,11 +87,11 @@ public class ErrorMseBlock implements MseBlock.Eos {
       extractTrace = true;
     }
     String errorMessage = extractTrace ? ExceptionUtils.consolidateExceptionMessages(e) : e.getMessage();
-    return fromMap(Map.of(errorCode, errorMessage));
+    return fromMap(Collections.singletonMap(errorCode, errorMessage));
   }
 
   public static ErrorMseBlock fromError(QueryErrorCode errorCode, String errorMessage) {
-    return fromMap(Map.of(errorCode, errorMessage));
+    return fromMap(Collections.singletonMap(errorCode, errorMessage));
   }
 
   @Override
@@ -130,12 +132,6 @@ public class ErrorMseBlock implements MseBlock.Eos {
     try {
       ObjectNode root = JsonUtils.newObjectNode();
       root.put("type", "error");
-      // Provenance of the error: the stage, worker and server where the error originated. This is mostly useful when
-      // the block reaches downstream logs (e.g. the broker or an intermediate stage), so operators can quickly find
-      // where the failure actually happened. -1 / null means the origin could not be determined (see #fromMap).
-      root.put("stageId", _stageId);
-      root.put("workerId", _workerId);
-      root.put("serverId", _serverId);
       root.set("errorMessages", JsonUtils.objectToJsonNode(_errorMessages));
       return JsonUtils.objectToString(root);
     } catch (JsonProcessingException e) {

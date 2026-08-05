@@ -20,7 +20,6 @@ package org.apache.pinot.core.common;
 
 import com.clearspring.analytics.stream.cardinality.HyperLogLog;
 import com.dynatrace.hash4j.distinctcount.UltraLogLog;
-import com.tdunning.math.stats.Centroid;
 import com.tdunning.math.stats.TDigest;
 import it.unimi.dsi.fastutil.doubles.Double2LongOpenHashMap;
 import it.unimi.dsi.fastutil.doubles.DoubleArrayList;
@@ -34,9 +33,7 @@ import it.unimi.dsi.fastutil.longs.Long2LongOpenHashMap;
 import it.unimi.dsi.fastutil.longs.LongArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectLinkedOpenHashSet;
-import java.nio.ByteBuffer;
 import java.util.Arrays;
-import java.util.Base64;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -44,13 +41,13 @@ import java.util.PriorityQueue;
 import java.util.Random;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.datasketches.cpc.CpcSketch;
-import org.apache.datasketches.theta.ThetaSetOperationBuilder;
-import org.apache.datasketches.theta.ThetaSketch;
-import org.apache.datasketches.theta.UpdatableThetaSketch;
-import org.apache.datasketches.tuple.TupleSketch;
+import org.apache.datasketches.theta.SetOperationBuilder;
+import org.apache.datasketches.theta.Sketch;
+import org.apache.datasketches.theta.Sketches;
+import org.apache.datasketches.theta.UpdateSketch;
+import org.apache.datasketches.tuple.aninteger.IntegerSketch;
 import org.apache.datasketches.tuple.aninteger.IntegerSummary;
 import org.apache.datasketches.tuple.aninteger.IntegerSummarySetOperations;
-import org.apache.datasketches.tuple.aninteger.IntegerTupleSketch;
 import org.apache.pinot.core.query.aggregation.function.PercentileEstAggregationFunction;
 import org.apache.pinot.core.query.aggregation.function.PercentileTDigestAggregationFunction;
 import org.apache.pinot.core.query.aggregation.function.funnel.FunnelStepEvent;
@@ -67,7 +64,6 @@ import org.apache.pinot.segment.local.customobject.ThetaSketchAccumulator;
 import org.apache.pinot.segment.local.customobject.TupleIntSketchAccumulator;
 import org.apache.pinot.segment.local.customobject.ValueLongPair;
 import org.apache.pinot.segment.local.utils.UltraLogLogUtils;
-import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 import static org.testng.Assert.assertEquals;
@@ -81,23 +77,6 @@ public class ObjectSerDeUtilsTest {
   private static final String ERROR_MESSAGE = "Random seed: " + RANDOM_SEED;
 
   private static final int NUM_ITERATIONS = 100;
-  private static final String TDIGEST_3_2_VERBOSE_COMPRESSION_20 =
-      "AAAAAT+5mZmZmZmaP+zMzMzMzM1ANAAAAAAAAAAAABtAKgAAAAAAAD+5mZmZmZmaQBgAAAAAAAA/uZmZmZmZmkAcAAAAAAAAP7mZ"
-          + "mZmZmZpAHAAAAAAAAD+5mZmZmZmaQBwAAAAAAAA/uZmZmZmZmkAmAAAAAAAAP7mZmZmZmZpAKgAAAAAAAD+5mZmZmZmaQCYAAAAA"
-          + "AAA/uZmZmZmZmkAmAAAAAAAAP7mZmZmZmZpAJAAAAAAAAD+5mZmZmZmaQC4AAAAAAAA/uZmZmZmZmkAmAAAAAAAAP7mZmZmZmZpA"
-          + "LAAAAAAAAD+5mZmZmZmaQCIAAAAAAAA/uZmZmZmZmkAyAAAAAAAAP8VVVVVVVVZAMQAAAAAAAD/gAAAAAAAAQCwAAAAAAAA/4AAA"
-          + "AAAAAEAsAAAAAAAAP+AAAAAAAABAKAAAAAAAAD/gAAAAAAAAQCQAAAAAAAA/564UeuFHrkAUAAAAAAAAP+zMzMzMzM1AFAAAAAAA"
-          + "AD/szMzMzMzNQBwAAAAAAAA/7MzMzMzMzUAQAAAAAAAAP+zMzMzMzM1ACAAAAAAAAD/szMzMzMzNP/AAAAAAAAA/7MzMzMzMzT/w"
-          + "AAAAAAAAP+zMzMzMzM0=";
-  private static final String TDIGEST_3_2_SMALL_COMPRESSION_1000 =
-      "AAAAAj+INkk/eVmAQJLlmhJu+WhEegAAB9oTiABAP4AAADxBsko/gAAAPRQvNz+AAAA9fAMgP4AAAD20Elw/gAAAPexqgT+AAAA+"
-          + "E5aAP4AAAD4yP88/gAAAPlJFjz+AAAA+c73OP4AAAD6LYDU/gAAAPp2zoz+AAAA+sOdBP4AAAD7FClg/gAAAPtotkD+AAAA+8GMX"
-          + "P4AAAD8D32Y/gAAAPxArOT+AAAA/HSDzP4AAAD8qzbU/gAAAPzk/8j+AAAA/SIegP4AAAD9YtmU/gAAAP2nf1D+AAAA/fBmxP4AA"
-          + "AD+Hvh4/gAAAP5IRRj+AAAA/nRWBP4AAAD+o294/gAAAP7V3mj+AAAA/wv55P4AAAD/RiSw/gAAAP+Ez2T+AAAA/8h6sP4AAAEAC"
-          + "N00/gAAAQAwnIz+AAABAFveKP4AAAEAixUk/gAAAQC+yDj+AAABAPeWGP4AAAEBNjrY/gAAAQF7lsz+AAABAci3iP4AAAECD3G8/"
-          + "gAAAQI/1LD+AAABAnZ6aP4AAAECtJUM/gAAAQL7pkj+AAABA02aDP4AAAEDrOzE/gAAAQQOcVz+AAABBFDtQP4AAAEEoOWA/gAAA"
-          + "QUChLz+AAABBXvGHP4AAAEGCsOA/gAAAQZutuD+AAABBvS/yP4AAAEHr7EA/gAAAQhhGxT+AAABCTlsKP4AAAEKWasI/gAAAQvfH"
-          + "yz+AAABDgpJvP4AAAESXLNE=";
 
   @Test
   public void testString() {
@@ -353,45 +332,6 @@ public class ObjectSerDeUtilsTest {
     }
   }
 
-  @DataProvider(name = "tdigest32Fixtures")
-  public static Object[][] tdigest32Fixtures() {
-    return new Object[][]{
-        {TDIGEST_3_2_VERBOSE_COMPRESSION_20, 1, 20.0, 256L, 0.1, 0.9},
-        {TDIGEST_3_2_SMALL_COMPRESSION_1000, 2, 1_000.0, 64L, 0.011822292565892623, 1209.4004609431959}
-    };
-  }
-
-  @Test(dataProvider = "tdigest32Fixtures")
-  public void testTDigest32Fixtures(String base64Bytes, int expectedEncoding, double expectedCompression,
-      long expectedSize, double expectedMin, double expectedMax) {
-    byte[] bytes = Base64.getDecoder().decode(base64Bytes);
-    assertEquals(ByteBuffer.wrap(bytes).getInt(), expectedEncoding);
-    TDigest digest = ObjectSerDeUtils.deserialize(bytes, ObjectSerDeUtils.ObjectType.TDigest);
-    assertEquals(digest.compression(), expectedCompression);
-    assertEquals(digest.size(), expectedSize);
-    assertEquals(digest.getMin(), expectedMin);
-    assertEquals(digest.getMax(), expectedMax);
-
-    long centroidWeight = 0L;
-    double previousMean = Double.NEGATIVE_INFINITY;
-    for (Centroid centroid : digest.centroids()) {
-      assertTrue(Double.isFinite(centroid.mean()));
-      assertTrue(centroid.count() > 0);
-      assertTrue(centroid.mean() + 1e-12 >= previousMean);
-      centroidWeight += centroid.count();
-      previousMean = centroid.mean();
-    }
-    assertEquals(centroidWeight, expectedSize);
-
-    double previousQuantile = Double.NEGATIVE_INFINITY;
-    for (double quantile : new double[]{0.0, 0.5, 0.75, 0.95, 0.99, 1.0}) {
-      double value = digest.quantile(quantile);
-      assertTrue(Double.isFinite(value));
-      assertTrue(value >= previousQuantile);
-      previousQuantile = value;
-    }
-  }
-
   @Test
   public void testInt2LongMap() {
     for (int i = 0; i < NUM_ITERATIONS; i++) {
@@ -549,7 +489,7 @@ public class ObjectSerDeUtilsTest {
   @Test
   public void testThetaSketch() {
     for (int i = 0; i < NUM_ITERATIONS; i++) {
-      UpdatableThetaSketch input = UpdatableThetaSketch.builder().build();
+      UpdateSketch input = Sketches.updateSketchBuilder().build();
       int size = RANDOM.nextInt(100) + 10;
       boolean shouldOrder = RANDOM.nextBoolean();
 
@@ -557,10 +497,10 @@ public class ObjectSerDeUtilsTest {
         input.update(j);
       }
 
-      ThetaSketch sketch = input.compact(shouldOrder, null);
+      Sketch sketch = input.compact(shouldOrder, null);
 
       byte[] bytes = ObjectSerDeUtils.serialize(sketch);
-      ThetaSketch actual = ObjectSerDeUtils.deserialize(bytes, ObjectSerDeUtils.ObjectType.DataSketch);
+      Sketch actual = ObjectSerDeUtils.deserialize(bytes, ObjectSerDeUtils.ObjectType.DataSketch);
 
       assertEquals(actual.getEstimate(), sketch.getEstimate(), ERROR_MESSAGE);
       assertEquals(actual.toByteArray(), sketch.toByteArray(), ERROR_MESSAGE);
@@ -571,16 +511,16 @@ public class ObjectSerDeUtilsTest {
   @Test
   public void testThetaSketchAccumulator() {
     for (int i = 0; i < NUM_ITERATIONS; i++) {
-      UpdatableThetaSketch input = UpdatableThetaSketch.builder().build();
+      UpdateSketch input = Sketches.updateSketchBuilder().build();
       int size = RANDOM.nextInt(100) + 10;
 
       for (int j = 0; j < size; j++) {
         input.update(j);
       }
 
-      ThetaSetOperationBuilder setOperationBuilder = new ThetaSetOperationBuilder();
+      SetOperationBuilder setOperationBuilder = new SetOperationBuilder();
       ThetaSketchAccumulator accumulator = new ThetaSketchAccumulator(setOperationBuilder, 2);
-      ThetaSketch sketch = input.compact(false, null);
+      Sketch sketch = input.compact(false, null);
       accumulator.apply(sketch);
 
       byte[] bytes = ObjectSerDeUtils.serialize(accumulator);
@@ -597,7 +537,7 @@ public class ObjectSerDeUtilsTest {
     for (int i = 0; i < NUM_ITERATIONS; i++) {
       int lgK = 4;
       int size = RANDOM.nextInt(100) + 10;
-      IntegerTupleSketch input = new IntegerTupleSketch(lgK, IntegerSummary.Mode.Sum);
+      IntegerSketch input = new IntegerSketch(lgK, IntegerSummary.Mode.Sum);
 
       for (int j = 0; j < size; j++) {
         input.update(j, RANDOM.nextInt(100));
@@ -606,7 +546,7 @@ public class ObjectSerDeUtilsTest {
       IntegerSummarySetOperations setOps =
           new IntegerSummarySetOperations(IntegerSummary.Mode.Sum, IntegerSummary.Mode.Sum);
       TupleIntSketchAccumulator accumulator = new TupleIntSketchAccumulator(setOps, (int) Math.pow(2, lgK), 2);
-      TupleSketch<IntegerSummary> sketch = input.compact();
+      org.apache.datasketches.tuple.Sketch<IntegerSummary> sketch = input.compact();
       accumulator.apply(sketch);
 
       byte[] bytes = ObjectSerDeUtils.serialize(accumulator);

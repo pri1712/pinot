@@ -31,7 +31,9 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 
-/// Unit test for [FixedByteSingleValueMultiColumnReaderWriter]
+/**
+ * Unit test for {@link FixedByteSingleValueMultiColumnReaderWriter}
+ */
 public class FixedByteSingleValueMultiColumnReaderWriterTest implements PinotBuffersAfterClassCheckRule {
   private static final int NUM_ROWS = 1001;
   private static final int NUM_ROWS_PER_CHUNK = 23;

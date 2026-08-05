@@ -81,7 +81,9 @@ public class FastLookupDimensionTable implements DimensionTable {
     return _lookupTable.containsKey(pk.getValues());
   }
 
-  /// This method returns GenericRow, which has big memory and cpu overhead.
+  /**
+   * This method returns GenericRow, which has big memory and cpu overhead.
+   */
   @Deprecated
   @Nullable
   @Override

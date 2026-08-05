@@ -67,6 +67,7 @@ public class PredownloadPredownloadStatusRecorderTest {
     testFolder.mkdir();
     PredownloadStatusRecorder.setStatusRecordFolder(testFolder.getAbsolutePath());
 
+    SecurityManager originalSecurityManager = System.getSecurityManager();
     try {
       ExitHelper.setExitAction(status -> {
         throw new ExitException(status);
@@ -75,7 +76,8 @@ public class PredownloadPredownloadStatusRecorderTest {
       tryRetriableFailure(testFolder);
       tryNonRetriableFailure(testFolder);
     } finally {
-      ExitHelper.resetExitAction();
+      // Restore the original SecurityManager
+      System.setSecurityManager(originalSecurityManager);
     }
   }
 

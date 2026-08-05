@@ -21,13 +21,16 @@ package org.apache.pinot.core.operator.transform.function;
 import org.apache.pinot.common.function.TransformFunctionType;
 
 
-/// The `OrOperatorTransformFunction` extends `LogicalOperatorTransformFunction` to
-/// implement the logical operator 'OR'.
-///
-/// The results are in boolean format and stored as an integer array with 1 represents true and 0 represents false.
-///
-/// SQL Syntax:
-///    exprA OR exprB
+/**
+ * The <code>OrOperatorTransformFunction</code> extends <code>LogicalOperatorTransformFunction</code> to
+ * implement the logical operator 'OR'.
+ *
+ * The results are in boolean format and stored as an integer array with 1 represents true and 0 represents false.
+ *
+ * SQL Syntax:
+ *    exprA OR exprB
+ *
+ */
 public class OrOperatorTransformFunction extends LogicalOperatorTransformFunction {
 
   @Override

@@ -40,7 +40,9 @@ import org.roaringbitmap.IntConsumer;
 import org.roaringbitmap.RoaringBitmap;
 
 
-/// [DistinctExecutor] for multiple dictionary-encoded columns.
+/**
+ * {@link DistinctExecutor} for multiple dictionary-encoded columns.
+ */
 public class DictionaryBasedMultiColumnDistinctExecutor implements DistinctExecutor {
   private final List<ExpressionContext> _expressions;
   private final boolean _hasMVExpression;

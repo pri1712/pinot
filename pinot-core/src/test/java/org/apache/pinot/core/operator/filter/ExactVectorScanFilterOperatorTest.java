@@ -34,7 +34,9 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 
-/// Tests for [ExactVectorScanFilterOperator].
+/**
+ * Tests for {@link ExactVectorScanFilterOperator}.
+ */
 public class ExactVectorScanFilterOperatorTest {
 
   @Test

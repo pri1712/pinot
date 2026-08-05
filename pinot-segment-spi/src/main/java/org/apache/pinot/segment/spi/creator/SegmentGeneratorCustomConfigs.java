@@ -18,7 +18,9 @@
  */
 package org.apache.pinot.segment.spi.creator;
 
-/// Class holds customizable configs for segment generation.
+/**
+ * Class holds customizable configs for segment generation.
+ */
 public class SegmentGeneratorCustomConfigs {
   private String _segmentName;
 

@@ -172,15 +172,19 @@ public class ImplicitHybridTableRouteInfo implements TableRouteInfo {
     _realtimeRoutingTable = realtimeRoutingTable;
   }
 
-  /// Offline if offline table config is present.
-  /// @return true if there is an OFFLINE table, false otherwise
+  /**
+   * Offline if offline table config is present.
+   * @return true if there is an OFFLINE table, false otherwise
+   */
   @Override
   public boolean hasOffline() {
     return _offlineTableConfig != null;
   }
 
-  /// Realtime if realtime table config is present.
-  /// @return true if there is a REALTIME table, false otherwise
+  /**
+   * Realtime if realtime table config is present.
+   * @return true if there is a REALTIME table, false otherwise
+   */
   @Override
   public boolean hasRealtime() {
     return _realtimeTableConfig != null;
@@ -269,11 +273,9 @@ public class ImplicitHybridTableRouteInfo implements TableRouteInfo {
   private Map<ServerRoutingInstance, InstanceRequest> getRequestMapFromRoutingTable(TableType tableType,
       Map<ServerInstance, SegmentsToQuery> routingTable, BrokerRequest brokerRequest, long requestId, String brokerId,
       boolean preferTls) {
-    ServerInstance.RoutingType routingType =
-        preferTls ? ServerInstance.RoutingType.NETTY_TLS : ServerInstance.RoutingType.NETTY;
     Map<ServerRoutingInstance, InstanceRequest> requestMap = new HashMap<>();
     for (Map.Entry<ServerInstance, SegmentsToQuery> entry : routingTable.entrySet()) {
-      ServerRoutingInstance serverRoutingInstance = entry.getKey().toServerRoutingInstance(tableType, routingType);
+      ServerRoutingInstance serverRoutingInstance = entry.getKey().toServerRoutingInstance(tableType, preferTls);
       InstanceRequest instanceRequest = getInstanceRequest(requestId, brokerId, brokerRequest, entry.getValue());
       requestMap.put(serverRoutingInstance, instanceRequest);
     }

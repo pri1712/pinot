@@ -34,7 +34,9 @@ import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 
-/// Tests the GROOVY transform function
+/**
+ * Tests the GROOVY transform function
+ */
 public class GroovyTransformFunctionTest extends BaseTransformFunctionTest {
 
   @DataProvider(name = "groovyFunctionDataProvider")

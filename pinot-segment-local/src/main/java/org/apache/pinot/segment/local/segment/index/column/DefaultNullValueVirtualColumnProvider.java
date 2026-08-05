@@ -39,7 +39,9 @@ import org.apache.pinot.spi.data.FieldSpec;
 import org.apache.pinot.spi.utils.ByteArray;
 
 
-/// Provide the default null value.
+/**
+ * Provide the default null value.
+ */
 public class DefaultNullValueVirtualColumnProvider implements VirtualColumnProvider {
 
   @Override
@@ -68,7 +70,6 @@ public class DefaultNullValueVirtualColumnProvider implements VirtualColumnProvi
       case STRING:
         return new ConstantValueStringDictionary((String) fieldSpec.getDefaultNullValue());
       case BYTES:
-      case UUID:
         return new ConstantValueBytesDictionary((byte[]) fieldSpec.getDefaultNullValue());
       default:
         throw new IllegalStateException();

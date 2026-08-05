@@ -32,7 +32,9 @@ import java.nio.file.StandardCopyOption;
 import java.util.zip.GZIPInputStream;
 
 
-/// Utils for reading file records
+/**
+ * Utils for reading file records
+ */
 public class RecordReaderUtils {
   private RecordReaderUtils() {
   }

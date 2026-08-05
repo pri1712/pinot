@@ -35,7 +35,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 
-/// Queue to maintain secondary workload queries. Used by the BinaryWorkloadScheduler.
+/**
+ * Queue to maintain secondary workload queries. Used by the BinaryWorkloadScheduler.
+ */
 public class SecondaryWorkloadQueue {
   private static final Logger LOGGER = LoggerFactory.getLogger(SecondaryWorkloadQueue.class);
   private static final String SECONDARY_WORKLOAD_GROUP_NAME = "Secondary";
@@ -73,9 +75,11 @@ public class SecondaryWorkloadQueue {
     _resourceManager = resourceManager;
   }
 
-  /// Adds a query to the secondary workload queue.
-  /// @param query
-  /// @throws OutOfCapacityException
+  /**
+   * Adds a query to the secondary workload queue.
+   * @param query
+   * @throws OutOfCapacityException
+   */
   public void put(SchedulerQueryContext query)
       throws OutOfCapacityException {
     Preconditions.checkNotNull(query);
@@ -90,8 +94,10 @@ public class SecondaryWorkloadQueue {
     }
   }
 
-  /// Blocking call to read the next query
-  /// @return
+  /**
+   * Blocking call to read the next query
+   * @return
+   */
   @Nullable
   public SchedulerQueryContext take() {
     _queueLock.lock();

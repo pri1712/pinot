@@ -34,12 +34,14 @@ public class Utils {
   private Utils() {
   }
 
-  /// Replace all occurrence of a string in originalDataFile and write the replaced content to replacedDataFile.
-  /// @param originalDataFile original data file
-  /// @param replacedDataFile replaced data file
-  /// @param original original string
-  /// @param replaced replaced string
-  /// @throws IOException if an I/O error occurs
+  /**
+   * Replace all occurrence of a string in originalDataFile and write the replaced content to replacedDataFile.
+   * @param originalDataFile original data file
+   * @param replacedDataFile replaced data file
+   * @param original original string
+   * @param replaced replaced string
+   * @throws IOException if an I/O error occurs
+   */
   public static void replaceContent(File originalDataFile, File replacedDataFile, String original, String replaced)
       throws IOException {
     Stream<String> lines = Files.lines(originalDataFile.toPath());
@@ -49,7 +51,7 @@ public class Utils {
   }
 
   public static JsonNode postSqlQuery(String query, String brokerBaseApiUrl)
-      throws IOException {
+      throws Exception {
     ObjectNode payload = JsonUtils.newObjectNode();
     payload.put("sql", query);
     payload.put("queryOptions", "groupByMode=sql;responseFormat=sql");
@@ -58,8 +60,7 @@ public class Utils {
         ControllerTest.sendPostRequest(brokerBaseApiUrl + "/query/sql", payload.toString()));
   }
 
-  public static JsonNode postMultiStageSqlQuery(String query, String brokerBaseApiUrl)
-      throws IOException {
+  public static JsonNode postMultiStageSqlQuery(String query, String brokerBaseApiUrl) throws Exception {
     ObjectNode payload = JsonUtils.newObjectNode();
     payload.put("sql", query);
     payload.put("queryOptions", "useMultistageEngine=true");

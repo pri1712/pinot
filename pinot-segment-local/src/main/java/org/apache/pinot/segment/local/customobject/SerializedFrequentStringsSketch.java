@@ -20,20 +20,20 @@ package org.apache.pinot.segment.local.customobject;
 
 import java.util.Base64;
 import org.apache.datasketches.common.ArrayOfStringsSerDe;
-import org.apache.datasketches.frequencies.FrequentItemsSketch;
+import org.apache.datasketches.frequencies.ItemsSketch;
 
-public class SerializedFrequentStringsSketch implements Comparable<SerializedFrequentStringsSketch> {
-  private final FrequentItemsSketch<String> _sketch;
+public class SerializedFrequentStringsSketch implements Comparable<ItemsSketch<String>> {
+  private final ItemsSketch<String> _sketch;
 
-  public SerializedFrequentStringsSketch(FrequentItemsSketch<String> sketch) {
+  public SerializedFrequentStringsSketch(ItemsSketch<String> sketch) {
     _sketch = sketch;
   }
 
   @Override
-  public int compareTo(SerializedFrequentStringsSketch other) {
+  public int compareTo(ItemsSketch<String> other) {
     // There is no well-defined ordering for these sketches
     // numActiveItems is just a placeholder, which can be changed later
-    return Integer.compare(_sketch.getNumActiveItems(), other._sketch.getNumActiveItems());
+    return _sketch.getNumActiveItems() - other.getNumActiveItems();
   }
 
   @Override

@@ -33,8 +33,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 
-/// Create range-index for columns used in <, > and between predicate
-/// Skip the inverted and sorted index columns if recommended
+/**
+ * Create range-index for columns used in <, > and between predicate
+ * Skip the inverted and sorted index columns if recommended
+ */
 public class RangeIndexRule extends AbstractRule {
   private static final Logger LOGGER = LoggerFactory.getLogger(RangeIndexRule.class);
   private final RangeIndexRuleParams _params;
@@ -85,9 +87,11 @@ public class RangeIndexRule extends AbstractRule {
     return parsePredicateList(filter);
   }
 
-  /// As cardinality does not matter, AND and OR columns will be considered
-  /// @param filterContext filterContext
-  /// @return FixedLenBitset for range predicates in this query
+  /**
+   * As cardinality does not matter, AND and OR columns will be considered
+   * @param filterContext filterContext
+   * @return FixedLenBitset for range predicates in this query
+   */
   private FixedLenBitset parsePredicateList(FilterContext filterContext) {
     FixedLenBitset ret = mutableEmptySet();
     List<FilterContext> children = filterContext.getChildren();

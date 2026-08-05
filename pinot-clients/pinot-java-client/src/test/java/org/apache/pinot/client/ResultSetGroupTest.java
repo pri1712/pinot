@@ -19,7 +19,7 @@
 package org.apache.pinot.client;
 
 import java.io.InputStream;
-import java.util.List;
+import java.util.Collections;
 import java.util.Properties;
 import java.util.concurrent.CompletableFuture;
 import org.apache.pinot.spi.utils.JsonUtils;
@@ -27,7 +27,10 @@ import org.testng.Assert;
 import org.testng.annotations.Test;
 
 
-/// Tests deserialization of a ResultSet given hardcoded Pinot results.
+/**
+ * Tests deserialization of a ResultSet given hardcoded Pinot results.
+ *
+ */
 public class ResultSetGroupTest {
   private final DummyJsonTransport _dummyJsonTransport = new DummyJsonTransport();
 
@@ -126,7 +129,7 @@ public class ResultSetGroupTest {
 
   private ResultSetGroup getResultSet(String resourceName) {
     _dummyJsonTransport._resource = resourceName;
-    Connection connection = ConnectionFactory.fromHostList(List.of("dummy"), _dummyJsonTransport);
+    Connection connection = ConnectionFactory.fromHostList(Collections.singletonList("dummy"), _dummyJsonTransport);
     return connection.execute("dummy");
   }
 
@@ -135,7 +138,7 @@ public class ResultSetGroupTest {
     Properties props = new Properties();
     props.setProperty("failOnExceptions", "false");
     Connection connection =
-        ConnectionFactory.fromHostList(props, List.of("dummy"), _dummyJsonTransport);
+        ConnectionFactory.fromHostList(props, Collections.singletonList("dummy"), _dummyJsonTransport);
     return connection.execute("dummy");
   }
 

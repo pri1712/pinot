@@ -24,7 +24,9 @@ import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertTrue;
 
 
-/// Tests for inverse hyperbolic trigonometric functions in [TrigonometricFunctions].
+/**
+ * Tests for inverse hyperbolic trigonometric functions in {@link TrigonometricFunctions}.
+ */
 public class TrigonometricFunctionsTest {
 
   private static final double DELTA = 1e-10;

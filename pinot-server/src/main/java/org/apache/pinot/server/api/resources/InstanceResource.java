@@ -28,6 +28,7 @@ import io.swagger.annotations.Authorization;
 import io.swagger.annotations.SecurityDefinition;
 import io.swagger.annotations.SwaggerDefinition;
 import java.io.IOException;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import javax.inject.Inject;
@@ -55,7 +56,9 @@ import org.apache.pinot.server.starter.ServerInstance;
 import static org.apache.pinot.spi.utils.CommonConstants.SWAGGER_AUTHORIZATION_KEY;
 
 
-/// This resource API can be used to retrieve instance level information like instance tags.
+/**
+ * This resource API can be used to retrieve instance level information like instance tags.
+ */
 @Api(description = "Metadata for this instance (like tenant tags)", tags = "instance", authorizations =
     {@Authorization(value = SWAGGER_AUTHORIZATION_KEY)})
 @SwaggerDefinition(securityDefinition = @SecurityDefinition(apiKeyAuthDefinitions = @ApiKeyAuthDefinition(name =
@@ -83,12 +86,14 @@ public class InstanceResource {
     if (config != null && config.getTags() != null) {
       return config.getTags();
     }
-    return List.of();
+    return Collections.emptyList();
   }
 
-  /// Retrieve instance pools in the Helix InstanceConfig:
-  /// https://docs.pinot.apache.org/operators/operating-pinot/instance-assignment#pool-based-instance-assignment.
-  /// Returns an empty Map if poolBased config is not enabled or the instance is not assigned to any pool.
+  /**
+   * Retrieve instance pools in the Helix InstanceConfig:
+   * https://docs.pinot.apache.org/operators/operating-pinot/instance-assignment#pool-based-instance-assignment.
+   * Returns an empty Map if poolBased config is not enabled or the instance is not assigned to any pool.
+   */
   @GET
   @Path("pools")
   @ApiOperation(value = "Tenant pools for current instance")
@@ -99,10 +104,10 @@ public class InstanceResource {
   public Map<String, String> getInstancePools() {
     InstanceConfig instanceConfig = HelixHelper.getInstanceConfig(_helixManager, _instanceId);
     if (instanceConfig == null || instanceConfig.getRecord() == null) {
-      return Map.of();
+      return Collections.emptyMap();
     }
     Map<String, String> pools = instanceConfig.getRecord().getMapField(InstanceUtils.POOL_KEY);
-    return pools == null ? Map.of() : pools;
+    return pools == null ? Collections.emptyMap() : pools;
   }
 
   @GET

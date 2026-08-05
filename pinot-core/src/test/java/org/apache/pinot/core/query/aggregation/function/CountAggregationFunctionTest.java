@@ -19,15 +19,11 @@
 
 package org.apache.pinot.core.query.aggregation.function;
 
-import java.util.List;
-import org.apache.pinot.common.request.context.ExpressionContext;
 import org.apache.pinot.queries.FluentQueryTest;
 import org.apache.pinot.spi.data.FieldSpec;
 import org.apache.pinot.spi.data.Schema;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
-
-import static org.testng.Assert.assertEquals;
 
 
 public class CountAggregationFunctionTest extends AbstractAggregationFunctionTest {
@@ -45,7 +41,7 @@ public class CountAggregationFunctionTest extends AbstractAggregationFunctionTes
             new Object[] {null}
         )
         .whenQuery("select myField from testTable order by myField")
-        .thenResultIs("INT",
+        .thenResultIs("INTEGER",
             "-2147483648",
             "1",
             "2"
@@ -65,7 +61,7 @@ public class CountAggregationFunctionTest extends AbstractAggregationFunctionTes
             new Object[] {null}
         )
         .whenQuery("select myField from testTable order by myField")
-        .thenResultIs("INT",
+        .thenResultIs("INTEGER",
             "1",
             "2",
             "null"
@@ -87,7 +83,7 @@ public class CountAggregationFunctionTest extends AbstractAggregationFunctionTes
             "null"
         )
         .whenQuery("select myField, COUNT(myField) from testTable group by myField order by myField")
-        .thenResultIs("INT | LONG",
+        .thenResultIs("INTEGER | LONG",
             "-2147483648 | 1",
             "1           | 1",
             "2           | 1"
@@ -111,7 +107,7 @@ public class CountAggregationFunctionTest extends AbstractAggregationFunctionTes
         )
         .whenQuery("select myField, COUNT(myField) from testTable group by myField order by myField")
         .thenResultIs(
-            "INT | LONG",
+            "INTEGER | LONG",
             "1    | 1",
             "2    | 1",
             "null | 0"
@@ -133,7 +129,7 @@ public class CountAggregationFunctionTest extends AbstractAggregationFunctionTes
             "null"
         )
         .whenQuery("select myField, COUNT(*) from testTable group by myField order by myField")
-        .thenResultIs("INT | LONG",
+        .thenResultIs("INTEGER | LONG",
             "-2147483648 | 1",
             "1    | 1",
             "2    | 1"
@@ -155,7 +151,7 @@ public class CountAggregationFunctionTest extends AbstractAggregationFunctionTes
             "null"
         )
         .whenQuery("select myField, COUNT(*) from testTable group by myField order by myField")
-        .thenResultIs("INT | LONG",
+        .thenResultIs("INTEGER | LONG",
             "1    | 1",
             "2    | 1",
             "null | 1"
@@ -236,14 +232,6 @@ public class CountAggregationFunctionTest extends AbstractAggregationFunctionTes
             "tag2    | 2",
             "tag3    | 0"
         );
-  }
-
-  @Test
-  public void testExtractFinalResultReturnsZeroForNull() {
-    CountAggregationFunction function =
-        new CountAggregationFunction(List.of(ExpressionContext.forIdentifier("col")), false);
-    assertEquals(function.extractFinalResult(null), Long.valueOf(0L));
-    assertEquals(function.extractFinalResult(5L), Long.valueOf(5L));
   }
 
   @DataProvider(name = "nullHandlingEnabled")

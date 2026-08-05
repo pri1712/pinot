@@ -21,7 +21,9 @@ package org.apache.pinot.spi.stream;
 import javax.annotation.Nullable;
 
 
-/// Container for holding the current consumption state at a per-partition level
+/**
+ * Container for holding the current consumption state at a per-partition level
+ */
 public class ConsumerPartitionState {
   private final String _partitionId;
   private final StreamPartitionMsgOffset _currentOffset;

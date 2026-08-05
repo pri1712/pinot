@@ -46,7 +46,9 @@ import static org.testng.Assert.assertNotNull;
 import static org.testng.Assert.assertTrue;
 
 
-/// Tests for the ValidationManagers.
+/**
+ * Tests for the ValidationManagers.
+ */
 public class ValidationManagerTest {
   private static final ControllerTest TEST_INSTANCE = ControllerTest.getInstance();
   private static final String TEST_TABLE_NAME = "validationTable";

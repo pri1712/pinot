@@ -22,7 +22,9 @@ import org.apache.pinot.segment.local.utils.GeometryUtils;
 import org.locationtech.jts.io.WKTReader;
 
 
-/// Constructor function for geography object from text.
+/**
+ * Constructor function for geography object from text.
+ */
 public class StGeogFromTextFunction extends ConstructFromTextFunction {
   public static final String FUNCTION_NAME = "ST_GeogFromText";
 

@@ -25,7 +25,6 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
-import java.util.UUID;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.pinot.common.datatable.DataTable;
@@ -35,14 +34,15 @@ import org.apache.pinot.common.utils.DataSchema;
 import org.apache.pinot.spi.accounting.ThreadResourceUsageProvider;
 import org.apache.pinot.spi.exception.QueryErrorCode;
 import org.apache.pinot.spi.utils.ByteArray;
-import org.apache.pinot.spi.utils.UuidUtils;
 import org.roaringbitmap.RoaringBitmap;
 import org.testng.Assert;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 
-/// Unit test for [DataTable] serialization/de-serialization.
+/**
+ * Unit test for {@link DataTable} serialization/de-serialization.
+ */
 public class DataTableSerDeTest {
   private static final long RANDOM_SEED = System.currentTimeMillis();
   private static final Random RANDOM = new Random(RANDOM_SEED);
@@ -60,7 +60,6 @@ public class DataTableSerDeTest {
   private static final String[] STRINGS = new String[NUM_ROWS];
   private static final String[] JSONS = new String[NUM_ROWS];
   private static final byte[][] BYTES = new byte[NUM_ROWS][];
-  private static final byte[][] UUIDS = new byte[NUM_ROWS][];
   private static final Object[] OBJECTS = new Object[NUM_ROWS];
   private static final int[][] INT_ARRAYS = new int[NUM_ROWS][];
   private static final long[][] LONG_ARRAYS = new long[NUM_ROWS][];
@@ -70,7 +69,6 @@ public class DataTableSerDeTest {
   private static final long[][] TIMESTAMP_ARRAYS = new long[NUM_ROWS][];
   private static final String[][] STRING_ARRAYS = new String[NUM_ROWS][];
   private static final ByteArray[][] BYTES_ARRAYS = new ByteArray[NUM_ROWS][];
-  private static final ByteArray[][] UUID_ARRAYS = new ByteArray[NUM_ROWS][];
   private static final BigDecimal[][] BIG_DECIMAL_ARRAYS = new BigDecimal[NUM_ROWS][];
   private static final Map<String, Object>[] MAPS = new Map[NUM_ROWS];
 
@@ -369,11 +367,6 @@ public class DataTableSerDeTest {
             BYTES[rowId] = isNull ? new byte[0] : RandomStringUtils.secure().next(RANDOM.nextInt(20)).getBytes();
             dataTableBuilder.setColumn(colId, new ByteArray(BYTES[rowId]));
             break;
-          case UUID:
-            UUIDS[rowId] = isNull ? UuidUtils.nullUuidBytes()
-                : UuidUtils.toBytes(new UUID(RANDOM.nextLong(), RANDOM.nextLong()));
-            dataTableBuilder.setColumn(colId, new ByteArray(UUIDS[rowId]));
-            break;
           case INT_ARRAY:
             int length = RANDOM.nextInt(20);
             int[] intArray = new int[length];
@@ -446,15 +439,6 @@ public class DataTableSerDeTest {
             }
             BYTES_ARRAYS[rowId] = bytesArray;
             dataTableBuilder.setColumn(colId, bytesArray);
-            break;
-          case UUID_ARRAY:
-            length = RANDOM.nextInt(20);
-            ByteArray[] uuidArray = new ByteArray[length];
-            for (int i = 0; i < length; i++) {
-              uuidArray[i] = new ByteArray(UuidUtils.toBytes(new UUID(RANDOM.nextLong(), RANDOM.nextLong())));
-            }
-            UUID_ARRAYS[rowId] = uuidArray;
-            dataTableBuilder.setColumn(colId, uuidArray);
             break;
           case STRING_ARRAY:
             length = RANDOM.nextInt(20);
@@ -536,10 +520,6 @@ public class DataTableSerDeTest {
             Assert.assertEquals(newDataTable.getBytes(rowId, colId).getBytes(), isNull ? new byte[0] : BYTES[rowId],
                 ERROR_MESSAGE);
             break;
-          case UUID:
-            Assert.assertEquals(newDataTable.getBytes(rowId, colId).getBytes(),
-                isNull ? UuidUtils.nullUuidBytes() : UUIDS[rowId], ERROR_MESSAGE);
-            break;
           case INT_ARRAY:
             Assert.assertTrue(Arrays.equals(newDataTable.getIntArray(rowId, colId), INT_ARRAYS[rowId]), ERROR_MESSAGE);
             break;
@@ -569,10 +549,6 @@ public class DataTableSerDeTest {
             break;
           case BYTES_ARRAY:
             Assert.assertTrue(Arrays.equals(newDataTable.getBytesArray(rowId, colId), BYTES_ARRAYS[rowId]),
-                ERROR_MESSAGE);
-            break;
-          case UUID_ARRAY:
-            Assert.assertTrue(Arrays.equals(newDataTable.getBytesArray(rowId, colId), UUID_ARRAYS[rowId]),
                 ERROR_MESSAGE);
             break;
           case STRING_ARRAY:

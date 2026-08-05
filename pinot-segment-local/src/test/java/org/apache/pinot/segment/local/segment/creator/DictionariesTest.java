@@ -447,10 +447,12 @@ public class DictionariesTest implements PinotBuffersAfterMethodCheckRule {
     Assert.assertFalse(statsCollector.isSorted());
   }
 
-  /// Test for ensuring that Strings with special characters can be handled
-  /// correctly.
-  ///
-  /// @throws Exception
+  /**
+   * Test for ensuring that Strings with special characters can be handled
+   * correctly.
+   *
+   * @throws Exception
+   */
   @Test
   public void testUTF8Characters()
       throws Exception {
@@ -476,7 +478,9 @@ public class DictionariesTest implements PinotBuffersAfterMethodCheckRule {
     FileUtils.deleteQuietly(indexDir);
   }
 
-  /// Tests SegmentDictionaryCreator for case when there is only one string and it is empty.
+  /**
+   * Tests SegmentDictionaryCreator for case when there is only one string and it is empty.
+   */
   @Test
   public void testSingleEmptyString()
       throws Exception {
@@ -493,11 +497,13 @@ public class DictionariesTest implements PinotBuffersAfterMethodCheckRule {
     FileUtils.deleteQuietly(indexDir);
   }
 
-  /// Helper method to build stats collector for a given column.
-  ///
-  /// @param column Column name
-  /// @param dataType Data type for the column
-  /// @return StatsCollector for the column
+  /**
+   * Helper method to build stats collector for a given column.
+   *
+   * @param column Column name
+   * @param dataType Data type for the column
+   * @return StatsCollector for the column
+   */
   private AbstractColumnStatisticsCollector buildStatsCollector(String column, DataType dataType) {
     Schema schema = new Schema();
     schema.addField(new DimensionFieldSpec(column, dataType, true));

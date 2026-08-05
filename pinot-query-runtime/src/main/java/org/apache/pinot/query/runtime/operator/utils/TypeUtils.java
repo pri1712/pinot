@@ -33,9 +33,11 @@ public class TypeUtils {
   private TypeUtils() {
   }
 
-  /// Converts value to the desired stored [ColumnDataType]. This is used to convert rows generated from
-  /// single-stage engine to be used in multi-stage engine.
-  /// TODO: Revisit to see if we should use original type instead of stored type
+  /**
+   * Converts value to the desired stored {@link ColumnDataType}. This is used to convert rows generated from
+   * single-stage engine to be used in multi-stage engine.
+   * TODO: Revisit to see if we should use original type instead of stored type
+   */
   public static Object convert(Object value, ColumnDataType storedType) {
     switch (storedType) {
       case INT:
@@ -140,8 +142,10 @@ public class TypeUtils {
     }
   }
 
-  /// Converts row to the desired stored [ColumnDataType]s in-place. This is used to convert rows generated from
-  /// single-stage engine to be used in multi-stage engine.
+  /**
+   * Converts row to the desired stored {@link ColumnDataType}s in-place. This is used to convert rows generated from
+   * single-stage engine to be used in multi-stage engine.
+   */
   public static void convertRow(Object[] row, ColumnDataType[] outputStoredTypes) {
     int numColumns = row.length;
     for (int colId = 0; colId < numColumns; colId++) {

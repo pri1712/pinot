@@ -21,6 +21,7 @@ package org.apache.pinot.query.runtime.timeseries.serde;
 import com.google.protobuf.ByteString;
 import java.io.IOException;
 import java.time.Duration;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -51,7 +52,7 @@ public class TimeSeriesBlockSerdeTest {
       ByteString byteString1 = TimeSeriesBlockSerde.serializeTimeSeriesBlock(block1);
       String serializedBlockString1 = byteString1.toStringUtf8();
       TimeSeriesBlock block2 = TimeSeriesBlockSerde.deserializeTimeSeriesBlock(byteString1.asReadOnlyByteBuffer(),
-          Map.of());
+          Collections.emptyMap());
       String serializedBlockString2 = TimeSeriesBlockSerde.serializeTimeSeriesBlock(block2).toStringUtf8();
       // Serialized blocks in both cases should be the same since serialization is deterministic.
       assertEquals(serializedBlockString1, serializedBlockString2);
@@ -85,7 +86,9 @@ public class TimeSeriesBlockSerdeTest {
     assertEquals(decodedValues, input);
   }
 
-  /// Compares time series blocks in a way which makes it easy to debug test failures when/if they happen in CI.
+  /**
+   * Compares time series blocks in a way which makes it easy to debug test failures when/if they happen in CI.
+   */
   private static void compareBlocks(TimeSeriesBlock block1, TimeSeriesBlock block2) {
     assertEquals(block1.getTimeBuckets(), block2.getTimeBuckets(), "Time buckets are different across blocks");
     assertEquals(block1.getSeriesMap().size(), block2.getSeriesMap().size(), String.format(
@@ -114,7 +117,7 @@ public class TimeSeriesBlockSerdeTest {
   private static TimeSeriesBlock buildBlockWithNoTags() {
     TimeBuckets timeBuckets = TIME_BUCKETS;
     // Single series: []
-    List<String> tagNames = List.of();
+    List<String> tagNames = Collections.emptyList();
     Object[] seriesValues = new Object[0];
     long seriesHash = TimeSeries.hash(seriesValues);
     Map<Long, List<TimeSeries>> seriesMap = new HashMap<>();

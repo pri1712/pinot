@@ -48,7 +48,9 @@ import org.roaringbitmap.PeekableIntIterator;
 import org.roaringbitmap.RoaringBitmap;
 
 
-/// Class that executes the keyed group by aggregations for the multistage AggregateOperator.
+/**
+ * Class that executes the keyed group by aggregations for the multistage AggregateOperator.
+ */
 @SuppressWarnings({"rawtypes", "unchecked"})
 public class MultistageGroupByExecutor {
   private final int[] _groupKeyIds;
@@ -176,7 +178,9 @@ public class MultistageGroupByExecutor {
     return _numGroupsWarningLimit;
   }
 
-  /// Performs group-by aggregation for the data in the block.
+  /**
+   * Performs group-by aggregation for the data in the block.
+   */
   public void processBlock(MseBlock.Data block) {
     if (!_aggType.isInputIntermediateFormat()) {
       processAggregate(block);
@@ -185,11 +189,13 @@ public class MultistageGroupByExecutor {
     }
   }
 
-  /// Get aggregation result limited to first `maxRows` rows, ordered with `comparator`.
+  /**
+   * Get aggregation result limited to first {@code maxRows} rows, ordered with {@code comparator}.
+   */
   public List<Object[]> getResult(Comparator<Object[]> comparator, int maxRows) {
     int numGroups = Math.min(_groupIdGenerator.getNumGroups(), maxRows);
     if (numGroups == 0) {
-      return List.of();
+      return Collections.emptyList();
     }
 
     // TODO: Change it to use top-K algorithm
@@ -229,11 +235,11 @@ public class MultistageGroupByExecutor {
     return result;
   }
 
-  /// Get aggregation result limited to `maxRows` rows.
+  /**  Get aggregation result limited to {@code maxRows} rows. */
   public List<Object[]> getResult(int maxRows) {
     int numGroups = Math.min(_groupIdGenerator.getNumGroups(), maxRows);
     if (numGroups == 0) {
-      return List.of();
+      return Collections.emptyList();
     }
 
     List<Object[]> rows = new ArrayList<>(numGroups);
@@ -434,8 +440,10 @@ public class MultistageGroupByExecutor {
     }
   }
 
-  /// Creates the group by key for each row. Converts the key into a 0-index based int value that can be used by
-  /// GroupByAggregationResultHolders used in v1 aggregations.
+  /**
+   * Creates the group by key for each row. Converts the key into a 0-index based int value that can be used by
+   * GroupByAggregationResultHolders used in v1 aggregations.
+   */
   private int[] generateGroupByKeys(MseBlock.Data block) {
     return block.isRowHeap()
         ? generateGroupByKeys(block.asRowHeap().getRows())
@@ -479,8 +487,10 @@ public class MultistageGroupByExecutor {
     return intKeys;
   }
 
-  /// Creates the group by key for each row. Converts the key into a 0-index based int value that can be used by
-  /// GroupByAggregationResultHolders used in v1 aggregations.
+  /**
+   * Creates the group by key for each row. Converts the key into a 0-index based int value that can be used by
+   * GroupByAggregationResultHolders used in v1 aggregations.
+   */
   private int[] generateGroupByKeys(MseBlock.Data block, int numMatchedRows, RoaringBitmap matchedBitmap) {
     return block.isRowHeap()
         ? generateGroupByKeys(block.asRowHeap().getRows(), numMatchedRows, matchedBitmap)

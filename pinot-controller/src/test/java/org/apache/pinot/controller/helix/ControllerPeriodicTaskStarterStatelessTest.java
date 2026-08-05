@@ -36,7 +36,9 @@ public class ControllerPeriodicTaskStarterStatelessTest extends ControllerTest {
     startZk();
   }
 
-  /// Test that controller starts up and helixResourceManager is non null before initiating periodic tasks
+  /**
+   * Test that controller starts up and helixResourceManager is non null before initiating periodic tasks
+   */
   @Test
   public void testHelixResourceManagerDuringControllerStart()
       throws Exception {

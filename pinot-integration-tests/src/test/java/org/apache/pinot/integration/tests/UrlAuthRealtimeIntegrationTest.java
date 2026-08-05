@@ -20,6 +20,7 @@ package org.apache.pinot.integration.tests;
 
 import java.io.File;
 import java.net.URL;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -132,11 +133,11 @@ public class UrlAuthRealtimeIntegrationTest extends BaseClusterIntegrationTest {
     properties.put("bucketTimePeriod", "30d");
 
     return new TableTaskConfig(
-        Map.of(MinionConstants.RealtimeToOfflineSegmentsTask.TASK_TYPE, properties));
+        Collections.singletonMap(MinionConstants.RealtimeToOfflineSegmentsTask.TASK_TYPE, properties));
   }
 
   @Override
-  protected Map<String, String> getAdminClientHeaders() {
+  protected Map<String, String> getControllerRequestClientHeaders() {
     return AUTH_HEADER;
   }
 

@@ -46,7 +46,9 @@ import static org.testng.Assert.assertFalse;
 import static org.testng.Assert.assertTrue;
 
 
-/// Tests that verify JMX metrics emitted by various Pinot components.
+/**
+ * Tests that verify JMX metrics emitted by various Pinot components.
+ */
 public class JmxMetricsIntegrationTest extends BaseClusterIntegrationTestSet {
   private static final Logger LOGGER = LoggerFactory.getLogger(JmxMetricsIntegrationTest.class);
 

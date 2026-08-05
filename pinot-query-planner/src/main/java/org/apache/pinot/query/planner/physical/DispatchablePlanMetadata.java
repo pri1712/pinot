@@ -33,12 +33,15 @@ import org.apache.pinot.query.routing.MailboxInfos;
 import org.apache.pinot.query.routing.QueryServerInstance;
 
 
-/// The `DispatchablePlanMetadata` info contains the information for dispatching a particular plan fragment.
-///
-/// It contains information
-///
-/// - extracted from [org.apache.pinot.query.planner.physical.DispatchablePlanVisitor]
-/// - extracted from [org.apache.pinot.query.planner.physical.PinotDispatchPlanner]
+/**
+ * The {@code DispatchablePlanMetadata} info contains the information for dispatching a particular plan fragment.
+ *
+ * <p>It contains information
+ * <ul>
+ *   <li>extracted from {@link org.apache.pinot.query.planner.physical.DispatchablePlanVisitor}</li>
+ *   <li>extracted from {@link org.apache.pinot.query.planner.physical.PinotDispatchPlanner}</li>
+ * </ul>
+ */
 public class DispatchablePlanMetadata implements Serializable {
 
   // --------------------------------------------------------------------------
@@ -78,7 +81,9 @@ public class DispatchablePlanMetadata implements Serializable {
   // Map from workerId -> {planFragmentId -> mailboxes}
   private final Map<Integer, Map<Integer, MailboxInfos>> _workerIdToMailboxesMap = new HashMap<>();
 
-  /// Map from workerId -> {physicalTableName -> segments} is required for logical tables.
+  /**
+   * Map from workerId -> {physicalTableName -> segments} is required for logical tables.
+   */
   private Map<Integer, Map<String, List<String>>> _workerIdToTableSegmentsMap;
   private LogicalTableRouteInfo _logicalTableRouteInfo;
 

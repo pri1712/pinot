@@ -22,9 +22,11 @@ import java.util.Iterator;
 import org.apache.pinot.core.query.aggregation.function.AggregationFunction;
 
 
-/// This class holds the result of aggregation group by queries.
-/// It provides an iterator over group-by keys, and provides a method
-/// to get the aggregation result for the given group-by key.
+/**
+ * This class holds the result of aggregation group by queries.
+ * It provides an iterator over group-by keys, and provides a method
+ * to get the aggregation result for the given group-by key.
+ */
 @SuppressWarnings("rawtypes")
 public class AggregationGroupByResult {
   private final GroupKeyGenerator _groupKeyGenerator;
@@ -42,12 +44,16 @@ public class AggregationGroupByResult {
     return _groupKeyGenerator.getNumKeys();
   }
 
-  /// Returns an iterator of [GroupKeyGenerator.GroupKey].
+  /**
+   * Returns an iterator of {@link GroupKeyGenerator.GroupKey}.
+   */
   public Iterator<GroupKeyGenerator.GroupKey> getGroupKeyIterator() {
     return _groupKeyGenerator.getGroupKeys();
   }
 
-  /// Clear and trim DictionaryBasedGroupKeyGenerator after use
+  /**
+   * Clear and trim DictionaryBasedGroupKeyGenerator after use
+   */
   public void closeGroupKeyGenerator() {
     _groupKeyGenerator.close();
   }

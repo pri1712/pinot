@@ -39,9 +39,15 @@ import static org.testng.Assert.assertNotNull;
 import static org.testng.Assert.assertTrue;
 
 
-/// Task executor factory for [SimpleMinionClusterIntegrationTest].
+/**
+ * Task executor factory for {@link SimpleMinionClusterIntegrationTest}.
+ */
 @TaskExecutorFactory
 public class TestTaskExecutorFactory implements PinotTaskExecutorFactory {
+
+  @Override
+  public void init(MinionTaskZkMetadataManager zkMetadataManager) {
+  }
 
   @Override
   public void init(MinionTaskZkMetadataManager zkMetadataManager, MinionConf minionConf) {

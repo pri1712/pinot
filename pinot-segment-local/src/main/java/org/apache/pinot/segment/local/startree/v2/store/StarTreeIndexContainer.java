@@ -28,7 +28,9 @@ import org.apache.pinot.segment.spi.index.startree.StarTreeV2;
 import org.apache.pinot.segment.spi.store.SegmentDirectory;
 
 
-/// The `StarTreeIndexContainer` class contains the indexes for multiple star-trees.
+/**
+ * The {@code StarTreeIndexContainer} class contains the indexes for multiple star-trees.
+ */
 public class StarTreeIndexContainer implements Closeable {
   private final List<StarTreeV2> _starTrees;
 

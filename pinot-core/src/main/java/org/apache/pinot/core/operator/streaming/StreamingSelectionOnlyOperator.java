@@ -19,6 +19,7 @@
 package org.apache.pinot.core.operator.streaming;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import javax.annotation.Nullable;
 import org.apache.pinot.common.proto.Plan;
@@ -35,14 +36,15 @@ import org.apache.pinot.core.operator.blocks.ValueBlock;
 import org.apache.pinot.core.operator.blocks.results.SelectionResultsBlock;
 import org.apache.pinot.core.query.request.context.QueryContext;
 import org.apache.pinot.segment.spi.IndexSegment;
-import org.apache.pinot.spi.query.QueryScanCostContext;
 import org.roaringbitmap.RoaringBitmap;
 
 
-/// Streaming only selection operator returns one block at a time not one block per-segment.
-/// This is for efficient streaming of data return on a selection-only situation.
-///
-/// This optimization doesn't apply to any other combine/merge required operators.
+/**
+ * Streaming only selection operator returns one block at a time not one block per-segment.
+ * This is for efficient streaming of data return on a selection-only situation.
+ *
+ * This optimization doesn't apply to any other combine/merge required operators.
+ */
 public class StreamingSelectionOnlyOperator extends BaseOperator<SelectionResultsBlock> {
   private static final String EXPLAIN_NAME = "SELECT_STREAMING";
 
@@ -120,12 +122,6 @@ public class StreamingSelectionOnlyOperator extends BaseOperator<SelectionResult
       }
     }
     _numDocsScanned += numDocs;
-    QueryScanCostContext scanCost = getScanCostContext();
-    if (scanCost != null) {
-      scanCost.addDocsScanned(numDocs);
-      scanCost.addEntriesScannedPostFilter(
-          (long) numDocs * _projectOperator.getNumColumnsProjected());
-    }
     return new SelectionResultsBlock(_dataSchema, rows, _queryContext);
   }
 
@@ -155,7 +151,7 @@ public class StreamingSelectionOnlyOperator extends BaseOperator<SelectionResult
 
   @Override
   public List<BaseProjectOperator<?>> getChildOperators() {
-    return List.of(_projectOperator);
+    return Collections.singletonList(_projectOperator);
   }
 
   @Override

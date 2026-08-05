@@ -21,7 +21,9 @@ package org.apache.pinot.segment.spi.creator;
 import java.io.Serializable;
 
 
-/// Container for per-column stats for a segment
+/**
+ * Container for per-column stats for a segment
+ */
 public interface SegmentPreIndexStatsContainer extends Serializable {
   ColumnStatistics getColumnProfileFor(String column)
       throws Exception;

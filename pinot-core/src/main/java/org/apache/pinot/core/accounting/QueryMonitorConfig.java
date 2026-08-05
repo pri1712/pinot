@@ -158,8 +158,7 @@ public class QueryMonitorConfig {
         (String) null);
   }
 
-  public QueryMonitorConfig(QueryMonitorConfig oldConfig, Set<String> changedConfigs,
-      Map<String, String> clusterConfigs) {
+  QueryMonitorConfig(QueryMonitorConfig oldConfig, Set<String> changedConfigs, Map<String, String> clusterConfigs) {
     _maxHeapSize = oldConfig._maxHeapSize;
 
     if (changedConfigs.contains(Accounting.Keys.MIN_MEMORY_FOOTPRINT_TO_KILL_RATIO)) {
@@ -329,9 +328,11 @@ public class QueryMonitorConfig {
     }
   }
 
-  /// Validates the scan-based killing mode. If the value is not one of the recognized modes
-  /// (disabled, logOnly, enforce), logs an error and falls back to [ScanKillingMode#DISABLED]
-  /// so the server continues to start normally.
+  /**
+   * Validates the scan-based killing mode. If the value is not one of the recognized modes
+   * (disabled, logOnly, enforce), logs an error and falls back to {@link ScanKillingMode#DISABLED}
+   * so the server continues to start normally.
+   */
   private static ScanKillingMode validateScanKillingMode(String mode) {
     ScanKillingMode parsed = ScanKillingMode.fromConfigValue(mode);
     if (parsed != null) {
@@ -344,8 +345,10 @@ public class QueryMonitorConfig {
     return ScanKillingMode.DISABLED;
   }
 
-  /// Parses a long value from a config string, falling back to the default if the value
-  /// is null, empty, or not a valid number.
+  /**
+   * Parses a long value from a config string, falling back to the default if the value
+   * is null, empty, or not a valid number.
+   */
   private static long parseLongOrDefault(@Nullable String value, String configKey, long defaultValue) {
     if (value == null || value.isEmpty()) {
       return defaultValue;

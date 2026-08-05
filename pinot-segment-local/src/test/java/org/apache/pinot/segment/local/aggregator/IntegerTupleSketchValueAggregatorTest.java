@@ -18,11 +18,11 @@
  */
 package org.apache.pinot.segment.local.aggregator;
 
-import java.util.List;
-import org.apache.datasketches.tuple.TupleSketch;
-import org.apache.datasketches.tuple.TupleUnion;
+import java.util.Collections;
+import org.apache.datasketches.tuple.Sketch;
+import org.apache.datasketches.tuple.Union;
+import org.apache.datasketches.tuple.aninteger.IntegerSketch;
 import org.apache.datasketches.tuple.aninteger.IntegerSummary;
-import org.apache.datasketches.tuple.aninteger.IntegerTupleSketch;
 import org.testng.annotations.Test;
 
 import static org.testng.Assert.assertEquals;
@@ -31,7 +31,7 @@ import static org.testng.Assert.assertEquals;
 public class IntegerTupleSketchValueAggregatorTest {
 
   private byte[] sketchContaining(String key, int value) {
-    IntegerTupleSketch is = new IntegerTupleSketch(16, IntegerSummary.Mode.Sum);
+    IntegerSketch is = new IntegerSketch(16, IntegerSummary.Mode.Sum);
     is.update(key, value);
     return is.compact().toByteArray();
   }
@@ -39,49 +39,49 @@ public class IntegerTupleSketchValueAggregatorTest {
   @Test
   public void initialShouldParseASketch() {
     IntegerTupleSketchValueAggregator agg =
-        new IntegerTupleSketchValueAggregator(List.of(), IntegerSummary.Mode.Sum);
+        new IntegerTupleSketchValueAggregator(Collections.emptyList(), IntegerSummary.Mode.Sum);
     assertEquals(toSketch(agg.getInitialAggregatedValue(sketchContaining("hello world", 1))).getEstimate(), 1.0);
   }
 
   @Test
   public void nullInitialShouldReturnEmptySketch() {
     IntegerTupleSketchValueAggregator agg =
-        new IntegerTupleSketchValueAggregator(List.of(), IntegerSummary.Mode.Sum);
+        new IntegerTupleSketchValueAggregator(Collections.emptyList(), IntegerSummary.Mode.Sum);
     assertEquals(toSketch(agg.getInitialAggregatedValue(null)).getEstimate(), 0.0);
   }
 
   @Test
   public void applyAggregatedValueShouldUnion() {
-    IntegerTupleSketch s1 = new IntegerTupleSketch(16, IntegerSummary.Mode.Sum);
-    IntegerTupleSketch s2 = new IntegerTupleSketch(16, IntegerSummary.Mode.Sum);
+    IntegerSketch s1 = new IntegerSketch(16, IntegerSummary.Mode.Sum);
+    IntegerSketch s2 = new IntegerSketch(16, IntegerSummary.Mode.Sum);
     s1.update("a", 1);
     s2.update("b", 1);
     IntegerTupleSketchValueAggregator agg =
-        new IntegerTupleSketchValueAggregator(List.of(), IntegerSummary.Mode.Sum);
-    TupleSketch<IntegerSummary> merged = toSketch(agg.applyAggregatedValue(s1, s2));
+        new IntegerTupleSketchValueAggregator(Collections.emptyList(), IntegerSummary.Mode.Sum);
+    Sketch<IntegerSummary> merged = toSketch(agg.applyAggregatedValue(s1, s2));
     assertEquals(merged.getEstimate(), 2.0);
     assertEquals(agg.getMaxAggregatedValueByteSize(), 196632);
   }
 
   @Test
   public void applyRawValueShouldUnion() {
-    IntegerTupleSketch s1 = new IntegerTupleSketch(16, IntegerSummary.Mode.Sum);
-    IntegerTupleSketch s2 = new IntegerTupleSketch(16, IntegerSummary.Mode.Sum);
+    IntegerSketch s1 = new IntegerSketch(16, IntegerSummary.Mode.Sum);
+    IntegerSketch s2 = new IntegerSketch(16, IntegerSummary.Mode.Sum);
     s1.update("a", 1);
     s2.update("b", 1);
     IntegerTupleSketchValueAggregator agg =
-        new IntegerTupleSketchValueAggregator(List.of(), IntegerSummary.Mode.Sum);
-    TupleSketch<IntegerSummary> merged = toSketch(agg.applyRawValue(s1, agg.serializeAggregatedValue(s2)));
+        new IntegerTupleSketchValueAggregator(Collections.emptyList(), IntegerSummary.Mode.Sum);
+    Sketch<IntegerSummary> merged = toSketch(agg.applyRawValue(s1, agg.serializeAggregatedValue(s2)));
     assertEquals(merged.getEstimate(), 2.0);
     assertEquals(agg.getMaxAggregatedValueByteSize(), 196632);
   }
 
   @SuppressWarnings("unchecked")
-  private TupleSketch<IntegerSummary> toSketch(Object value) {
-    if (value instanceof TupleUnion) {
-      return ((TupleUnion) value).getResult();
-    } else if (value instanceof TupleSketch) {
-      return ((TupleSketch) value);
+  private Sketch<IntegerSummary> toSketch(Object value) {
+    if (value instanceof Union) {
+      return ((Union) value).getResult();
+    } else if (value instanceof Sketch) {
+      return ((Sketch) value);
     } else {
       throw new IllegalStateException(
           "Unsupported data type for Integer Tuple Sketch aggregation: " + value.getClass().getSimpleName());

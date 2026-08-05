@@ -18,7 +18,9 @@
  */
 package org.apache.pinot.spi.utils.retry;
 
-/// Delay policy with fixed delay between attempts.
+/**
+ * Delay policy with fixed delay between attempts.
+ */
 public class FixedDelayRetryPolicy extends BaseRetryPolicy {
   private final long _delayMs;
 

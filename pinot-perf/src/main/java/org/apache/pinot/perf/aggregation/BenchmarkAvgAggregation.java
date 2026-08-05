@@ -18,7 +18,7 @@
  */
 package org.apache.pinot.perf.aggregation;
 
-import java.util.List;
+import java.util.Collections;
 import java.util.Map;
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
@@ -68,7 +68,7 @@ public class BenchmarkAvgAggregation extends AbstractAggregationFunctionBenchmar
 
   @Override
   protected AggregationFunction<?, ?> createAggregationFunction() {
-    return new AvgAggregationFunction(List.of(EXPR), _nullHandlingEnabled);
+    return new AvgAggregationFunction(Collections.singletonList(EXPR), _nullHandlingEnabled);
   }
 
   @Override

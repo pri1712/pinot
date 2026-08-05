@@ -24,7 +24,9 @@ import java.util.concurrent.ConcurrentHashMap;
 import org.apache.pinot.spi.utils.FALFInterner;
 
 
-/// This class holds the dictionary interners. It is currently used only for OnHeapStringDictionary.
+/**
+ * This class holds the dictionary interners. It is currently used only for OnHeapStringDictionary.
+ */
 public class DictionaryInternerHolder {
   private static final DictionaryInternerHolder INSTANCE = new DictionaryInternerHolder();
 

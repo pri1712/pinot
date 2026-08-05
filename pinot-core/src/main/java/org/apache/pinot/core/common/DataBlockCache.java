@@ -28,9 +28,11 @@ import org.apache.pinot.segment.spi.datasource.DataSource;
 import org.apache.pinot.spi.data.FieldSpec;
 
 
-/// This class serves as a block level cache for column dictionary Ids and values. Using this class can prevent fetching
-/// data for the same column multiple times. This class allocate resources on demand, and reuse them as much as possible
-/// to prevent garbage collection.
+/**
+ * This class serves as a block level cache for column dictionary Ids and values. Using this class can prevent fetching
+ * data for the same column multiple times. This class allocate resources on demand, and reuse them as much as possible
+ * to prevent garbage collection.
+ */
 @SuppressWarnings("Duplicates")
 public class DataBlockCache implements AutoCloseable {
   private final DataFetcher _dataFetcher;
@@ -52,11 +54,13 @@ public class DataBlockCache implements AutoCloseable {
     _dataFetcher = dataFetcher;
   }
 
-  /// Init the data block cache with document Ids for a new block. This method should be called before fetching data for
-  /// any specific block.
-  ///
-  /// @param docIds Document Ids buffer
-  /// @param length Number of document Ids
+  /**
+   * Init the data block cache with document Ids for a new block. This method should be called before fetching data for
+   * any specific block.
+   *
+   * @param docIds Document Ids buffer
+   * @param length Number of document Ids
+   */
   public void initNewBlock(int[] docIds, int length) {
     _docIds = docIds;
     if (length > _length) {
@@ -72,26 +76,34 @@ public class DataBlockCache implements AutoCloseable {
     _columnNumValuesLoaded.clear();
   }
 
-  /// Returns the number of documents within the current block.
-  ///
-  /// @return Number of documents within the current block
+  /**
+   * Returns the number of documents within the current block.
+   *
+   * @return Number of documents within the current block
+   */
   public int getNumDocs() {
     return _length;
   }
 
-  /// Returns the document ids within the current block.
-  ///
-  /// @return Document ids within the current block.
+  /**
+   * Returns the document ids within the current block.
+   *
+   * @return Document ids within the current block.
+   */
   public int[] getDocIds() {
     return _docIds;
   }
 
-  /// SINGLE-VALUED COLUMN API
+  /**
+   * SINGLE-VALUED COLUMN API
+   */
 
-  /// Get the dictionary Ids for a single-valued column.
-  ///
-  /// @param column Column name
-  /// @return Array of dictionary Ids
+  /**
+   * Get the dictionary Ids for a single-valued column.
+   *
+   * @param column Column name
+   * @return Array of dictionary Ids
+   */
   public int[] getDictIdsForSVColumn(String column) {
     int[] dictIds = (int[]) _dictIdsMap.get(column);
     if (_columnDictIdLoaded.add(column)) {
@@ -104,10 +116,12 @@ public class DataBlockCache implements AutoCloseable {
     return dictIds;
   }
 
-  /// Get the int values for a single-valued column.
-  ///
-  /// @param column Column name
-  /// @return Array of int values
+  /**
+   * Get the int values for a single-valued column.
+   *
+   * @param column Column name
+   * @return Array of int values
+   */
   public int[] getIntValuesForSVColumn(String column) {
     int[] intValues = getValues(FieldSpec.DataType.INT, column);
     if (markLoaded(FieldSpec.DataType.INT, column)) {
@@ -120,10 +134,12 @@ public class DataBlockCache implements AutoCloseable {
     return intValues;
   }
 
-  /// Get the long values for a single-valued column.
-  ///
-  /// @param column Column name
-  /// @return Array of long values
+  /**
+   * Get the long values for a single-valued column.
+   *
+   * @param column Column name
+   * @return Array of long values
+   */
   public long[] getLongValuesForSVColumn(String column) {
     long[] longValues = getValues(FieldSpec.DataType.LONG, column);
     if (markLoaded(FieldSpec.DataType.LONG, column)) {
@@ -136,10 +152,12 @@ public class DataBlockCache implements AutoCloseable {
     return longValues;
   }
 
-  /// Get the float values for a single-valued column.
-  ///
-  /// @param column Column name
-  /// @return Array of float values
+  /**
+   * Get the float values for a single-valued column.
+   *
+   * @param column Column name
+   * @return Array of float values
+   */
   public float[] getFloatValuesForSVColumn(String column) {
     float[] floatValues = getValues(FieldSpec.DataType.FLOAT, column);
     if (markLoaded(FieldSpec.DataType.FLOAT, column)) {
@@ -152,10 +170,12 @@ public class DataBlockCache implements AutoCloseable {
     return floatValues;
   }
 
-  /// Get the double values for a single-valued column.
-  ///
-  /// @param column Column name
-  /// @return Array of double values
+  /**
+   * Get the double values for a single-valued column.
+   *
+   * @param column Column name
+   * @return Array of double values
+   */
   public double[] getDoubleValuesForSVColumn(String column) {
     double[] doubleValues = getValues(FieldSpec.DataType.DOUBLE, column);
     if (markLoaded(FieldSpec.DataType.DOUBLE, column)) {
@@ -168,10 +188,12 @@ public class DataBlockCache implements AutoCloseable {
     return doubleValues;
   }
 
-  /// Get the BigDecimal values for a single-valued column.
-  ///
-  /// @param column Column name
-  /// @return Array of BigDecimal values
+  /**
+   * Get the BigDecimal values for a single-valued column.
+   *
+   * @param column Column name
+   * @return Array of BigDecimal values
+   */
   public BigDecimal[] getBigDecimalValuesForSVColumn(String column) {
     BigDecimal[] bigDecimalValues = getValues(FieldSpec.DataType.BIG_DECIMAL, column);
     if (markLoaded(FieldSpec.DataType.BIG_DECIMAL, column)) {
@@ -184,10 +206,12 @@ public class DataBlockCache implements AutoCloseable {
     return bigDecimalValues;
   }
 
-  /// Get the string values for a single-valued column.
-  ///
-  /// @param column Column name
-  /// @return Array of string values
+  /**
+   * Get the string values for a single-valued column.
+   *
+   * @param column Column name
+   * @return Array of string values
+   */
   public String[] getStringValuesForSVColumn(String column) {
     String[] stringValues = getValues(FieldSpec.DataType.STRING, column);
     if (markLoaded(FieldSpec.DataType.STRING, column)) {
@@ -200,10 +224,12 @@ public class DataBlockCache implements AutoCloseable {
     return stringValues;
   }
 
-  /// Get byte\[\] values for the given single-valued column.
-  ///
-  /// @param column Column to read
-  /// @return byte\[\] for the column
+  /**
+   * Get byte[] values for the given single-valued column.
+   *
+   * @param column Column to read
+   * @return byte[] for the column
+   */
   public byte[][] getBytesValuesForSVColumn(String column) {
     byte[][] bytesValues = getValues(FieldSpec.DataType.BYTES, column);
     if (markLoaded(FieldSpec.DataType.BYTES, column)) {
@@ -237,12 +263,16 @@ public class DataBlockCache implements AutoCloseable {
     return hashValues;
   }
 
-  /// MULTI-VALUED COLUMN API
+  /**
+   * MULTI-VALUED COLUMN API
+   */
 
-  /// Get the dictionary Ids for a multi-valued column.
-  ///
-  /// @param column Column name
-  /// @return Array of dictionary Ids
+  /**
+   * Get the dictionary Ids for a multi-valued column.
+   *
+   * @param column Column name
+   * @return Array of dictionary Ids
+   */
   public int[][] getDictIdsForMVColumn(String column) {
     int[][] dictIds = (int[][]) _dictIdsMap.get(column);
     if (_columnDictIdLoaded.add(column)) {
@@ -255,10 +285,12 @@ public class DataBlockCache implements AutoCloseable {
     return dictIds;
   }
 
-  /// Get the int values for a multi-valued column.
-  ///
-  /// @param column Column name
-  /// @return Array of int values
+  /**
+   * Get the int values for a multi-valued column.
+   *
+   * @param column Column name
+   * @return Array of int values
+   */
   public int[][] getIntValuesForMVColumn(String column) {
     int[][] intValues = getValues(FieldSpec.DataType.INT, column);
     if (markLoaded(FieldSpec.DataType.INT, column)) {
@@ -271,10 +303,12 @@ public class DataBlockCache implements AutoCloseable {
     return intValues;
   }
 
-  /// Get the long values for a multi-valued column.
-  ///
-  /// @param column Column name
-  /// @return Array of long values
+  /**
+   * Get the long values for a multi-valued column.
+   *
+   * @param column Column name
+   * @return Array of long values
+   */
   public long[][] getLongValuesForMVColumn(String column) {
     long[][] longValues = getValues(FieldSpec.DataType.LONG, column);
     if (markLoaded(FieldSpec.DataType.LONG, column)) {
@@ -287,10 +321,12 @@ public class DataBlockCache implements AutoCloseable {
     return longValues;
   }
 
-  /// Get the float values for a multi-valued column.
-  ///
-  /// @param column Column name
-  /// @return Array of float values
+  /**
+   * Get the float values for a multi-valued column.
+   *
+   * @param column Column name
+   * @return Array of float values
+   */
   public float[][] getFloatValuesForMVColumn(String column) {
     float[][] floatValues = getValues(FieldSpec.DataType.FLOAT, column);
     if (markLoaded(FieldSpec.DataType.FLOAT, column)) {
@@ -303,10 +339,12 @@ public class DataBlockCache implements AutoCloseable {
     return floatValues;
   }
 
-  /// Get the double values for a multi-valued column.
-  ///
-  /// @param column Column name
-  /// @return Array of double values
+  /**
+   * Get the double values for a multi-valued column.
+   *
+   * @param column Column name
+   * @return Array of double values
+   */
   public double[][] getDoubleValuesForMVColumn(String column) {
     double[][] doubleValues = getValues(FieldSpec.DataType.DOUBLE, column);
     if (markLoaded(FieldSpec.DataType.DOUBLE, column)) {
@@ -319,10 +357,12 @@ public class DataBlockCache implements AutoCloseable {
     return doubleValues;
   }
 
-  /// Get the BigDecimal values for a multi-valued column.
-  ///
-  /// @param column Column name
-  /// @return Array of BigDecimal values
+  /**
+   * Get the BigDecimal values for a multi-valued column.
+   *
+   * @param column Column name
+   * @return Array of BigDecimal values
+   */
   public BigDecimal[][] getBigDecimalValuesForMVColumn(String column) {
     BigDecimal[][] bigDecimalValues = getValues(FieldSpec.DataType.BIG_DECIMAL, column);
     if (markLoaded(FieldSpec.DataType.BIG_DECIMAL, column)) {
@@ -335,10 +375,12 @@ public class DataBlockCache implements AutoCloseable {
     return bigDecimalValues;
   }
 
-  /// Get the string values for a multi-valued column.
-  ///
-  /// @param column Column name
-  /// @return Array of string values
+  /**
+   * Get the string values for a multi-valued column.
+   *
+   * @param column Column name
+   * @return Array of string values
+   */
   public String[][] getStringValuesForMVColumn(String column) {
     String[][] stringValues = getValues(FieldSpec.DataType.STRING, column);
     if (markLoaded(FieldSpec.DataType.STRING, column)) {
@@ -351,10 +393,12 @@ public class DataBlockCache implements AutoCloseable {
     return stringValues;
   }
 
-  /// Get the bytes values for a multi-valued column.
-  ///
-  /// @param column Column name
-  /// @return Array of bytes values
+  /**
+   * Get the bytes values for a multi-valued column.
+   *
+   * @param column Column name
+   * @return Array of bytes values
+   */
   public byte[][][] getBytesValuesForMVColumn(String column) {
     byte[][][] bytesValues = getValues(FieldSpec.DataType.BYTES, column);
     if (markLoaded(FieldSpec.DataType.BYTES, column)) {
@@ -367,10 +411,12 @@ public class DataBlockCache implements AutoCloseable {
     return bytesValues;
   }
 
-  /// Get the number of values for a multi-valued column.
-  ///
-  /// @param column Column name
-  /// @return Array of number of values
+  /**
+   * Get the number of values for a multi-valued column.
+   *
+   * @param column Column name
+   * @return Array of number of values
+   */
   public int[] getNumValuesForMVColumn(String column) {
     int[] numValues = _numValuesMap.get(column);
     if (_columnNumValuesLoaded.add(column)) {
@@ -400,7 +446,9 @@ public class DataBlockCache implements AutoCloseable {
     _dataFetcher.addDataSource(fullColumnKeyName, keyDataSource);
   }
 
-  /// Close the data block cache and release all resources.
+  /**
+   * Close the data block cache and release all resources.
+   */
   @Override
   public void close() {
     _dataFetcher.close();

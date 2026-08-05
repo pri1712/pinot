@@ -19,8 +19,8 @@
 package org.apache.pinot.controller.util;
 
 import com.google.common.collect.BiMap;
+import java.util.Collections;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import org.apache.helix.model.InstanceConfig;
 import org.apache.pinot.controller.ControllerConf;
@@ -54,7 +54,7 @@ public class BrokerServiceHelperTest {
 
     // test
     BiMap<String, String> brokerEndpoints =
-        brokerServiceHelper.getBrokerEndpointsForInstance(List.of(instanceConfig));
+        brokerServiceHelper.getBrokerEndpointsForInstance(Collections.singletonList(instanceConfig));
 
     // verify
     assertEquals(brokerEndpoints.size(), 1);
@@ -75,7 +75,7 @@ public class BrokerServiceHelperTest {
 
     PinotHelixResourceManager mockResourceManager = mock(PinotHelixResourceManager.class);
     when(mockResourceManager.getBrokerInstancesConfigsFor(offlineTableConfig.getTableName()))
-        .thenReturn(List.of(instanceConfig));
+        .thenReturn(Collections.singletonList(instanceConfig));
 
     CompletionServiceHelper mockServiceHelper = mock(CompletionServiceHelper.class);
 

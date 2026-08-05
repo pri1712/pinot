@@ -52,7 +52,9 @@ import static org.testng.Assert.assertFalse;
 import static org.testng.Assert.assertTrue;
 
 
-/// Class for testing segment generation with byte\[\] data type.
+/**
+ * Class for testing segment generation with byte[] data type.
+ */
 public class SegmentGenerationWithBytesTypeTest implements PinotBuffersAfterClassCheckRule {
   private static final File TEMP_DIR =
       new File(FileUtils.getTempDirectory(), SegmentGenerationWithBytesTypeTest.class.getSimpleName());

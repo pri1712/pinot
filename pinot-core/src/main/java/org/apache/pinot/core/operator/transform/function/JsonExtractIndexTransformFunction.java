@@ -24,12 +24,10 @@ import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import javax.annotation.Nullable;
 import org.apache.pinot.common.function.JsonPathCache;
 import org.apache.pinot.core.operator.ColumnContext;
 import org.apache.pinot.core.operator.blocks.ValueBlock;
 import org.apache.pinot.core.operator.transform.TransformResultMetadata;
-import org.apache.pinot.segment.spi.datasource.DataSource;
 import org.apache.pinot.segment.spi.index.IndexService;
 import org.apache.pinot.segment.spi.index.IndexType;
 import org.apache.pinot.segment.spi.index.reader.JsonIndexReader;
@@ -38,22 +36,23 @@ import org.apache.pinot.spi.utils.JsonUtils;
 import org.roaringbitmap.RoaringBitmap;
 
 
-/// The `JsonExtractIndexTransformFunction` provides the same behavior as JsonExtractScalar, with the
-/// implementation changed to read values from the JSON index. For large JSON blobs this can be faster than parsing
-/// GBs of JSON at query time. For small JSON blobs/highly filtered input this is generally slower than the \*scalar
-/// implementation. The inflection point is highly dependent on the number of docs remaining post filter.
+/**
+ * The <code>JsonExtractIndexTransformFunction</code> provides the same behavior as JsonExtractScalar, with the
+ * implementation changed to read values from the JSON index. For large JSON blobs this can be faster than parsing
+ * GBs of JSON at query time. For small JSON blobs/highly filtered input this is generally slower than the *scalar
+ * implementation. The inflection point is highly dependent on the number of docs remaining post filter.
+ */
 public class JsonExtractIndexTransformFunction extends BaseTransformFunction {
   public static final String FUNCTION_NAME = "jsonExtractIndex";
 
-  private JsonIndexReader _jsonIndexReader;
+  private TransformFunction _jsonFieldTransformFunction;
   private String _jsonPathString;
-  private boolean _isSingleValue;
-  @Nullable
-  private Object _defaultValue;
-  @Nullable
-  private String _filterJsonExpression;
   private TransformResultMetadata _resultMetadata;
+  private JsonIndexReader _jsonIndexReader;
+  private Object _defaultValue;
   private Map<String, RoaringBitmap> _valueToMatchingDocsMap;
+  private boolean _isSingleValue;
+  private String _filterJsonPath;
 
   @Override
   public String getName() {
@@ -63,10 +62,8 @@ public class JsonExtractIndexTransformFunction extends BaseTransformFunction {
   @Override
   public void init(List<TransformFunction> arguments, Map<String, ColumnContext> columnContextMap) {
     super.init(arguments, columnContextMap);
-
-    int numArguments = arguments.size();
     // Check that there are exactly 3 or 4 or 5 arguments
-    if (numArguments < 3 || numArguments > 5) {
+    if (arguments.size() < 3 || arguments.size() > 5) {
       throw new IllegalArgumentException(
           "Expected 3/4/5 arguments for transform function: jsonExtractIndex(jsonFieldName, 'jsonPath', 'resultsType',"
               + " ['defaultValue'], ['jsonFilterExpression'])");
@@ -74,14 +71,14 @@ public class JsonExtractIndexTransformFunction extends BaseTransformFunction {
 
     TransformFunction firstArgument = arguments.get(0);
     if (firstArgument instanceof IdentifierTransformFunction) {
-      DataSource dataSource =
-          columnContextMap.get(((IdentifierTransformFunction) firstArgument).getColumnName()).getDataSource();
-      _jsonIndexReader = dataSource.getJsonIndex();
-      // TODO: rework
-      if (_jsonIndexReader == null) {
-        Optional<IndexType<?, ?, ?>> compositeIndex = IndexService.getInstance().getOptional("composite_json_index");
+      String columnName = ((IdentifierTransformFunction) firstArgument).getColumnName();
+      _jsonIndexReader = columnContextMap.get(columnName).getDataSource().getJsonIndex();
+      if (_jsonIndexReader == null) { //TODO: rework
+        Optional<IndexType<?, ?, ?>> compositeIndex =
+            IndexService.getInstance().getOptional("composite_json_index");
         if (compositeIndex.isPresent()) {
-          _jsonIndexReader = (JsonIndexReader) dataSource.getIndex(compositeIndex.get());
+          _jsonIndexReader = (JsonIndexReader) columnContextMap.get(columnName)
+              .getDataSource().getIndex(compositeIndex.get());
         }
       }
       if (_jsonIndexReader == null) {
@@ -90,6 +87,7 @@ public class JsonExtractIndexTransformFunction extends BaseTransformFunction {
     } else {
       throw new IllegalArgumentException("jsonExtractIndex can only be applied to a raw column");
     }
+    _jsonFieldTransformFunction = firstArgument;
 
     TransformFunction secondArgument = arguments.get(1);
     if (!(secondArgument instanceof LiteralTransformFunction)) {
@@ -115,11 +113,12 @@ public class JsonExtractIndexTransformFunction extends BaseTransformFunction {
     DataType dataType = _isSingleValue ? DataType.valueOf(resultsType)
         : DataType.valueOf(resultsType.substring(0, resultsType.length() - 6));
 
-    if (numArguments >= 4) {
+    if (arguments.size() >= 4) {
       TransformFunction fourthArgument = arguments.get(3);
       if (!(fourthArgument instanceof LiteralTransformFunction)) {
         throw new IllegalArgumentException("Default value must be a literal");
       }
+
       if (_isSingleValue) {
         _defaultValue = dataType.convert(((LiteralTransformFunction) fourthArgument).getStringLiteral());
       } else {
@@ -139,12 +138,12 @@ public class JsonExtractIndexTransformFunction extends BaseTransformFunction {
       }
     }
 
-    if (numArguments == 5) {
+    if (arguments.size() == 5) {
       TransformFunction fifthArgument = arguments.get(4);
       if (!(fifthArgument instanceof LiteralTransformFunction)) {
         throw new IllegalArgumentException("JSON path filter argument must be a literal");
       }
-      _filterJsonExpression = ((LiteralTransformFunction) fifthArgument).getStringLiteral();
+      _filterJsonPath = ((LiteralTransformFunction) fifthArgument).getStringLiteral();
     }
 
     _resultMetadata = new TransformResultMetadata(dataType, _isSingleValue, false);
@@ -421,10 +420,12 @@ public class JsonExtractIndexTransformFunction extends BaseTransformFunction {
     return _stringValuesMV;
   }
 
-  /// Lazily initialize \_valueToMatchingDocsMap, so that map generation is skipped when filtering excludes all values
+  /**
+   * Lazily initialize _valueToMatchingDocsMap, so that map generation is skipped when filtering excludes all values
+   */
   private Map<String, RoaringBitmap> getValueToMatchingDocsMap() {
     if (_valueToMatchingDocsMap == null) {
-      _valueToMatchingDocsMap = _jsonIndexReader.getMatchingFlattenedDocsMap(_jsonPathString, _filterJsonExpression);
+      _valueToMatchingDocsMap = _jsonIndexReader.getMatchingFlattenedDocsMap(_jsonPathString, _filterJsonPath);
       if (_isSingleValue) {
         // For single value result type, it's more efficient to use original docIDs map
         _jsonIndexReader.convertFlattenedDocIdsToDocIds(_valueToMatchingDocsMap);

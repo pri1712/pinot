@@ -21,7 +21,9 @@ package org.apache.pinot.core.routing;
 import java.util.List;
 
 
-/// Tracks segments by partition for a table. Also tracks the invalid partition segments.
+/**
+ * Tracks segments by partition for a table. Also tracks the invalid partition segments.
+ */
 public class TablePartitionInfo {
   private final String _tableNameWithType;
   private final String _partitionColumn;

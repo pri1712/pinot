@@ -24,7 +24,9 @@ import org.apache.pinot.common.utils.regex.PatternFactory;
 import org.apache.pinot.spi.annotations.ScalarFunction;
 
 
-/// Optimized regexp_like implementation that assumes that pattern is constant.
+/**
+ * Optimized regexp_like implementation that assumes that pattern is constant.
+ */
 public class RegexpLikeConstFunctions {
 
   private Matcher _matcher;

@@ -40,8 +40,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 
-/// The `AccessControlUserCache` caches all the user configs within the cluster, and listens on ZK changes to keep
-/// them in sync. It also maintains several component user config maps.
+/**
+ * The {@code AccessControlUserCache} caches all the user configs within the cluster, and listens on ZK changes to keep
+ * them in sync. It also maintains several component user config maps.
+ */
 public class AccessControlUserCache {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(AccessControlUserCache.class);

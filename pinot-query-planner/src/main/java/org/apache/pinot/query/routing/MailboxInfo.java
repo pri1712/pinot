@@ -21,7 +21,9 @@ package org.apache.pinot.query.routing;
 import java.util.List;
 
 
-/// `MailboxInfo` wraps the mailbox information from/to one connected server.
+/**
+ * {@code MailboxInfo} wraps the mailbox information from/to one connected server.
+ */
 public class MailboxInfo {
   private final String _hostname;
   private final int _port;

@@ -196,7 +196,9 @@ public abstract class BaseCombineOperator<T extends BaseResultsBlock> extends Ba
     return Math.min(_numTasks, ResourceManager.DEFAULT_QUERY_WORKER_THREADS);
   }
 
-  /// Start the combine operator process. This will spin up multiple threads to process data segments in parallel.
+  /**
+   * Start the combine operator process. This will spin up multiple threads to process data segments in parallel.
+   */
   protected void startProcess() {
     Tracing.activeRecording().setNumTasks(_numTasks);
     for (int i = 0; i < _numTasks; i++) {
@@ -242,7 +244,9 @@ public abstract class BaseCombineOperator<T extends BaseResultsBlock> extends Ba
     }
   }
 
-  /// Stop the combine operator process. This will stop all sub-tasks that were spun up to process data segments.
+  /**
+   * Stop the combine operator process. This will stop all sub-tasks that were spun up to process data segments.
+   */
   protected void stopProcess() {
     // Cancel all ongoing jobs
     for (Future future : _futures) {
@@ -263,13 +267,19 @@ public abstract class BaseCombineOperator<T extends BaseResultsBlock> extends Ba
     return new ExceptionResultsBlock(errMsg);
   }
 
-  /// Executes query on one or more segments in a worker thread.
+  /**
+   * Executes query on one or more segments in a worker thread.
+   */
   protected abstract void processSegments();
 
-  /// Invoked when [#processSegments()] throws exception/error.
+  /**
+   * Invoked when {@link #processSegments()} throws exception/error.
+   */
   protected abstract void onProcessSegmentsException(Throwable t);
 
-  /// Invoked when [#processSegments()] is finished (called in the finally block).
+  /**
+   * Invoked when {@link #processSegments()} is finished (called in the finally block).
+   */
   protected abstract void onProcessSegmentsFinish();
 
   protected static RuntimeException wrapOperatorException(Operator operator, RuntimeException e) {

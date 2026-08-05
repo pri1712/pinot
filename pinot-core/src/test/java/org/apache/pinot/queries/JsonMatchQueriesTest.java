@@ -52,7 +52,9 @@ import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertTrue;
 
 
-/// Queries test for JSON_MATCH predicate.
+/**
+ * Queries test for JSON_MATCH predicate.
+ */
 public class JsonMatchQueriesTest extends BaseQueriesTest {
   private static final File INDEX_DIR = new File(FileUtils.getTempDirectory(), "JsonMatchQueriesTest");
   private static final String RAW_TABLE_NAME = "testTable";

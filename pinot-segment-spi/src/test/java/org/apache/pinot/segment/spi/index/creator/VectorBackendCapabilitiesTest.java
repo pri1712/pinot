@@ -25,7 +25,9 @@ import static org.testng.Assert.assertNotNull;
 import static org.testng.Assert.assertTrue;
 
 
-/// Tests for [VectorBackendCapabilities] and its integration with [VectorBackendType].
+/**
+ * Tests for {@link VectorBackendCapabilities} and its integration with {@link VectorBackendType}.
+ */
 public class VectorBackendCapabilitiesTest {
 
   @Test

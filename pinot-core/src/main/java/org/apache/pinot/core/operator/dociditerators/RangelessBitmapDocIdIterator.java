@@ -23,9 +23,11 @@ import org.roaringbitmap.PeekableIntIterator;
 import org.roaringbitmap.buffer.ImmutableRoaringBitmap;
 
 
-/// The `RangelessBitmapDocIdIterator` is the bitmap-based iterator to iterate on a bitmap of matching document
-/// ids. Comparing to the BitmapDocIdIterator, it does not have an explicit bound `[0, numDocs)` for the
-/// iteration, but purely rely on the document ids stored in the bitmap.
+/**
+ * The {@code RangelessBitmapDocIdIterator} is the bitmap-based iterator to iterate on a bitmap of matching document
+ * ids. Comparing to the BitmapDocIdIterator, it does not have an explicit bound {@code [0, numDocs)} for the iteration,
+ * but purely rely on the document ids stored in the bitmap.
+ */
 public final class RangelessBitmapDocIdIterator implements BitmapBasedDocIdIterator {
   private final ImmutableRoaringBitmap _docIds;
   private final PeekableIntIterator _docIdIterator;

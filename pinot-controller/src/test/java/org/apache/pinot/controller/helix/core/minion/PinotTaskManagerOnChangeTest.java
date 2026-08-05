@@ -18,6 +18,7 @@
  */
 package org.apache.pinot.controller.helix.core.minion;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -82,13 +83,13 @@ public class PinotTaskManagerOnChangeTest {
 
   @Test
   public void testOnChangeNullChangedConfigs() {
-    _taskManager.onChange(null, Map.of());
+    _taskManager.onChange(null, Collections.emptyMap());
     verifyNoInteractions(_helixTaskResourceManager);
   }
 
   @Test
   public void testOnChangeEmptyClusterConfigs() {
-    _taskManager.onChange(new HashSet<>(), Map.of());
+    _taskManager.onChange(new HashSet<>(), Collections.emptyMap());
     verifyNoMoreInteractions(_helixTaskResourceManager);
   }
 
@@ -356,7 +357,7 @@ public class PinotTaskManagerOnChangeTest {
         mock(ResourceUtilizationManager.class));
 
     String taskType = "MissingTask";
-    when(taskResMgr.getTaskTypes()).thenReturn(Set.of());
+    when(taskResMgr.getTaskTypes()).thenReturn(Collections.emptySet());
 
     mgr.reportMetrics(taskType);
     verify(metrics).setValueOfTableGauge(taskType, ControllerGauge.TASKS_TRACKED_FOR_TASK_TYPE, 0);

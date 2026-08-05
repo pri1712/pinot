@@ -21,7 +21,7 @@ package org.apache.pinot.segment.local.realtime.impl.invertedindex;
 import java.io.File;
 import java.io.IOException;
 import java.util.Collection;
-import java.util.List;
+import java.util.Collections;
 import java.util.Map;
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.ConcurrentHashMap;
@@ -263,7 +263,9 @@ public class RealtimeLuceneTextIndexResourceTrackingTest {
     }
   }
 
-  /// A ThreadAccountant implementation that tracks calls for testing purposes.
+  /**
+   * A ThreadAccountant implementation that tracks calls for testing purposes.
+   */
   private static class TrackingAccountant implements ThreadAccountant {
     private final AtomicInteger _setupTaskCount = new AtomicInteger(0);
     private final AtomicInteger _sampleUsageCount = new AtomicInteger(0);
@@ -294,12 +296,12 @@ public class RealtimeLuceneTextIndexResourceTrackingTest {
 
     @Override
     public Collection<? extends ThreadResourceTracker> getThreadResources() {
-      return List.of();
+      return Collections.emptyList();
     }
 
     @Override
     public Map<String, ? extends QueryResourceTracker> getQueryResources() {
-      return Map.of();
+      return Collections.emptyMap();
     }
 
     public int getSetupTaskCount() {

@@ -26,7 +26,9 @@ import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.pinot.common.utils.DateTimeUtils;
 
 
-/// This class is used to represent errors related to a segment.
+/**
+ * This class is used to represent errors related to a segment.
+ */
 @SuppressWarnings("unused")
 @JsonIgnoreProperties(ignoreUnknown = true)
 @JsonPropertyOrder({"timestamp", "errorMessage", "stackTrace"}) // For readability of JSON output
@@ -36,11 +38,14 @@ public class SegmentErrorInfo {
   private final String _errorMessage;
   private final String _stackTrace;
 
-  /// This constructor is specifically for JSON ser/de.
-  ///
-  /// @param timestamp Time stamp of the error in Simple Date Format.
-  /// @param errorMessage Error message
-  /// @param stackTrace Exception stack trace
+  /**
+   * This constructor is specifically for JSON ser/de.
+   *
+   * @param timestamp Time stamp of the error in Simple Date Format.
+   * @param errorMessage Error message
+   * @param stackTrace Exception stack trace
+   *
+   */
   @JsonCreator
   public SegmentErrorInfo(@JsonProperty("timestamp") String timestamp,
       @JsonProperty("errorMessage") String errorMessage, @JsonProperty("stackTrace") String stackTrace) {
@@ -49,10 +54,12 @@ public class SegmentErrorInfo {
     _stackTrace = stackTrace;
   }
 
-  /// Constructor for the class
-  /// @param timestampMs Timestamp of error/exception
-  /// @param errorMessage Error message
-  /// @param exception Exception
+  /**
+   * Constructor for the class
+   * @param timestampMs Timestamp of error/exception
+   * @param errorMessage Error message
+   * @param exception Exception
+   */
   public SegmentErrorInfo(long timestampMs, String errorMessage, Throwable exception) {
     _timestamp = DateTimeUtils.epochToDefaultDateFormat(timestampMs);
     _errorMessage = errorMessage;

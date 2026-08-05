@@ -21,6 +21,7 @@ package org.apache.pinot.plugin.minion.tasks.upsertcompaction;
 import com.fasterxml.jackson.core.type.TypeReference;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -28,8 +29,6 @@ import java.util.concurrent.TimeUnit;
 import org.apache.helix.model.IdealState;
 import org.apache.pinot.common.metadata.segment.SegmentZKMetadata;
 import org.apache.pinot.common.restlet.resources.ValidDocIdsMetadataInfo;
-import org.apache.pinot.common.restlet.resources.ValidDocIdsType;
-import org.apache.pinot.common.utils.ServiceStatus;
 import org.apache.pinot.controller.helix.core.minion.ClusterInfoAccessor;
 import org.apache.pinot.core.common.MinionConstants;
 import org.apache.pinot.core.common.MinionConstants.UpsertCompactionTask;
@@ -118,9 +117,9 @@ public class UpsertCompactionTaskGeneratorTest {
   @Test
   public void testGenerateTasksWithNoSegments() {
     when(_mockClusterInfoAccessor.getSegmentsZKMetadata(REALTIME_TABLE_NAME)).thenReturn(
-        Lists.newArrayList(List.of()));
+        Lists.newArrayList(Collections.emptyList()));
     when(_mockClusterInfoAccessor.getIdealState(REALTIME_TABLE_NAME)).thenReturn(
-        getIdealState(REALTIME_TABLE_NAME, Lists.newArrayList(List.of())));
+        getIdealState(REALTIME_TABLE_NAME, Lists.newArrayList(Collections.emptyList())));
 
     _taskGenerator.init(_mockClusterInfoAccessor);
 
@@ -234,13 +233,13 @@ public class UpsertCompactionTaskGeneratorTest {
     // no completed segments scenario, there shouldn't be any segment selected for compaction
     UpsertCompactionTaskGenerator.SegmentSelectionResult segmentSelectionResult =
         UpsertCompactionTaskGenerator.processValidDocIdsMetadata(compactionConfigs, new HashMap<>(),
-            validDocIdsMetadataInfo, Map.of(), MinionConstants.ValidDocIdsConsensusMode.UNSAFE);
+            validDocIdsMetadataInfo);
     assertEquals(segmentSelectionResult.getSegmentsForCompaction().size(), 0);
 
     // test with valid crc and thresholds
     segmentSelectionResult =
         UpsertCompactionTaskGenerator.processValidDocIdsMetadata(compactionConfigs, _completedSegmentsMap,
-            validDocIdsMetadataInfo, Map.of(), MinionConstants.ValidDocIdsConsensusMode.UNSAFE);
+            validDocIdsMetadataInfo);
     assertEquals(segmentSelectionResult.getSegmentsForCompaction().size(), 1);
     assertEquals(segmentSelectionResult.getSegmentsForDeletion().size(), 1);
     assertEquals(segmentSelectionResult.getSegmentsForCompaction().get(0).getSegmentName(),
@@ -251,7 +250,7 @@ public class UpsertCompactionTaskGeneratorTest {
     compactionConfigs = getCompactionConfigs("60", "10");
     segmentSelectionResult =
         UpsertCompactionTaskGenerator.processValidDocIdsMetadata(compactionConfigs, _completedSegmentsMap,
-            validDocIdsMetadataInfo, Map.of(), MinionConstants.ValidDocIdsConsensusMode.UNSAFE);
+            validDocIdsMetadataInfo);
     assertTrue(segmentSelectionResult.getSegmentsForCompaction().isEmpty());
     assertEquals(segmentSelectionResult.getSegmentsForDeletion().size(), 1);
     assertEquals(segmentSelectionResult.getSegmentsForDeletion().get(0), _completedSegment2.getSegmentName());
@@ -260,7 +259,7 @@ public class UpsertCompactionTaskGeneratorTest {
     compactionConfigs = getCompactionConfigs("0", "10");
     segmentSelectionResult =
         UpsertCompactionTaskGenerator.processValidDocIdsMetadata(compactionConfigs, _completedSegmentsMap,
-            validDocIdsMetadataInfo, Map.of(), MinionConstants.ValidDocIdsConsensusMode.UNSAFE);
+            validDocIdsMetadataInfo);
     assertEquals(segmentSelectionResult.getSegmentsForDeletion().size(), 1);
     assertEquals(segmentSelectionResult.getSegmentsForCompaction().size(), 1);
     assertEquals(segmentSelectionResult.getSegmentsForCompaction().get(0).getSegmentName(),
@@ -271,7 +270,7 @@ public class UpsertCompactionTaskGeneratorTest {
     compactionConfigs = getCompactionConfigs("30", "0");
     segmentSelectionResult =
         UpsertCompactionTaskGenerator.processValidDocIdsMetadata(compactionConfigs, _completedSegmentsMap,
-            validDocIdsMetadataInfo, Map.of(), MinionConstants.ValidDocIdsConsensusMode.UNSAFE);
+            validDocIdsMetadataInfo);
     assertEquals(segmentSelectionResult.getSegmentsForDeletion().size(), 1);
     assertEquals(segmentSelectionResult.getSegmentsForCompaction().size(), 1);
     assertEquals(segmentSelectionResult.getSegmentsForCompaction().get(0).getSegmentName(),
@@ -290,7 +289,7 @@ public class UpsertCompactionTaskGeneratorTest {
     });
     segmentSelectionResult =
         UpsertCompactionTaskGenerator.processValidDocIdsMetadata(compactionConfigs, _completedSegmentsMap,
-            validDocIdsMetadataInfo, Map.of(), MinionConstants.ValidDocIdsConsensusMode.UNSAFE);
+            validDocIdsMetadataInfo);
 
     // completedSegment is supposed to be filtered out
     Assert.assertEquals(segmentSelectionResult.getSegmentsForCompaction().size(), 0);
@@ -315,7 +314,7 @@ public class UpsertCompactionTaskGeneratorTest {
     compactionConfigs = getCompactionConfigs("30", "0");
     segmentSelectionResult =
         UpsertCompactionTaskGenerator.processValidDocIdsMetadata(compactionConfigs, _completedSegmentsMap,
-            validDocIdsMetadataInfo, Map.of(), MinionConstants.ValidDocIdsConsensusMode.UNSAFE);
+            validDocIdsMetadataInfo);
     Assert.assertEquals(segmentSelectionResult.getSegmentsForCompaction().size(), 2);
     Assert.assertEquals(segmentSelectionResult.getSegmentsForDeletion().size(), 0);
     assertEquals(segmentSelectionResult.getSegmentsForCompaction().get(0).getSegmentName(),
@@ -326,99 +325,6 @@ public class UpsertCompactionTaskGeneratorTest {
     // Check segmentCreationTimeMillis is deserialized correctly
     assertEquals(validDocIdsMetadataInfo.get("testTable__0").get(0).getSegmentCreationTimeMillis(), 1234567890L);
     assertEquals(validDocIdsMetadataInfo.get("testTable__1").get(0).getSegmentCreationTimeMillis(), 9876543210L);
-  }
-
-  @Test
-  public void testProcessValidDocIdsMetadataConsensus() {
-    Map<String, String> compactionConfigs = getCompactionConfigs("1", "10");
-    String segmentName = _completedSegment.getSegmentName();
-    long crc = _completedSegment.getCrc();
-    Map<String, Integer> twoReplicas = Map.of(segmentName, 2);
-
-    Map<String, List<ValidDocIdsMetadataInfo>> equalReplicas = Map.of(segmentName, List.of(
-        meta(segmentName, 50, 50, 100, crc, ServiceStatus.Status.GOOD, "server1"),
-        meta(segmentName, 50, 50, 100, crc, ServiceStatus.Status.GOOD, "server2")));
-    UpsertCompactionTaskGenerator.SegmentSelectionResult result =
-        UpsertCompactionTaskGenerator.processValidDocIdsMetadata(compactionConfigs, _completedSegmentsMap,
-            equalReplicas, twoReplicas, MinionConstants.ValidDocIdsConsensusMode.EQUAL);
-    assertEquals(result.getSegmentsForCompaction().size(), 1);
-
-    Map<String, List<ValidDocIdsMetadataInfo>> unequalReplicas = Map.of(segmentName, List.of(
-        meta(segmentName, 50, 50, 100, crc, ServiceStatus.Status.GOOD, "server1"),
-        meta(segmentName, 60, 40, 100, crc, ServiceStatus.Status.GOOD, "server2")));
-    result = UpsertCompactionTaskGenerator.processValidDocIdsMetadata(compactionConfigs, _completedSegmentsMap,
-        unequalReplicas, twoReplicas, MinionConstants.ValidDocIdsConsensusMode.EQUAL);
-    assertTrue(result.getSegmentsForCompaction().isEmpty());
-    assertTrue(result.getSegmentsForDeletion().isEmpty());
-
-    Map<String, List<ValidDocIdsMetadataInfo>> oneResponded = Map.of(segmentName, List.of(
-        meta(segmentName, 50, 50, 100, crc, ServiceStatus.Status.GOOD, "server1")));
-    result = UpsertCompactionTaskGenerator.processValidDocIdsMetadata(compactionConfigs, _completedSegmentsMap,
-        oneResponded, twoReplicas, MinionConstants.ValidDocIdsConsensusMode.EQUAL);
-    assertTrue(result.getSegmentsForCompaction().isEmpty());
-
-    Map<String, List<ValidDocIdsMetadataInfo>> crcMismatch = Map.of(segmentName, List.of(
-        meta(segmentName, 50, 50, 100, crc, ServiceStatus.Status.GOOD, "server1"),
-        meta(segmentName, 50, 50, 100, crc + 1, ServiceStatus.Status.GOOD, "server2")));
-    result = UpsertCompactionTaskGenerator.processValidDocIdsMetadata(compactionConfigs, _completedSegmentsMap,
-        crcMismatch, twoReplicas, MinionConstants.ValidDocIdsConsensusMode.EQUAL);
-    assertTrue(result.getSegmentsForCompaction().isEmpty());
-
-    Map<String, List<ValidDocIdsMetadataInfo>> unhealthy = Map.of(segmentName, List.of(
-        meta(segmentName, 50, 50, 100, crc, ServiceStatus.Status.GOOD, "server1"),
-        meta(segmentName, 50, 50, 100, crc, ServiceStatus.Status.STARTING, "server2")));
-    result = UpsertCompactionTaskGenerator.processValidDocIdsMetadata(compactionConfigs, _completedSegmentsMap,
-        unhealthy, twoReplicas, MinionConstants.ValidDocIdsConsensusMode.EQUAL);
-    assertTrue(result.getSegmentsForCompaction().isEmpty());
-
-    result = UpsertCompactionTaskGenerator.processValidDocIdsMetadata(compactionConfigs, _completedSegmentsMap,
-        crcMismatch, twoReplicas, MinionConstants.ValidDocIdsConsensusMode.UNSAFE);
-    assertEquals(result.getSegmentsForCompaction().size(), 1);
-
-    result = UpsertCompactionTaskGenerator.processValidDocIdsMetadata(compactionConfigs, _completedSegmentsMap,
-        crcMismatch, twoReplicas, MinionConstants.ValidDocIdsConsensusMode.MOST_VALID_DOCS);
-    assertTrue(result.getSegmentsForCompaction().isEmpty());
-
-    Map<String, List<ValidDocIdsMetadataInfo>> mostValidDocs = Map.of(segmentName, List.of(
-        meta(segmentName, 0, 100, 100, crc, ServiceStatus.Status.GOOD, "server1"),
-        meta(segmentName, 100, 0, 100, crc, ServiceStatus.Status.GOOD, "server2")));
-    result = UpsertCompactionTaskGenerator.processValidDocIdsMetadata(compactionConfigs, _completedSegmentsMap,
-        mostValidDocs, twoReplicas, MinionConstants.ValidDocIdsConsensusMode.MOST_VALID_DOCS);
-    assertTrue(result.getSegmentsForCompaction().isEmpty());
-    assertTrue(result.getSegmentsForDeletion().isEmpty());
-
-    SegmentZKMetadata dataCrcSegment = new SegmentZKMetadata(segmentName);
-    dataCrcSegment.setStatus(CommonConstants.Segment.Realtime.Status.DONE);
-    dataCrcSegment.setTotalDocs(100L);
-    dataCrcSegment.setCrc(1000);
-    dataCrcSegment.setUseDataCrc(true);
-    dataCrcSegment.setDataCrc(5000);
-    Map<String, SegmentZKMetadata> dataCrcMap = Map.of(segmentName, dataCrcSegment);
-    Map<String, List<ValidDocIdsMetadataInfo>> dataCrcMatch = Map.of(segmentName, List.of(
-        metaWithDataCrc(segmentName, 50, 50, 100, 2000, "5000", ServiceStatus.Status.GOOD, "server1"),
-        metaWithDataCrc(segmentName, 50, 50, 100, 2000, "5000", ServiceStatus.Status.GOOD, "server2")));
-    result = UpsertCompactionTaskGenerator.processValidDocIdsMetadata(compactionConfigs, dataCrcMap, dataCrcMatch,
-        twoReplicas, MinionConstants.ValidDocIdsConsensusMode.EQUAL);
-    assertEquals(result.getSegmentsForCompaction().size(), 1);
-
-    Map<String, List<ValidDocIdsMetadataInfo>> dataCrcMismatch = Map.of(segmentName, List.of(
-        metaWithDataCrc(segmentName, 50, 50, 100, 2000, "9999", ServiceStatus.Status.GOOD, "server1"),
-        metaWithDataCrc(segmentName, 50, 50, 100, 2000, "9999", ServiceStatus.Status.GOOD, "server2")));
-    result = UpsertCompactionTaskGenerator.processValidDocIdsMetadata(compactionConfigs, dataCrcMap, dataCrcMismatch,
-        twoReplicas, MinionConstants.ValidDocIdsConsensusMode.EQUAL);
-    assertTrue(result.getSegmentsForCompaction().isEmpty());
-  }
-
-  private static ValidDocIdsMetadataInfo meta(String segmentName, long validDocs, long invalidDocs, long totalDocs,
-      long crc, ServiceStatus.Status serverStatus, String instanceId) {
-    return new ValidDocIdsMetadataInfo(segmentName, validDocs, invalidDocs, totalDocs, String.valueOf(crc), null,
-        ValidDocIdsType.SNAPSHOT, 1000, System.currentTimeMillis(), instanceId, serverStatus);
-  }
-
-  private static ValidDocIdsMetadataInfo metaWithDataCrc(String segmentName, long validDocs, long invalidDocs,
-      long totalDocs, long crc, String dataCrc, ServiceStatus.Status serverStatus, String instanceId) {
-    return new ValidDocIdsMetadataInfo(segmentName, validDocs, invalidDocs, totalDocs, String.valueOf(crc), dataCrc,
-        ValidDocIdsType.SNAPSHOT, 1000, System.currentTimeMillis(), instanceId, serverStatus);
   }
 
   @Test
@@ -478,17 +384,6 @@ public class UpsertCompactionTaskGeneratorTest {
         .build();
     Assert.assertThrows(IllegalStateException.class,
         () -> _taskGenerator.validateTaskConfigs(invalidTableConfig, new Schema(), upsertCompactionTaskConfig5));
-
-    // metadataTTL enabled is not supported with UpsertCompactionTask
-    UpsertConfig ttlUpsertConfig = new UpsertConfig(UpsertConfig.Mode.FULL);
-    ttlUpsertConfig.setSnapshot(Enablement.ENABLE);
-    ttlUpsertConfig.setMetadataTTL(30);
-    TableConfig metadataTtlTableConfig =
-        new TableConfigBuilder(TableType.REALTIME).setTableName(RAW_TABLE_NAME).setUpsertConfig(ttlUpsertConfig)
-            .setTaskConfig(new TableTaskConfig(Map.of("UpsertCompactionTask", upsertCompactionTaskConfig)))
-            .build();
-    Assert.assertThrows(IllegalStateException.class,
-        () -> _taskGenerator.validateTaskConfigs(metadataTtlTableConfig, new Schema(), upsertCompactionTaskConfig));
   }
 
   @Test

@@ -29,10 +29,11 @@ import org.apache.pinot.segment.spi.IndexSegment;
 import org.apache.pinot.segment.spi.SegmentContext;
 
 
-/// The `StreamingSelectionPlanNode` class provides the execution plan for streaming selection query on a single
-/// segment.
-///
-/// NOTE: ORDER-BY is ignored for streaming selection query.
+/**
+ * The {@code StreamingSelectionPlanNode} class provides the execution plan for streaming selection query on a single
+ * segment.
+ * <p>NOTE: ORDER-BY is ignored for streaming selection query.
+ */
 public class StreamingSelectionPlanNode implements PlanNode {
   private final IndexSegment _indexSegment;
   private final SegmentContext _segmentContext;

@@ -24,22 +24,30 @@ import org.apache.helix.zookeeper.datamodel.ZNRecord;
 import org.apache.pinot.spi.data.LogicalTableConfig;
 
 
-/// Pluggable serializer/deserializer for [LogicalTableConfig] stored in ZooKeeper as [ZNRecord].
-///
-/// Implementations are discovered via [java.util.ServiceLoader]. When multiple implementations
-/// are present, the one with the highest [#getPriority()] wins.
+/**
+ * Pluggable serializer/deserializer for {@link LogicalTableConfig} stored in ZooKeeper as {@link ZNRecord}.
+ *
+ * <p>Implementations are discovered via {@link java.util.ServiceLoader}. When multiple implementations
+ * are present, the one with the highest {@link #getPriority()} wins.</p>
+ */
 public interface LogicalTableConfigSerDe {
 
-  /// Deserializes a [LogicalTableConfig] from the given [ZNRecord].
+  /**
+   * Deserializes a {@link LogicalTableConfig} from the given {@link ZNRecord}.
+   */
   LogicalTableConfig fromZNRecord(ZNRecord znRecord)
       throws IOException;
 
-  /// Serializes a [LogicalTableConfig] into a [ZNRecord].
+  /**
+   * Serializes a {@link LogicalTableConfig} into a {@link ZNRecord}.
+   */
   ZNRecord toZNRecord(LogicalTableConfig logicalTableConfig)
       throws JsonProcessingException;
 
-  /// Returns the priority of this implementation. Higher values win over lower values
-  /// when multiple implementations are discovered via ServiceLoader.
+  /**
+   * Returns the priority of this implementation. Higher values win over lower values
+   * when multiple implementations are discovered via ServiceLoader.
+   */
   default int getPriority() {
     return 0;
   }

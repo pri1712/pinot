@@ -25,6 +25,7 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
@@ -48,15 +49,25 @@ import org.apache.pinot.spi.utils.ByteArray;
 import org.roaringbitmap.RoaringBitmap;
 
 
-/// The `SelectionOperatorUtils` class provides the utility methods for selection queries without
-/// `ORDER BY` and [SelectionOperatorService].
-///
-/// Expected behavior:
-///
-/// - Return selection results with the same order of columns as user passed in.
-///   - Eg. SELECT colB, colA, colC FROM table -> \[valB, valA, valC\]
-/// - For 'SELECT \*', return columns with alphabetically order.
-///   - Eg. SELECT \* FROM table -> \[valA, valB, valC\]
+/**
+ * The <code>SelectionOperatorUtils</code> class provides the utility methods for selection queries without
+ * <code>ORDER BY</code> and {@link SelectionOperatorService}.
+ * <p>Expected behavior:
+ * <ul>
+ *   <li>
+ *     Return selection results with the same order of columns as user passed in.
+ *     <ul>
+ *       <li>Eg. SELECT colB, colA, colC FROM table -> [valB, valA, valC]</li>
+ *     </ul>
+ *   </li>
+ *   <li>
+ *     For 'SELECT *', return columns with alphabetically order.
+ *     <ul>
+ *       <li>Eg. SELECT * FROM table -> [valA, valB, valC]</li>
+ *     </ul>
+ *   </li>
+ * </ul>
+ */
 public class SelectionOperatorUtils {
   private SelectionOperatorUtils() {
   }
@@ -64,11 +75,11 @@ public class SelectionOperatorUtils {
   public static final ExpressionContext IDENTIFIER_STAR = ExpressionContext.forIdentifier("*");
   public static final int MAX_ROW_HOLDER_INITIAL_CAPACITY = 10_000;
 
-  /// Extracts the expressions from a selection query, expands `'SELECT *'` to all physical columns if applies.
-  ///
-  /// Order-by expressions will be put at the front if exist. The expressions returned are deduplicated.
-  ///
-  /// NOTE: DO NOT change the order of the expressions returned because broker relies on that to process the query.
+  /**
+   * Extracts the expressions from a selection query, expands {@code 'SELECT *'} to all physical columns if applies.
+   * <p>Order-by expressions will be put at the front if exist. The expressions returned are deduplicated.
+   * <p>NOTE: DO NOT change the order of the expressions returned because broker relies on that to process the query.
+   */
   public static List<ExpressionContext> extractExpressions(QueryContext queryContext, IndexSegment indexSegment) {
     Set<ExpressionContext> expressionSet = new HashSet<>();
     List<ExpressionContext> expressions = new ArrayList<>();
@@ -113,8 +124,10 @@ public class SelectionOperatorUtils {
     return expressions;
   }
 
-  /// Expands `'SELECT *'` to all columns (excluding transform functions) within [DataSchema] with
-  /// alphabetical order if applies.
+  /**
+   * Expands {@code 'SELECT *'} to all columns (excluding transform functions) within {@link DataSchema} with
+   * alphabetical order if applies.
+   */
   public static List<String> getSelectionColumns(QueryContext queryContext, DataSchema dataSchema) {
     List<ExpressionContext> selectExpressions = queryContext.getSelectExpressions();
     int numSelectExpressions = selectExpressions.size();
@@ -125,7 +138,7 @@ public class SelectionOperatorUtils {
       // NOTE: The data schema might be generated from DataTableBuilder.buildEmptyDataTable(), where for 'SELECT *' it
       //       contains a single column "*". In such case, return as is to build the empty selection result.
       if (numColumns == 1 && columnNames[0].equals("*")) {
-        return new ArrayList<>(List.of("*"));
+        return new ArrayList<>(Collections.singletonList("*"));
       }
 
       // Directly return all columns for selection-only queries
@@ -154,10 +167,12 @@ public class SelectionOperatorUtils {
     }
   }
 
-  /// Returns the data schema and column indices of the final selection results based on the query and the data
-  /// schema of the server response. See [#extractExpressions] for the column orders on the server side.
-  /// NOTE: DO NOT rely on column name lookup across query context and data schema because the string representation of
-  ///       expression can change, which will cause backward incompatibility.
+  /**
+   * Returns the data schema and column indices of the final selection results based on the query and the data schema of
+   * the server response. See {@link #extractExpressions} for the column orders on the server side.
+   * NOTE: DO NOT rely on column name lookup across query context and data schema because the string representation of
+   *       expression can change, which will cause backward incompatibility.
+   */
   public static Pair<DataSchema, int[]> getResultTableDataSchemaAndColumnIndices(QueryContext queryContext,
       DataSchema dataSchema) {
     List<ExpressionContext> selectExpressions = queryContext.getSelectExpressions();
@@ -269,11 +284,13 @@ public class SelectionOperatorUtils {
     return Pair.of(new DataSchema(columnNames, columnDataTypes), columnIndices);
   }
 
-  /// Merge two partial results for selection queries without `ORDER BY`. (Server side)
-  ///
-  /// @param mergedBlock partial results 1.
-  /// @param blockToMerge partial results 2.
-  /// @param selectionSize size of the selection.
+  /**
+   * Merge two partial results for selection queries without <code>ORDER BY</code>. (Server side)
+   *
+   * @param mergedBlock partial results 1.
+   * @param blockToMerge partial results 2.
+   * @param selectionSize size of the selection.
+   */
   public static void mergeWithoutOrdering(SelectionResultsBlock mergedBlock, SelectionResultsBlock blockToMerge,
       int selectionSize) {
     List<Object[]> mergedRows = mergedBlock.getRows();
@@ -284,11 +301,13 @@ public class SelectionOperatorUtils {
     }
   }
 
-  /// Merge two partial results for selection queries with `ORDER BY`. (Server side)
-  ///
-  /// @param mergedBlock partial results 1 (sorted).
-  /// @param blockToMerge partial results 2 (sorted).
-  /// @param maxNumRows maximum number of rows need to be stored.
+  /**
+   * Merge two partial results for selection queries with <code>ORDER BY</code>. (Server side)
+   *
+   * @param mergedBlock partial results 1 (sorted).
+   * @param blockToMerge partial results 2 (sorted).
+   * @param maxNumRows maximum number of rows need to be stored.
+   */
   public static void mergeWithOrdering(SelectionResultsBlock mergedBlock, SelectionResultsBlock blockToMerge,
       int maxNumRows) {
     List<Object[]> sortedRows1 = mergedBlock.getRows();
@@ -335,9 +354,11 @@ public class SelectionOperatorUtils {
     mergedBlock.setRows(mergedRows);
   }
 
-  /// Build a [DataTable] from a [Collection] of selection rows with [DataSchema]. (Server side)
-  ///
-  /// This method is allowed to modify the given rows. Specifically, it may remove nulls cells from it.
+  /**
+   * Build a {@link DataTable} from a {@link Collection} of selection rows with {@link DataSchema}. (Server side)
+   *
+   * This method is allowed to modify the given rows. Specifically, it may remove nulls cells from it.
+   */
   public static DataTable getDataTableFromRows(Collection<Object[]> rows, DataSchema dataSchema,
       boolean nullHandlingEnabled)
       throws IOException {
@@ -442,11 +463,13 @@ public class SelectionOperatorUtils {
     return dataTableBuilder.build();
   }
 
-  /// Extract a selection row from [DataTable]. (Broker side)
-  ///
-  /// @param dataTable data table.
-  /// @param rowId row id.
-  /// @return selection row.
+  /**
+   * Extract a selection row from {@link DataTable}. (Broker side)
+   *
+   * @param dataTable data table.
+   * @param rowId row id.
+   * @return selection row.
+   */
   public static Object[] extractRowFromDataTable(DataTable dataTable, int rowId) {
     DataSchema dataSchema = dataTable.getDataSchema();
     ColumnDataType[] storedColumnDataTypes = dataSchema.getStoredColumnDataTypes();
@@ -516,11 +539,13 @@ public class SelectionOperatorUtils {
     return row;
   }
 
-  /// Extract a selection row from [DataTable] with potential null values. (Broker side)
-  ///
-  /// @param dataTable data table.
-  /// @param rowId row id.
-  /// @return selection row.
+  /**
+   * Extract a selection row from {@link DataTable} with potential null values. (Broker side)
+   *
+   * @param dataTable data table.
+   * @param rowId row id.
+   * @return selection row.
+   */
   public static Object[] extractRowFromDataTableWithNullHandling(DataTable dataTable, int rowId,
       RoaringBitmap[] nullBitmaps) {
     Object[] row = extractRowFromDataTable(dataTable, rowId);
@@ -532,8 +557,10 @@ public class SelectionOperatorUtils {
     return row;
   }
 
-  /// Reduces a collection of [DataTable]s to selection rows for selection queries without `ORDER BY`.
-  /// (Broker side)
+  /**
+   * Reduces a collection of {@link DataTable}s to selection rows for selection queries without <code>ORDER BY</code>.
+   * (Broker side)
+   */
   public static List<Object[]> reduceWithoutOrdering(Collection<DataTable> dataTables, int limit,
       boolean nullHandlingEnabled) {
     List<Object[]> rows = new ArrayList<>(Math.min(limit, SelectionOperatorUtils.MAX_ROW_HOLDER_INITIAL_CAPACITY));
@@ -569,8 +596,10 @@ public class SelectionOperatorUtils {
     return rows;
   }
 
-  /// Renders the selection rows to a [ResultTable] object for selection queries without `ORDER BY`.
-  /// (Broker side)
+  /**
+   * Renders the selection rows to a {@link ResultTable} object for selection queries without <code>ORDER BY</code>.
+   * (Broker side)
+   */
   public static ResultTable renderResultTableWithoutOrdering(List<Object[]> rows, DataSchema dataSchema,
       int[] columnIndices) {
     int numRows = rows.size();
@@ -590,12 +619,14 @@ public class SelectionOperatorUtils {
     return new ResultTable(dataSchema, resultRows);
   }
 
-  /// Helper method to add a value to a [PriorityQueue].
-  ///
-  /// @param value value to be added.
-  /// @param queue priority queue.
-  /// @param maxNumValues maximum number of values in the priority queue.
-  /// @param <T> type for the value.
+  /**
+   * Helper method to add a value to a {@link PriorityQueue}.
+   *
+   * @param value value to be added.
+   * @param queue priority queue.
+   * @param maxNumValues maximum number of values in the priority queue.
+   * @param <T> type for the value.
+   */
   public static <T> void addToPriorityQueue(T value, PriorityQueue<T> queue, int maxNumValues) {
     if (queue.size() < maxNumValues) {
       queue.add(value);

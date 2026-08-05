@@ -33,7 +33,9 @@ import org.apache.pinot.segment.spi.index.startree.StarTreeV2Constants.MetadataK
 import org.apache.pinot.spi.config.table.FieldConfig.CompressionCodec;
 
 
-/// The `StarTreeV2Metadata` contains the metadata for a single star-tree.
+/**
+ * The {@code StarTreeV2Metadata} contains the metadata for a single star-tree.
+ */
 public class StarTreeV2Metadata {
   private final int _numDocs;
   private final List<String> _dimensionsSplitOrder;

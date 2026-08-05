@@ -18,6 +18,7 @@
  */
 package org.apache.pinot.controller.helix.core.minion;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -34,11 +35,13 @@ import static org.testng.Assert.assertFalse;
 import static org.testng.Assert.assertTrue;
 
 
-/// Unit tests for the concurrent-scheduling dispatch helpers in [PinotTaskManager]:
-/// `shouldUseConcurrentPath(TaskSchedulingContext)` and
-/// `resolveConcurrentScheduling(TableConfig)`. The tests spy on a [PinotTaskManager]
-/// mock and inject the cluster-default flag / resource-manager collaborator via reflection,
-/// avoiding a full controller boot.
+/**
+ * Unit tests for the concurrent-scheduling dispatch helpers in {@link PinotTaskManager}:
+ * {@code shouldUseConcurrentPath(TaskSchedulingContext)} and
+ * {@code resolveConcurrentScheduling(TableConfig)}. The tests spy on a {@link PinotTaskManager}
+ * mock and inject the cluster-default flag / resource-manager collaborator via reflection,
+ * avoiding a full controller boot.
+ */
 public class PinotTaskManagerConcurrentSchedulingTest {
 
   private static final String TABLE_A = "tableA_OFFLINE";
@@ -54,7 +57,7 @@ public class PinotTaskManagerConcurrentSchedulingTest {
   }
 
   private TableConfig tableConfigWith(String tableName, Boolean concurrentFlag) {
-    TableTaskConfig taskConfig = new TableTaskConfig(Map.of("TestTask", Map.of()), concurrentFlag);
+    TableTaskConfig taskConfig = new TableTaskConfig(Map.of("TestTask", Collections.emptyMap()), concurrentFlag);
     return new TableConfigBuilder(TableType.OFFLINE)
         .setTableName(tableName)
         .setTaskConfig(taskConfig)
@@ -178,7 +181,7 @@ public class PinotTaskManagerConcurrentSchedulingTest {
     // When no target tables or databases are supplied and the cluster has no tables to enumerate,
     // no table is inspected: the decision falls back to the cluster-level default.
     PinotHelixResourceManager rm = Mockito.mock(PinotHelixResourceManager.class);
-    Mockito.when(rm.getAllTables()).thenReturn(List.of());
+    Mockito.when(rm.getAllTables()).thenReturn(Collections.emptyList());
     PinotTaskManager manager = newManager(true, rm);
 
     assertTrue(manager.shouldUseConcurrentPath(new TaskSchedulingContext()));
@@ -188,7 +191,7 @@ public class PinotTaskManagerConcurrentSchedulingTest {
   public void testShouldUseConcurrentPathEmptyScopeFallsBackToClusterDefaultFalse()
       throws Exception {
     PinotHelixResourceManager rm = Mockito.mock(PinotHelixResourceManager.class);
-    Mockito.when(rm.getAllTables()).thenReturn(List.of());
+    Mockito.when(rm.getAllTables()).thenReturn(Collections.emptyList());
     PinotTaskManager manager = newManager(false, rm);
 
     assertFalse(manager.shouldUseConcurrentPath(new TaskSchedulingContext()));

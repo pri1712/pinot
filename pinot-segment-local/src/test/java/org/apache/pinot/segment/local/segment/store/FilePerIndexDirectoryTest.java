@@ -22,10 +22,9 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
 import java.util.TreeSet;
 import org.apache.commons.io.FileUtils;
 import org.apache.pinot.segment.local.PinotBuffersAfterMethodCheckRule;
@@ -290,10 +289,10 @@ public class FilePerIndexDirectoryTest implements PinotBuffersAfterMethodCheckRu
     try (FilePerIndexDirectory fpi = new FilePerIndexDirectory(TEMP_DIR, _segmentMetadata, ReadMode.mmap)) {
       assertEquals(fpi.getColumnsWithIndex(StandardIndexes.forward()), new HashSet<>(Arrays.asList("col1", "col3")));
       assertEquals(fpi.getColumnsWithIndex(StandardIndexes.dictionary()),
-          new HashSet<>(List.of("col2")));
+          new HashSet<>(Collections.singletonList("col2")));
       assertEquals(fpi.getColumnsWithIndex(StandardIndexes.inverted()),
-          new HashSet<>(List.of("col4")));
-      assertEquals(fpi.getColumnsWithIndex(StandardIndexes.h3()), new HashSet<>(List.of("col5")));
+          new HashSet<>(Collections.singletonList("col4")));
+      assertEquals(fpi.getColumnsWithIndex(StandardIndexes.h3()), new HashSet<>(Collections.singletonList("col5")));
       assertEquals(fpi.getColumnsWithIndex(StandardIndexes.text()), new HashSet<>(Arrays.asList("foo", "bar")));
 
       fpi.removeIndex("col1", StandardIndexes.forward());
@@ -303,12 +302,12 @@ public class FilePerIndexDirectoryTest implements PinotBuffersAfterMethodCheckRu
       fpi.removeIndex("col111", StandardIndexes.dictionary());
 
       assertEquals(fpi.getColumnsWithIndex(StandardIndexes.forward()),
-          new HashSet<>(List.of("col3")));
-      assertEquals(fpi.getColumnsWithIndex(StandardIndexes.dictionary()), new HashSet<>(Set.of()));
+          new HashSet<>(Collections.singletonList("col3")));
+      assertEquals(fpi.getColumnsWithIndex(StandardIndexes.dictionary()), new HashSet<>(Collections.emptySet()));
       assertEquals(fpi.getColumnsWithIndex(StandardIndexes.inverted()),
-          new HashSet<>(List.of("col4")));
-      assertEquals(fpi.getColumnsWithIndex(StandardIndexes.h3()), new HashSet<>(Set.of()));
-      assertEquals(fpi.getColumnsWithIndex(StandardIndexes.text()), new HashSet<>(List.of("bar")));
+          new HashSet<>(Collections.singletonList("col4")));
+      assertEquals(fpi.getColumnsWithIndex(StandardIndexes.h3()), new HashSet<>(Collections.emptySet()));
+      assertEquals(fpi.getColumnsWithIndex(StandardIndexes.text()), new HashSet<>(Collections.singletonList("bar")));
     }
   }
 }

@@ -30,8 +30,10 @@ import org.apache.pinot.core.operator.transform.TransformResultMetadata;
 import org.roaringbitmap.RoaringBitmap;
 
 
-/// The `LiteralTransformFunction` class is a special transform function which is a wrapper on top of a
-/// LITERAL. The data type is inferred from the literal string.
+/**
+ * The <code>LiteralTransformFunction</code> class is a special transform function which is a wrapper on top of a
+ * LITERAL. The data type is inferred from the literal string.
+ */
 public class LiteralTransformFunction implements TransformFunction {
   public static final String FUNCTION_NAME = "literal";
 

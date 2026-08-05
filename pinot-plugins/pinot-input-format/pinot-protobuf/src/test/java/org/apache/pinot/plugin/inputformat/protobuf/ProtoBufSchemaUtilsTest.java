@@ -24,8 +24,8 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.Collections;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import org.apache.pinot.spi.data.DateTimeFieldSpec;
@@ -85,7 +85,7 @@ public class ProtoBufSchemaUtilsTest {
     Schema schema = new Schema();
     ProtoBufSchemaUtils.extractSchemaWithComplexTypeHandling(
         desc,
-        List.of(),
+        Collections.emptyList(),
         ".",
         desc.getName(),
         schema,
@@ -110,7 +110,7 @@ public class ProtoBufSchemaUtilsTest {
     Schema schema = new Schema();
     ProtoBufSchemaUtils.extractSchemaWithComplexTypeHandling(
         desc,
-        List.of(),
+        Collections.emptyList(),
         ".",
         desc.getName(),
         schema,
@@ -125,7 +125,7 @@ public class ProtoBufSchemaUtilsTest {
     schema = new Schema();
     ProtoBufSchemaUtils.extractSchemaWithComplexTypeHandling(
         desc,
-        List.of(),
+        Collections.emptyList(),
         "__",
         desc.getName(),
         schema,
@@ -141,7 +141,7 @@ public class ProtoBufSchemaUtilsTest {
     schema = new Schema();
     ProtoBufSchemaUtils.extractSchemaWithComplexTypeHandling(
         desc,
-        List.of(),
+        Collections.emptyList(),
         "__",
         desc.getName(),
         schema,
@@ -155,7 +155,7 @@ public class ProtoBufSchemaUtilsTest {
     schema = new Schema();
     ProtoBufSchemaUtils.extractSchemaWithComplexTypeHandling(
         desc,
-        List.of(REPEATED_NESTED_MESSAGES),
+        Collections.singletonList(REPEATED_NESTED_MESSAGES),
         "__",
         desc.getName(),
         schema,
@@ -176,7 +176,7 @@ public class ProtoBufSchemaUtilsTest {
         desc,
         new HashMap<>(),
         TimeUnit.SECONDS,
-        List.of(),
+        Collections.emptyList(),
         ".").getFieldSpecFor("test_message." + fieldName);
     FieldSpec expectedSchema = new DimensionFieldSpec("test_message." + fieldName, type, isSingleValue);
     assertEquals(schema, expectedSchema);
@@ -193,7 +193,7 @@ public class ProtoBufSchemaUtilsTest {
         desc,
         fieldTypeMap,
         TimeUnit.SECONDS,
-        List.of(),
+        Collections.emptyList(),
         ".");
     FieldSpec fieldSpec = schema.getFieldSpecFor("test_message.long_field");
     FieldSpec expectedFieldSpec = new DateTimeFieldSpec("test_message.long_field", FieldSpec.DataType.LONG,
@@ -219,7 +219,7 @@ public class ProtoBufSchemaUtilsTest {
         desc,
         fieldTypeMap,
         TimeUnit.MILLISECONDS,
-        List.of(),
+        Collections.emptyList(),
         ".");
     URL resource = getClass().getClassLoader().getResource("complex_type_schema.json");
     Schema expectedSchema = Schema.fromString(new String(Files.readAllBytes(Paths.get(resource.toURI()))));

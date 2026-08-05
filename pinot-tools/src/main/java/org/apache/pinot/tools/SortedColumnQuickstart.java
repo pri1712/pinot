@@ -25,6 +25,7 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -51,7 +52,7 @@ public class SortedColumnQuickstart extends Quickstart {
   private static final String QUICKSTART_IDENTIFIER = "SORTED";
   @Override
   public List<String> types() {
-    return List.of(QUICKSTART_IDENTIFIER);
+    return Collections.singletonList(QUICKSTART_IDENTIFIER);
   }
 
   @Override
@@ -92,8 +93,8 @@ public class SortedColumnQuickstart extends Quickstart {
         .setNoDictionaryColumns(List.of(RAW_INT_COL_NAME, RAW_STRING_COL_NAME))
         .setSortedColumn(SORTED_COL_NAME)
         .setRangeIndexColumns(List.of(INT_COL_NAME, LOW_CARDINALITY_STRING_COL))
-        .setStarTreeIndexConfigs(List.of(
-            new StarTreeIndexConfig(Arrays.asList(SORTED_COL_NAME, INT_COL_NAME), null, List.of(
+        .setStarTreeIndexConfigs(Collections.singletonList(
+            new StarTreeIndexConfig(Arrays.asList(SORTED_COL_NAME, INT_COL_NAME), null, Collections.singletonList(
                 new AggregationFunctionColumnPair(AggregationFunctionType.SUM, RAW_INT_COL_NAME).toColumnName()), null,
                 Integer.MAX_VALUE)))
         .build();

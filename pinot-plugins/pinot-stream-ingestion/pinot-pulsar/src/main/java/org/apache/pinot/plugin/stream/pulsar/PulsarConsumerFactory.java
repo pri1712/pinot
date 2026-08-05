@@ -25,7 +25,9 @@ import org.apache.pinot.spi.stream.StreamMetadataProvider;
 import org.apache.pinot.spi.stream.StreamPartitionMsgOffsetFactory;
 
 
-/// A [StreamConsumerFactory] implementation for the Pulsar stream
+/**
+ * A {@link StreamConsumerFactory} implementation for the Pulsar stream
+ */
 public class PulsarConsumerFactory extends StreamConsumerFactory {
 
   @Override

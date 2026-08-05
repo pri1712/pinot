@@ -18,6 +18,7 @@
  */
 package org.apache.pinot.client;
 
+import java.util.Collections;
 import java.util.List;
 import javax.annotation.Nullable;
 import javax.net.ssl.SSLContext;
@@ -25,7 +26,9 @@ import javax.net.ssl.SSLEngine;
 import org.asynchttpclient.DefaultAsyncHttpClientConfig;
 
 
-/// Default SSL context provider that uses the JDK/BCJSSE stack and disables OpenSSL.
+/**
+ * Default SSL context provider that uses the JDK/BCJSSE stack and disables OpenSSL.
+ */
 public class DefaultSslContextProvider implements SslContextProvider {
 
   @Override
@@ -33,7 +36,7 @@ public class DefaultSslContextProvider implements SslContextProvider {
       @Nullable SSLContext sslContext, TlsProtocols tlsProtocols) {
     builder.setUseOpenSsl(false);
 
-    List<String> enabledProtocolList = List.of();
+    List<String> enabledProtocolList = Collections.emptyList();
     if (tlsProtocols != null) {
       List<String> configuredProtocols = tlsProtocols.getEnabledProtocols();
       if (configuredProtocols != null) {

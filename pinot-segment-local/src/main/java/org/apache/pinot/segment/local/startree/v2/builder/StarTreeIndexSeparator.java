@@ -40,7 +40,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 
-/// The `StarTreeIndexSeparator` pulls out the individual star-trees from the common star-tree index file
+/**
+ * The {@code StarTreeIndexSeparator} pulls out the individual star-trees from the common star-tree index file
+ */
 public class StarTreeIndexSeparator implements Closeable {
   private static final Logger LOGGER = LoggerFactory.getLogger(StarTreeIndexSeparator.class);
 
@@ -75,13 +77,15 @@ public class StarTreeIndexSeparator implements Closeable {
     _indexFileChannel = new RandomAccessFile(indexFile, "r").getChannel();
   }
 
-  /// Extract star-tree index files of the star-tree represented by the builderConfig.
-  /// The extracted star-tree index files are written to the provided starTreeOutputDir.
-  ///
-  /// @param starTreeOutputDir output directory for extracted star-trees
-  /// @param builderConfig [StarTreeV2BuilderConfig] of the star-tree to separate
-  /// @return if star-tree exist then total docs in the separated tree, else -1
-  /// @throws IOException
+  /**
+   * Extract star-tree index files of the star-tree represented by the builderConfig.
+   * The extracted star-tree index files are written to the provided starTreeOutputDir.
+   *
+   * @param starTreeOutputDir output directory for extracted star-trees
+   * @param builderConfig {@link StarTreeV2BuilderConfig} of the star-tree to separate
+   * @return if star-tree exist then total docs in the separated tree, else -1
+   * @throws IOException
+   */
   public int separate(File starTreeOutputDir, StarTreeV2BuilderConfig builderConfig)
       throws IOException {
     int treeIndex = _builderConfigList.indexOf(builderConfig);

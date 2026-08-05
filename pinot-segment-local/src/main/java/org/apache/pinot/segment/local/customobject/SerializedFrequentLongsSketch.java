@@ -19,21 +19,21 @@
 package org.apache.pinot.segment.local.customobject;
 
 import java.util.Base64;
-import org.apache.datasketches.frequencies.FrequentLongsSketch;
+import org.apache.datasketches.frequencies.LongsSketch;
 
 
-public class SerializedFrequentLongsSketch implements Comparable<SerializedFrequentLongsSketch> {
-  private final FrequentLongsSketch _sketch;
+public class SerializedFrequentLongsSketch implements Comparable<LongsSketch> {
+  private final LongsSketch _sketch;
 
-  public SerializedFrequentLongsSketch(FrequentLongsSketch sketch) {
+  public SerializedFrequentLongsSketch(LongsSketch sketch) {
     _sketch = sketch;
   }
 
   @Override
-  public int compareTo(SerializedFrequentLongsSketch other) {
+  public int compareTo(LongsSketch other) {
     // There is no well-defined ordering for these sketches
     // numActiveItems is just a placeholder, which can be changed later
-    return Integer.compare(_sketch.getNumActiveItems(), other._sketch.getNumActiveItems());
+    return _sketch.getNumActiveItems() - other.getNumActiveItems();
   }
 
   @Override

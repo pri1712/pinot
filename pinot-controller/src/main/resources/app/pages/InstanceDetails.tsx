@@ -97,8 +97,6 @@ const InstanceDetails = ({ match }: RouteComponentProps<Props>) => {
     enabled: true,
   });
 
-  const [queriesDisabled, setQueriesDisabled] = useState(false);
-
   const [showEditTag, setShowEditTag] = useState(false);
   const [showEditConfig, setShowEditConfig] = useState(false);
   const { dispatch } = React.useContext(NotificationContext);
@@ -137,7 +135,6 @@ const InstanceDetails = ({ match }: RouteComponentProps<Props>) => {
         queriesDisabled: instanceDetails.queriesDisabled,
       };
       setState({ enabled: instanceDetails.enabled });
-      setQueriesDisabled(String(instanceDetails.queriesDisabled) === 'true');
       setInstanceDetails(JSON.stringify(instancePutObj, null, 2));
       setLiveConfig(JSON.stringify(liveConfigResponse, null, 2));
     }
@@ -248,32 +245,6 @@ const InstanceDetails = ({ match }: RouteComponentProps<Props>) => {
     closeDialog();
   };
 
-  const handleQueryRouteChange = () => {
-    setDialogDetails({
-      title: queriesDisabled ? 'Enable Query Route' : 'Disable Query Route',
-      content: `Are you sure you want to ${
-        queriesDisabled ? 'enable' : 'disable'
-      } query routing for this server?`,
-      successCb: () => toggleQueryRoute(),
-    });
-    setConfirmDialog(true);
-  };
-
-  const toggleQueryRoute = async () => {
-    const result = await PinotMethodUtils.toggleInstanceState(
-      instanceName,
-      queriesDisabled ? InstanceState.QUERIES_ENABLE : InstanceState.QUERIES_DISABLE
-    );
-    if (result.status) {
-      dispatch({ type: 'success', message: result.status, show: true });
-      setQueriesDisabled(!queriesDisabled);
-      fetchData();
-    } else {
-      dispatch({ type: 'error', message: result.error, show: true });
-    }
-    closeDialog();
-  };
-
   const handleConfigChange = (value: string) => {
     setConfig(value);
   };
@@ -368,25 +339,6 @@ const InstanceDetails = ({ match }: RouteComponentProps<Props>) => {
                     label="Enable"
                   />
                 </Tooltip>
-                {instanceType === InstanceType.SERVER && (
-                  <Tooltip
-                    title="Controls whether brokers route queries to this server. Disabling removes the server from the broker routing table."
-                    arrow
-                    placement="top-start"
-                  >
-                    <FormControlLabel
-                      control={
-                        <Switch
-                          checked={!queriesDisabled}
-                          onChange={handleQueryRouteChange}
-                          name="queryRoute"
-                          color="primary"
-                        />
-                      }
-                      label="Query Route"
-                    />
-                  </Tooltip>
-                )}
               </div>
             </SimpleAccordion>
           </div>

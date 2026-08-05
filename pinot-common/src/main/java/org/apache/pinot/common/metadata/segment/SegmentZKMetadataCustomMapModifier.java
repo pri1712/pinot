@@ -28,8 +28,10 @@ import javax.annotation.Nullable;
 import org.apache.pinot.spi.utils.JsonUtils;
 
 
-/// The `SegmentZKMetadataCustomMapModifier` class provides util methods to serialize/de-serialize the
-/// segment ZK metadata custom map modifier HTTP header and modify the custom map field in [SegmentZKMetadata].
+/**
+ * The <code>SegmentZKMetadataCustomMapModifier</code> class provides util methods to serialize/de-serialize the segment
+ * ZK metadata custom map modifier HTTP header and modify the custom map field in {@link SegmentZKMetadata}.
+ */
 public class SegmentZKMetadataCustomMapModifier {
   public enum ModifyMode {
     REPLACE,  // Replace the current map

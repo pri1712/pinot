@@ -44,11 +44,15 @@ public interface MutableTextIndex extends TextIndexReader, MutableIndex {
     add(strings);
   }
 
-  /// Index the document
-  /// @param document the document as a string
+  /**
+   * Index the document
+   * @param document the document as a string
+   */
   void add(String document);
 
-  /// Index the multi-value document
-  /// @param documents the documents as an array of strings
+  /**
+   * Index the multi-value document
+   * @param documents the documents as an array of strings
+   */
   void add(String[] documents);
 }

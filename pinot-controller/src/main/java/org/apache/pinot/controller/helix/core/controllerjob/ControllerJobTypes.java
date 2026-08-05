@@ -33,7 +33,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 
-/// Controller jobs that store metadata in the ZK property store.
+/**
+ * Controller jobs that store metadata in the ZK property store.
+ */
 public enum ControllerJobTypes implements ControllerJobType {
   RELOAD_SEGMENT,
   FORCE_COMMIT,

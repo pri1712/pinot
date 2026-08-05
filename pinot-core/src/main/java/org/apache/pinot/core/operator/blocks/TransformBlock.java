@@ -26,7 +26,9 @@ import org.apache.pinot.core.operator.docvalsets.TransformBlockValSet;
 import org.apache.pinot.core.operator.transform.function.TransformFunction;
 
 
-/// The `TransformBlock` contains values of the transformed columns.
+/**
+ * The {@code TransformBlock} contains values of the transformed columns.
+ */
 public class TransformBlock implements ValueBlock {
   protected final ValueBlock _sourceBlock;
   protected final Map<ExpressionContext, TransformFunction> _transformFunctionMap;

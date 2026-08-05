@@ -28,8 +28,10 @@ public class LTrimFunction {
   private final static Pattern LTRIM = Pattern.compile("^\\s+");
   private final Matcher _matcher = LTRIM.matcher("");
 
-  /// @param input input
-  /// @return trim spaces from left side of the string
+  /**
+   * @param input input
+   * @return trim spaces from left side of the string
+   */
   @ScalarFunction
   public String ltrim(String input) {
     return _matcher.reset(input).replaceAll("");

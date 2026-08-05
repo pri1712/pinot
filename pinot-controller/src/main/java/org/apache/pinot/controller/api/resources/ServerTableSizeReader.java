@@ -34,8 +34,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 
-/// Get the size information details from the server. Only the servers returning success are returned by the method
-/// For servers returning errors (http error or otherwise), no entry is created in the return map
+/**
+ * Get the size information details from the server. Only the servers returning success are returned by the method
+ * For servers returning errors (http error or otherwise), no entry is created in the return map
+ */
 public class ServerTableSizeReader {
   private static final Logger LOGGER = LoggerFactory.getLogger(ServerTableSizeReader.class);
 
@@ -47,54 +49,16 @@ public class ServerTableSizeReader {
     _connectionManager = connectionManager;
   }
 
-  /// Reads server segment sizes without compression statistics.
   public Map<String, List<SegmentSizeInfo>> getSegmentSizeInfoFromServers(BiMap<String, String> serverEndPoints,
       String tableNameWithType, int timeoutMs) {
-    return extractSegmentSizeInfo(getTableSizeInfoFromServers(serverEndPoints, tableNameWithType, timeoutMs));
-  }
-
-  /// Reads server segment sizes with compression summaries and optional per-column details.
-  public Map<String, List<SegmentSizeInfo>> getSegmentSizeInfoFromServers(BiMap<String, String> serverEndPoints,
-      String tableNameWithType, int timeoutMs, boolean includeColumnCompressionStats) {
-    return extractSegmentSizeInfo(getTableSizeInfoFromServers(serverEndPoints, tableNameWithType, timeoutMs,
-        includeColumnCompressionStats));
-  }
-
-  private static Map<String, List<SegmentSizeInfo>> extractSegmentSizeInfo(
-      Map<String, TableSizeInfo> tableSizeInfoMap) {
-    Map<String, List<SegmentSizeInfo>> result = new HashMap<>();
-    for (Map.Entry<String, TableSizeInfo> entry : tableSizeInfoMap.entrySet()) {
-      result.put(entry.getKey(), entry.getValue().getSegments());
-    }
-    return result;
-  }
-
-  /// Reads versioned server table-size responses without compression statistics.
-  public Map<String, TableSizeInfo> getTableSizeInfoFromServers(BiMap<String, String> serverEndPoints,
-      String tableNameWithType, int timeoutMs) {
-    return getTableSizeInfoFromServers(serverEndPoints, tableNameWithType, timeoutMs, false, false);
-  }
-
-  /// Reads versioned server table-size responses with compression summaries and optional per-column details.
-  public Map<String, TableSizeInfo> getTableSizeInfoFromServers(BiMap<String, String> serverEndPoints,
-      String tableNameWithType, int timeoutMs, boolean includeColumnCompressionStats) {
-    return getTableSizeInfoFromServers(serverEndPoints, tableNameWithType, timeoutMs, true,
-        includeColumnCompressionStats);
-  }
-
-  private Map<String, TableSizeInfo> getTableSizeInfoFromServers(BiMap<String, String> serverEndPoints,
-      String tableNameWithType, int timeoutMs, boolean includeCompressionStats, boolean includeColumnCompressionStats) {
     int numServers = serverEndPoints.size();
     LOGGER.info("Reading segment sizes from {} servers for table: {} with timeout: {}ms", numServers, tableNameWithType,
         timeoutMs);
 
     List<String> serverUrls = new ArrayList<>(numServers);
     BiMap<String, String> endpointsToServers = serverEndPoints.inverse();
-    boolean requestCompressionStats = includeCompressionStats || includeColumnCompressionStats;
     for (String endpoint : endpointsToServers.keySet()) {
-      String tableSizeUri = endpoint + "/tables/" + tableNameWithType + "/size"
-          + (requestCompressionStats ? "?includeCompressionStats=true" : "")
-          + (includeColumnCompressionStats ? "&includeColumnCompressionStats=true" : "");
+      String tableSizeUri = endpoint + "/table/" + tableNameWithType + "/size";
       serverUrls.add(tableSizeUri);
     }
 
@@ -104,12 +68,12 @@ public class ServerTableSizeReader {
     CompletionServiceHelper.CompletionServiceResponse serviceResponse =
         completionServiceHelper.doMultiGetRequest(serverUrls, tableNameWithType, false, timeoutMs,
             "get segment size info from servers");
-    Map<String, TableSizeInfo> serverToTableSizeInfoMap = new HashMap<>();
+    Map<String, List<SegmentSizeInfo>> serverToSegmentSizeInfoListMap = new HashMap<>();
     int failedParses = 0;
     for (Map.Entry<String, String> streamResponse : serviceResponse._httpResponses.entrySet()) {
       try {
         TableSizeInfo tableSizeInfo = JsonUtils.stringToObject(streamResponse.getValue(), TableSizeInfo.class);
-        serverToTableSizeInfoMap.put(streamResponse.getKey(), tableSizeInfo);
+        serverToSegmentSizeInfoListMap.put(streamResponse.getKey(), tableSizeInfo.getSegments());
       } catch (IOException e) {
         failedParses++;
         LOGGER.error("Unable to parse server {} response due to an error: ", streamResponse.getKey(), e);
@@ -118,6 +82,6 @@ public class ServerTableSizeReader {
     if (failedParses != 0) {
       LOGGER.warn("Failed to parse {} / {} segment size info responses from servers.", failedParses, serverUrls.size());
     }
-    return serverToTableSizeInfoMap;
+    return serverToSegmentSizeInfoListMap;
   }
 }

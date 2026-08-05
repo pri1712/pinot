@@ -29,10 +29,12 @@ import org.apache.pinot.spi.data.FieldSpec.DataType;
 import org.apache.pinot.spi.utils.FixedIntArray;
 
 
-/// Implementation of [IdMap] with [FixedIntArray] as key.
-///
-/// This implementation extends the [BaseOffHeapMutableDictionary] for code-reuse of off-heap functionality. The
-/// dictionary related APIs are not supported.
+/**
+ * Implementation of {@link IdMap} with {@link FixedIntArray} as key.
+ *
+ * This implementation extends the {@link BaseOffHeapMutableDictionary} for code-reuse of off-heap functionality. The
+ * dictionary related APIs are not supported.
+ */
 public class FixedIntArrayOffHeapIdMap extends BaseOffHeapMutableDictionary implements IdMap<FixedIntArray> {
   private final FixedByteSingleValueMultiColumnReaderWriter _dictIdToValue;
   private final int _numColumns;

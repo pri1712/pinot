@@ -19,6 +19,7 @@
 package org.apache.pinot.broker.routing.segmentpartition;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -43,12 +44,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 
-/// The `PartitionDataManager` manages partitions of a table. It manages
-///   1. all the online segments associated with the partition and their allocated servers
-///   2. all the replica of a specific segment.
-/// It provides API to query
-///   1. For each partition ID, what are the servers that contains ALL segments belong to this partition ID.
-///   2. For each server, what are all the partition IDs and list of segments of those partition IDs on this server.
+/**
+ * The {@code PartitionDataManager} manages partitions of a table. It manages
+ *   1. all the online segments associated with the partition and their allocated servers
+ *   2. all the replica of a specific segment.
+ * It provides API to query
+ *   1. For each partition ID, what are the servers that contains ALL segments belong to this partition ID.
+ *   2. For each server, what are all the partition IDs and list of segments of those partition IDs on this server.
+ */
 public class SegmentPartitionMetadataManager implements SegmentZkMetadataFetchListener {
   private static final Logger LOGGER = LoggerFactory.getLogger(SegmentPartitionMetadataManager.class);
   private static final int INVALID_PARTITION_ID = -1;
@@ -60,7 +63,6 @@ public class SegmentPartitionMetadataManager implements SegmentZkMetadataFetchLi
   private final String _partitionColumn;
   private final String _partitionFunctionName;
   private final int _numPartitions;
-  private final long _newSegmentExpirationMs;
 
   // cache-able content, only follow changes if onlineSegments list (of ideal-state) is changed.
   private final Map<String, SegmentInfo> _segmentInfoMap = new HashMap<>();
@@ -70,12 +72,11 @@ public class SegmentPartitionMetadataManager implements SegmentZkMetadataFetchLi
   private transient TablePartitionReplicatedServersInfo _tablePartitionReplicatedServersInfo;
 
   public SegmentPartitionMetadataManager(String tableNameWithType, String partitionColumn, String partitionFunctionName,
-      int numPartitions, long newSegmentExpirationMs) {
+      int numPartitions) {
     _tableNameWithType = tableNameWithType;
     _partitionColumn = partitionColumn;
     _partitionFunctionName = partitionFunctionName;
     _numPartitions = numPartitions;
-    _newSegmentExpirationMs = newSegmentExpirationMs;
   }
 
   @Override
@@ -125,7 +126,7 @@ public class SegmentPartitionMetadataManager implements SegmentZkMetadataFetchLi
   private static List<String> getOnlineServers(ExternalView externalView, String segment) {
     Map<String, String> instanceStateMap = externalView.getStateMap(segment);
     if (instanceStateMap == null) {
-      return List.of();
+      return Collections.emptyList();
     }
     List<String> onlineServers = new ArrayList<>(instanceStateMap.size());
     for (Map.Entry<String, String> entry : instanceStateMap.entrySet()) {
@@ -176,7 +177,7 @@ public class SegmentPartitionMetadataManager implements SegmentZkMetadataFetchLi
       // NOTE: This should not happen, but we still handle it gracefully by adding an invalid SegmentInfo
       LOGGER.error("Failed to find segment info for segment: {} in table: {} while handling segment refresh", segment,
           _tableNameWithType);
-      segmentInfo = new SegmentInfo(partitionId, pushTimeMs, List.of());
+      segmentInfo = new SegmentInfo(partitionId, pushTimeMs, Collections.emptyList());
       _segmentInfoMap.put(segment, segmentInfo);
     } else {
       segmentInfo._partitionId = partitionId;
@@ -214,7 +215,7 @@ public class SegmentPartitionMetadataManager implements SegmentZkMetadataFetchLi
         continue;
       }
       // Process new segments in the end
-      if (InstanceSelector.isNewSegment(segmentInfo._creationTimeMs, currentTimeMs, _newSegmentExpirationMs)) {
+      if (InstanceSelector.isNewSegment(segmentInfo._creationTimeMs, currentTimeMs)) {
         newSegmentInfoEntries.add(entry);
         continue;
       }

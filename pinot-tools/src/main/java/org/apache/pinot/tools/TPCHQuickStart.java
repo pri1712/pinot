@@ -20,11 +20,12 @@ package org.apache.pinot.tools;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import org.apache.pinot.tools.admin.PinotAdministrator;
 
 
-public class TPCHQuickStart extends Quickstart {
+public class TPCHQuickStart extends MultistageEngineQuickStart {
   private static final String QUICKSTART_IDENTIFIER = "TPCH";
   private static final String[] TPCH_DIRECTORIES = new String[]{
       "examples/batch/tpch/customer",
@@ -39,7 +40,7 @@ public class TPCHQuickStart extends Quickstart {
 
   @Override
   public List<String> types() {
-    return List.of(QUICKSTART_IDENTIFIER);
+    return Collections.singletonList(QUICKSTART_IDENTIFIER);
   }
 
   @Override

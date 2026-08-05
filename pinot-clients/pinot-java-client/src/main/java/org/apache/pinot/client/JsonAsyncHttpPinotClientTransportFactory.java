@@ -26,7 +26,9 @@ import org.apache.pinot.client.utils.ConnectionUtils;
 import org.apache.pinot.spi.utils.CommonConstants;
 
 
-/// Pinot client transport factory for JSON encoded BrokerResults through HTTP.
+/**
+ * Pinot client transport factory for JSON encoded BrokerResults through HTTP.
+ */
 public class JsonAsyncHttpPinotClientTransportFactory implements PinotClientTransportFactory {
 
   private static final String DEFAULT_BROKER_READ_TIMEOUT_MS = "60000";
@@ -83,9 +85,9 @@ public class JsonAsyncHttpPinotClientTransportFactory implements PinotClientTran
       _headers = ConnectionUtils.getHeadersFromProperties(properties);
     }
 
-    _scheme = properties.getProperty("scheme", _scheme);
-    if (_scheme == null) {
-      _scheme = CommonConstants.HTTP_PROTOCOL;
+    String scheme = properties.getProperty("scheme", CommonConstants.HTTP_PROTOCOL);
+    if (_scheme == null || !_scheme.contentEquals(scheme)) {
+      _scheme = scheme;
     }
 
     if (_sslContext == null && _scheme.contentEquals(CommonConstants.HTTPS_PROTOCOL)) {

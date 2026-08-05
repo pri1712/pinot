@@ -50,7 +50,9 @@ public class NetUtilsTest {
     IPV4, IPV6, DUAL_STACK
   }
 
-  /// Initialize the mock DatagramSocket constructor with the given mock InetAddress and network environment.
+  /**
+   * Initialize the mock DatagramSocket constructor with the given mock InetAddress and network environment.
+   */
   private static MockedConstruction.MockInitializer<DatagramSocket> initDatagramSocket(InetAddress mockInetAddress,
       NetworkEnv networkEnv) {
     return (mockDatagramSocket, context) -> {

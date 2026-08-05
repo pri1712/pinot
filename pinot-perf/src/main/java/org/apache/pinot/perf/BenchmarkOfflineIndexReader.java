@@ -22,6 +22,8 @@ import com.google.common.base.Preconditions;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
 import org.apache.commons.io.FileUtils;
@@ -29,6 +31,7 @@ import org.apache.pinot.common.utils.TarCompressionUtils;
 import org.apache.pinot.integration.tests.ClusterTest;
 import org.apache.pinot.segment.local.segment.creator.SegmentTestUtils;
 import org.apache.pinot.segment.local.segment.creator.impl.SegmentIndexCreationDriverImpl;
+import org.apache.pinot.segment.local.segment.index.loader.IndexLoadingConfig;
 import org.apache.pinot.segment.local.segment.index.readers.DoubleDictionary;
 import org.apache.pinot.segment.local.segment.index.readers.FloatDictionary;
 import org.apache.pinot.segment.local.segment.index.readers.IntDictionary;
@@ -45,6 +48,8 @@ import org.apache.pinot.segment.spi.index.reader.ForwardIndexReaderContext;
 import org.apache.pinot.segment.spi.loader.SegmentDirectoryLoaderContext;
 import org.apache.pinot.segment.spi.loader.SegmentDirectoryLoaderRegistry;
 import org.apache.pinot.segment.spi.store.SegmentDirectory;
+import org.apache.pinot.spi.env.PinotConfiguration;
+import org.apache.pinot.spi.utils.ReadMode;
 import org.apache.pinot.util.TestUtils;
 import org.openjdk.jmh.annotations.Benchmark;
 import org.openjdk.jmh.annotations.BenchmarkMode;
@@ -114,10 +119,12 @@ public class BenchmarkOfflineIndexReader {
 
     File indexDir = new File(dataDir, TABLE_NAME);
     SegmentMetadataImpl segmentMetadata = new SegmentMetadataImpl(indexDir);
+    Map<String, Object> props = new HashMap<>();
+    props.put(IndexLoadingConfig.READ_MODE_KEY, ReadMode.mmap.toString());
 
     SegmentDirectory segmentDirectory = SegmentDirectoryLoaderRegistry.getDefaultSegmentDirectoryLoader()
-        .load(indexDir.toURI(),
-            new SegmentDirectoryLoaderContext.Builder().setSegmentName(segmentMetadata.getName()).build());
+        .load(indexDir.toURI(), new SegmentDirectoryLoaderContext.Builder().setSegmentName(segmentMetadata.getName())
+            .setSegmentDirectoryConfigs(new PinotConfiguration(props)).build());
     SegmentDirectory.Reader segmentReader = segmentDirectory.createReader();
 
     // Forward index

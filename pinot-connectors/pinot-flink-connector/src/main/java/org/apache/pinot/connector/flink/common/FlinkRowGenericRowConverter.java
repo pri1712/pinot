@@ -24,7 +24,7 @@ import org.apache.flink.types.Row;
 import org.apache.pinot.spi.data.readers.GenericRow;
 
 
-/// Converts [Row] type data into [GenericRow] format.
+/** Converts {@link Row} type data into {@link GenericRow} format. */
 public class FlinkRowGenericRowConverter implements PinotGenericRowConverter<Row> {
 
   private final RowTypeInfo _rowTypeInfo;

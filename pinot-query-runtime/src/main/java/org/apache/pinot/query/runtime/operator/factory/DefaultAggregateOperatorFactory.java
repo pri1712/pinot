@@ -27,7 +27,9 @@ import org.apache.pinot.query.runtime.operator.WindowAggregateOperator;
 import org.apache.pinot.query.runtime.plan.OpChainExecutionContext;
 
 
-/// Default implementation that constructs the built-in aggregation operators.
+/**
+ * Default implementation that constructs the built-in aggregation operators.
+ */
 public class DefaultAggregateOperatorFactory implements AggregateOperatorFactory {
   @Override
   public MultiStageOperator createAggregateOperator(OpChainExecutionContext context, MultiStageOperator inputOperator,

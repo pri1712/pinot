@@ -23,7 +23,9 @@ import org.testng.Assert;
 import org.testng.annotations.Test;
 
 
-/// Tests building of supported offset criteria
+/**
+ * Tests building of supported offset criteria
+ */
 public class OffsetCriteriaTest {
 
   @Test

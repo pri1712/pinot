@@ -30,7 +30,9 @@ import org.testng.Assert;
 import org.testng.annotations.Test;
 
 
-/// Tests for the connection factory
+/**
+ * Tests for the connection factory
+ */
 public class ConnectionFactoryTest {
   @Test
   public void testZkConnection() {

@@ -27,7 +27,9 @@ import org.apache.pinot.core.operator.filter.predicate.PredicateEvaluatorProvide
 import org.apache.pinot.spi.data.FieldSpec.DataType;
 
 
-/// Predicate matcher.
+/**
+ * Predicate matcher.
+ */
 public class PredicateRowMatcher implements RowMatcher {
   private final ValueExtractor _valueExtractor;
   private final DataType _valueType;

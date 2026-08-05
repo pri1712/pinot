@@ -28,7 +28,9 @@ import org.apache.pinot.common.response.broker.ResultTable;
 import org.apache.pinot.common.utils.DataSchema;
 
 
-/// ResultSet which contains the ResultTable from the broker response of a sql query.
+/**
+ * ResultSet which contains the ResultTable from the broker response of a sql query.
+ */
 public class GrpcResultSet extends AbstractResultSet {
   private final List<String> _columnNamesArray;
   private final List<String> _columnDataTypesArray;

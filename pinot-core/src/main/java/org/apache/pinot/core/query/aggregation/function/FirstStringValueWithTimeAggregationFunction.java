@@ -30,15 +30,16 @@ import org.apache.pinot.segment.local.customobject.ValueLongPair;
 import org.roaringbitmap.IntIterator;
 
 
-/// This function is used for FirstWithTime calculations for data column with string type.
-///
-/// The function can be used as FirstWithTime(dataExpression, timeExpression, 'string')
-///
-/// Following arguments are supported:
-///
-/// - dataExpression: expression that contains the string data column to be calculated first on
-/// - timeExpression: expression that contains the column to be used to decide which data is first, can be any
-///   Numeric column
+/**
+ * This function is used for FirstWithTime calculations for data column with string type.
+ * <p>The function can be used as FirstWithTime(dataExpression, timeExpression, 'string')
+ * <p>Following arguments are supported:
+ * <ul>
+ *   <li>dataExpression: expression that contains the string data column to be calculated first on</li>
+ *   <li>timeExpression: expression that contains the column to be used to decide which data is first, can be any
+ *   Numeric column</li>
+ * </ul>
+ */
 public class FirstStringValueWithTimeAggregationFunction extends FirstWithTimeAggregationFunction<String> {
   private final static ValueLongPair<String> DEFAULT_VALUE_TIME_PAIR = new StringLongPair("", Long.MAX_VALUE);
 

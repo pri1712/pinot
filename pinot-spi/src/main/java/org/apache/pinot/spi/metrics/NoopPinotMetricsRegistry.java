@@ -18,6 +18,7 @@
  */
 package org.apache.pinot.spi.metrics;
 
+import java.util.Collections;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Supplier;
@@ -209,7 +210,7 @@ public class NoopPinotMetricsRegistry implements PinotMetricsRegistry {
 
   @Override
   public Map<PinotMetricName, PinotMetric> allMetrics() {
-    return Map.of();
+    return Collections.emptyMap();
   }
 
   @Override

@@ -25,6 +25,7 @@ import com.google.common.base.Preconditions;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -296,11 +297,6 @@ public class ForwardIndexType extends AbstractIndexType<ForwardIndexConfig, Forw
   }
 
   @Override
-  public boolean shouldCreateIndex(IndexCreationContext context, ForwardIndexConfig indexConfig) {
-    return context.getFieldSpec().getDataType() != FieldSpec.DataType.OPEN_STRUCT;
-  }
-
-  @Override
   public ForwardIndexCreator createIndexCreator(IndexCreationContext context, ForwardIndexConfig indexConfig)
       throws Exception {
     return ForwardIndexCreatorFactory.createIndexCreator(context, indexConfig);
@@ -353,7 +349,7 @@ public class ForwardIndexType extends AbstractIndexType<ForwardIndexConfig, Forw
     if (columnMetadata == null) {
       return EXTENSIONS;
     }
-    return List.of(getFileExtension(columnMetadata));
+    return Collections.singletonList(getFileExtension(columnMetadata));
   }
 
   @Nullable
@@ -364,8 +360,7 @@ public class ForwardIndexType extends AbstractIndexType<ForwardIndexConfig, Forw
     }
     String column = context.getFieldSpec().getName();
     String segmentName = context.getSegmentName();
-    FieldSpec.DataType dataType = context.getFieldSpec().getDataType();
-    FieldSpec.DataType storedType = dataType.getStoredType();
+    FieldSpec.DataType storedType = context.getFieldSpec().getDataType().getStoredType();
     int fixedLengthBytes = context.getFixedLengthBytes();
     boolean isSingleValue = context.getFieldSpec().isSingleValueField();
     if (!context.hasDictionary()) {
@@ -403,15 +398,13 @@ public class ForwardIndexType extends AbstractIndexType<ForwardIndexConfig, Forw
         }
       } else {
         // TODO: Add support for variable width (bytes, string, big decimal) MV RAW column types
-        Preconditions.checkState(dataType.isFixedWidth(), "Unsupported stored type: %s for no-dictionary MV column: %s",
-            storedType, column);
+        assert storedType.isFixedWidth();
         String allocationContext =
             IndexUtil.buildAllocationContext(context.getSegmentName(), context.getFieldSpec().getName(),
                 V1Constants.Indexes.RAW_MV_FORWARD_INDEX_FILE_EXTENSION);
         // TODO: Start with a smaller capacity on FixedByteMVForwardIndexReaderWriter and let it expand
         return new FixedByteMVMutableForwardIndex(MAX_MULTI_VALUES_PER_ROW, context.getAvgNumMultiValues(),
-            context.getCapacity(), dataType.size(), context.getMemoryManager(), allocationContext, false, storedType,
-            dataType);
+            context.getCapacity(), storedType.size(), context.getMemoryManager(), allocationContext, false, storedType);
       }
     } else {
       if (isSingleValue) {

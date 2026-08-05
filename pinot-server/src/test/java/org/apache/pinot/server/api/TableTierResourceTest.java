@@ -18,8 +18,7 @@
  */
 package org.apache.pinot.server.api;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.Collections;
 import javax.ws.rs.core.Response;
 import org.apache.pinot.common.restlet.resources.TableTierInfo;
 import org.apache.pinot.segment.spi.ImmutableSegment;
@@ -68,12 +67,6 @@ public class TableTierResourceTest extends BaseResourceTest {
     assertEquals(tableTierInfo.getTableName(), expectedTableName);
     assertEquals(tableTierInfo.getSegmentTiers().size(), 1);
     assertEquals(tableTierInfo.getSegmentTiers(),
-        nullableTierMap(segment.getSegmentName(), segment.getTier()));
-  }
-
-  private static Map<String, String> nullableTierMap(String segmentName, String tier) {
-    Map<String, String> map = new HashMap<>();
-    map.put(segmentName, tier);
-    return map;
+        Collections.singletonMap(segment.getSegmentName(), segment.getTier()));
   }
 }

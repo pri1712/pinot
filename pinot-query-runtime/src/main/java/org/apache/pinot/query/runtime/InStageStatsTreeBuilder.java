@@ -49,7 +49,6 @@ import org.apache.pinot.query.planner.plannode.ValueNode;
 import org.apache.pinot.query.planner.plannode.WindowNode;
 import org.apache.pinot.query.runtime.operator.MailboxSendOperator;
 import org.apache.pinot.query.runtime.operator.MultiStageOperator;
-import org.apache.pinot.query.runtime.operator.OperatorTypeDescriptor;
 import org.apache.pinot.query.runtime.plan.MultiStageQueryStats;
 import org.apache.pinot.spi.utils.JsonUtils;
 import org.slf4j.Logger;
@@ -70,32 +69,34 @@ public class InStageStatsTreeBuilder implements PlanNodeVisitor<ObjectNode, InSt
     _jsonStatsByStage = jsonStatsByStage;
   }
 
-  private ObjectNode selfNode(OperatorTypeDescriptor type, Context context) {
+  private ObjectNode selfNode(MultiStageOperator.Type type, Context context) {
     return selfNode(type, context, _index, new JsonNode[0]);
   }
 
-  private ObjectNode selfNode(OperatorTypeDescriptor type, Context context, int index, JsonNode[] childrenArr) {
+  private ObjectNode selfNode(MultiStageOperator.Type type, Context context, int index, JsonNode[] childrenArr) {
     return selfNode(type, context, index, childrenArr, true);
   }
 
-  /// Builds the JSON node for the current operator including its statistics and children.
-  ///
-  /// @param type The type of the operator.
-  /// @param context The context containing parallelism information.
-  /// @param index The index of the operator in the stage stats.
-  /// @param childrenArr The array of child JSON nodes.
-  /// @param adjustWithChildren Whether cumulative stats like execution time and memory allocation should be adjusted
-  ///                           by subtracting the children's stats. This is usually true, except in cases like pipeline
-  ///                           breakers
-  /// @return The constructed JSON node representing the operator and its statistics, including children.
+  /**
+   * Builds the JSON node for the current operator including its statistics and children.
+   *
+   * @param type The type of the operator.
+   * @param context The context containing parallelism information.
+   * @param index The index of the operator in the stage stats.
+   * @param childrenArr The array of child JSON nodes.
+   * @param adjustWithChildren Whether cumulative stats like execution time and memory allocation should be adjusted
+   *                           by subtracting the children's stats. This is usually true, except in cases like pipeline
+   *                           breakers
+   * @return The constructed JSON node representing the operator and its statistics, including children.
+   */
   private ObjectNode selfNode(
-      OperatorTypeDescriptor type,
+      MultiStageOperator.Type type,
       Context context,
       int index,
       JsonNode[] childrenArr,
       boolean adjustWithChildren) {
     ObjectNode json = JsonUtils.newObjectNode();
-    json.put("type", type.name());
+    json.put("type", type.toString());
     for (Map.Entry<String, JsonNode> entry : _stageStats.getOperatorStats(index).asJson().properties()) {
       json.set(entry.getKey(), entry.getValue());
     }
@@ -116,7 +117,7 @@ public class InStageStatsTreeBuilder implements PlanNodeVisitor<ObjectNode, InSt
     return json;
   }
 
-  private void addClockTimeMs(OperatorTypeDescriptor type, ObjectNode selfNode, JsonNode[] children, Context context) {
+  private void addClockTimeMs(MultiStageOperator.Type type, ObjectNode selfNode, JsonNode[] children, Context context) {
     JsonNode executionTimeMs = selfNode.get("executionTimeMs");
     long cpuTimeMs = executionTimeMs == null ? 0 : executionTimeMs.asLong(0);
 
@@ -131,7 +132,7 @@ public class InStageStatsTreeBuilder implements PlanNodeVisitor<ObjectNode, InSt
   }
 
   private void addSelfAllocatedBytes(
-      OperatorTypeDescriptor type, ObjectNode selfNode, JsonNode[] children, Context context) {
+      MultiStageOperator.Type type, ObjectNode selfNode, JsonNode[] children, Context context) {
     JsonNode allocatedBytes = selfNode.get("allocatedMemoryBytes");
     long totalAllocatedBytes = allocatedBytes == null ? 0 : allocatedBytes.asLong(0);
 
@@ -141,7 +142,7 @@ public class InStageStatsTreeBuilder implements PlanNodeVisitor<ObjectNode, InSt
     }
   }
 
-  private void addSelfGcTime(OperatorTypeDescriptor type, ObjectNode selfNode, JsonNode[] children, Context context) {
+  private void addSelfGcTime(MultiStageOperator.Type type, ObjectNode selfNode, JsonNode[] children, Context context) {
     JsonNode gcTimeMs = selfNode.get("gcTimeMs");
     long totalGcTimeMs = gcTimeMs == null ? 0 : gcTimeMs.asLong(0);
 
@@ -151,7 +152,7 @@ public class InStageStatsTreeBuilder implements PlanNodeVisitor<ObjectNode, InSt
     }
   }
 
-  private long getChildrenStat(OperatorTypeDescriptor type, JsonNode[] children, String key) {
+  private long getChildrenStat(MultiStageOperator.Type type, JsonNode[] children, String key) {
     if (children == null) {
       return 0;
     }
@@ -178,7 +179,7 @@ public class InStageStatsTreeBuilder implements PlanNodeVisitor<ObjectNode, InSt
     if (_index == 0) {
       return null;
     }
-    OperatorTypeDescriptor nextOperatorType = _stageStats.getOperatorType(_index - 1);
+    MultiStageOperator.Type nextOperatorType = _stageStats.getOperatorType(_index - 1);
     if (nextOperatorType != MultiStageOperator.Type.PIPELINE_BREAKER) {
       // even if the plan may say there is a pipeline breaker, the stats do not have it
       return null;
@@ -207,7 +208,7 @@ public class InStageStatsTreeBuilder implements PlanNodeVisitor<ObjectNode, InSt
   }
 
   private ObjectNode recursiveCase(BasePlanNode node, MultiStageOperator.Type expectedType, Context context) {
-    OperatorTypeDescriptor type = _stageStats.getOperatorType(_index);
+    MultiStageOperator.Type type = _stageStats.getOperatorType(_index);
     /*
      Sometimes the operator type is not what we expect, but we can still build the tree
      This always happen in stage 0, in which case we have two operators but we only have stats for the receive
@@ -284,7 +285,6 @@ public class InStageStatsTreeBuilder implements PlanNodeVisitor<ObjectNode, InSt
     }
   }
 
-  @Deprecated(forRemoval = true, since = "1.6.0")
   @Override
   public ObjectNode visitEnrichedJoin(EnrichedJoinNode node, Context context) {
     return visitJoin(node, context);
@@ -303,16 +303,10 @@ public class InStageStatsTreeBuilder implements PlanNodeVisitor<ObjectNode, InSt
 
   @Override
   public ObjectNode visitMailboxSend(MailboxSendNode node, Context context) {
-    long parallelism = 1;
-    // Plugin-defined send operators (id >= 256) carry a different StatMap key class; reading the built-in
-    // PARALLELISM key from them returns 0, which would make every division by parallelism below throw. Only read
-    // it when the stats really are the built-in MAILBOX_SEND ones.
-    if (_stageStats.getOperatorType(_index) == MultiStageOperator.Type.MAILBOX_SEND) {
-      @SuppressWarnings("unchecked")
-      StatMap<MailboxSendOperator.StatKey> operatorStats =
-          (StatMap<MailboxSendOperator.StatKey>) _stageStats.getOperatorStats(_index);
-      parallelism = Math.max(1, operatorStats.getLong(MailboxSendOperator.StatKey.PARALLELISM));
-    }
+    @SuppressWarnings("unchecked")
+    StatMap<MailboxSendOperator.StatKey> operatorStats =
+        (StatMap<MailboxSendOperator.StatKey>) _stageStats.getOperatorStats(_index);
+    long parallelism = operatorStats.getLong(MailboxSendOperator.StatKey.PARALLELISM);
     Context myContext = new Context((int) parallelism);
     return recursiveCase(node, MultiStageOperator.Type.MAILBOX_SEND, myContext);
   }

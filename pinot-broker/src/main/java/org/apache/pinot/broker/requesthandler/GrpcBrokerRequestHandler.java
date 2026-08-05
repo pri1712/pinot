@@ -25,7 +25,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
-import javax.annotation.Nullable;
 import javax.annotation.concurrent.ThreadSafe;
 import org.apache.pinot.broker.broker.AccessControlFactory;
 import org.apache.pinot.broker.queryquota.QueryQuotaManager;
@@ -44,7 +43,6 @@ import org.apache.pinot.core.routing.SegmentsToQuery;
 import org.apache.pinot.core.routing.TableRouteInfo;
 import org.apache.pinot.core.transport.ServerInstance;
 import org.apache.pinot.core.transport.ServerRoutingInstance;
-import org.apache.pinot.materializedview.handler.MaterializedViewHandler;
 import org.apache.pinot.spi.accounting.ThreadAccountant;
 import org.apache.pinot.spi.config.table.TableType;
 import org.apache.pinot.spi.env.PinotConfiguration;
@@ -54,7 +52,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 
-/// The `GrpcBrokerRequestHandler` class communicates query request via GRPC.
+/**
+ * The <code>GrpcBrokerRequestHandler</code> class communicates query request via GRPC.
+ */
 @ThreadSafe
 public class GrpcBrokerRequestHandler extends BaseSingleStageBrokerRequestHandler {
   private static final Logger LOGGER = LoggerFactory.getLogger(GrpcBrokerRequestHandler.class);
@@ -63,26 +63,14 @@ public class GrpcBrokerRequestHandler extends BaseSingleStageBrokerRequestHandle
   protected final PinotServerStreamingQueryClient _streamingQueryClient;
   protected final FailureDetector _failureDetector;
 
-  /// Legacy constructor without an MV handler — see [BaseSingleStageBrokerRequestHandler]'s
-  /// legacy ctor for the rationale.  Delegates with `materializedViewHandler = null`.
+  // TODO: Support TLS
   public GrpcBrokerRequestHandler(PinotConfiguration config, String brokerId,
       BrokerRequestIdGenerator requestIdGenerator, RoutingManager routingManager,
       AccessControlFactory accessControlFactory, QueryQuotaManager queryQuotaManager, TableCache tableCache,
       FailureDetector failureDetector, ThreadAccountant threadAccountant,
       MultiClusterRoutingContext multiClusterRoutingContext) {
-    this(config, brokerId, requestIdGenerator, routingManager, accessControlFactory, queryQuotaManager, tableCache,
-        failureDetector, threadAccountant, multiClusterRoutingContext, null);
-  }
-
-  /// TODO: Support TLS
-  public GrpcBrokerRequestHandler(PinotConfiguration config, String brokerId,
-      BrokerRequestIdGenerator requestIdGenerator, RoutingManager routingManager,
-      AccessControlFactory accessControlFactory, QueryQuotaManager queryQuotaManager, TableCache tableCache,
-      FailureDetector failureDetector, ThreadAccountant threadAccountant,
-      MultiClusterRoutingContext multiClusterRoutingContext,
-      @Nullable MaterializedViewHandler materializedViewHandler) {
     super(config, brokerId, requestIdGenerator, routingManager, accessControlFactory, queryQuotaManager, tableCache,
-        threadAccountant, multiClusterRoutingContext, materializedViewHandler);
+        threadAccountant, multiClusterRoutingContext);
     _streamingReduceService = new StreamingReduceService(config);
     _streamingQueryClient = new PinotServerStreamingQueryClient(GrpcConfig.buildGrpcQueryConfig(config));
     _failureDetector = failureDetector;
@@ -113,8 +101,10 @@ public class GrpcBrokerRequestHandler extends BaseSingleStageBrokerRequestHandle
     return doReduce(originalBrokerRequest, responseMap, timeoutMs);
   }
 
-  /// Executes scatter: sends the query to servers and collects per-server streaming response iterators.
-  /// Subclasses may override to replace or augment the scatter step.
+  /**
+   * Executes scatter: sends the query to servers and collects per-server streaming response iterators.
+   * Subclasses may override to replace or augment the scatter step.
+   */
   protected Map<ServerRoutingInstance, Iterator<Server.ServerResponse>> doScatter(long requestId, TableRouteInfo route,
       RequestContext requestContext) {
     BrokerRequest offlineBrokerRequest = route.getOfflineBrokerRequest();
@@ -137,8 +127,10 @@ public class GrpcBrokerRequestHandler extends BaseSingleStageBrokerRequestHandle
     return responseMap;
   }
 
-  /// Executes the reduce step on the given responseMap.
-  /// Subclasses may override to perform custom reduce logic or augment the responseMap.
+  /**
+   * Executes the reduce step on the given responseMap.
+   * Subclasses may override to perform custom reduce logic or augment the responseMap.
+   */
   protected BrokerResponseNative doReduce(BrokerRequest originalBrokerRequest,
       Map<ServerRoutingInstance, Iterator<Server.ServerResponse>> responseMap, long timeoutMs)
       throws Exception {
@@ -149,7 +141,9 @@ public class GrpcBrokerRequestHandler extends BaseSingleStageBrokerRequestHandle
     return brokerResponse;
   }
 
-  /// Query pinot server for data table.
+  /**
+   * Query pinot server for data table.
+   */
   private void sendRequest(long requestId, TableType tableType, BrokerRequest brokerRequest,
       Map<ServerInstance, SegmentsToQuery> routingTable,
       Map<ServerRoutingInstance, Iterator<Server.ServerResponse>> responseMap, boolean trace) {
@@ -204,7 +198,9 @@ public class GrpcBrokerRequestHandler extends BaseSingleStageBrokerRequestHandle
     }
   }
 
-  /// Check if a server that was previously detected as unhealthy is now healthy.
+  /**
+   * Check if a server that was previously detected as unhealthy is now healthy.
+   */
   private FailureDetector.ServerState retryUnhealthyServer(String instanceId) {
     LOGGER.info("Checking gRPC connection to unhealthy server: {}", instanceId);
     ServerInstance serverInstance = _routingManager.getEnabledServerInstanceMap().get(instanceId);

@@ -22,7 +22,9 @@ import com.google.common.base.Preconditions;
 import javax.annotation.Nullable;
 
 
-/// The `Interval` class represents an one-dimensional closed interval which contains both ends.
+/**
+ * The {@code Interval} class represents an one-dimensional closed interval which contains both ends.
+ */
 public class Interval implements Comparable<Interval> {
   public final long _min;
   public final long _max;

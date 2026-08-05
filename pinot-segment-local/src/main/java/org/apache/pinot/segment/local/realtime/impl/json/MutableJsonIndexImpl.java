@@ -24,7 +24,6 @@ import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.fastutil.ints.IntList;
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
@@ -66,7 +65,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 
-/// Json index for mutable segment.
+/**
+ * Json index for mutable segment.
+ */
 public class MutableJsonIndexImpl implements MutableJsonIndex {
   private static final Logger LOGGER = LoggerFactory.getLogger(MutableJsonIndexImpl.class);
   private final JsonIndexConfig _jsonIndexConfig;
@@ -97,7 +98,9 @@ public class MutableJsonIndexImpl implements MutableJsonIndex {
     _serverMetrics = ServerMetrics.get();
   }
 
-  /// Adds the next json value.
+  /**
+   * Adds the next json value.
+   */
   @Override
   public void add(String jsonString)
       throws IOException {
@@ -114,7 +117,9 @@ public class MutableJsonIndexImpl implements MutableJsonIndex {
     }
   }
 
-  /// Adds the flattened records for the next document.
+  /**
+   * Adds the flattened records for the next document.
+   */
   private void addFlattenedRecords(List<Map<String, String>> records) {
     int numRecords = records.size();
     Preconditions.checkState(_nextFlattenedDocId + numRecords >= 0, "Got more than %s flattened records",
@@ -129,26 +134,16 @@ public class MutableJsonIndexImpl implements MutableJsonIndex {
         // Put both key and key-value into the posting list. Key is useful for checking if a key exists in the json.
         String key = entry.getKey();
         _postingListMap.computeIfAbsent(key, k -> {
-          _bytesSize += estimateLength(key);
+          _bytesSize += Utf8.encodedLength(key);
           return new RoaringBitmap();
         }).add(_nextFlattenedDocId);
         String keyValue = key + JsonIndexCreator.KEY_VALUE_SEPARATOR + entry.getValue();
         _postingListMap.computeIfAbsent(keyValue, k -> {
-          _bytesSize += estimateLength(keyValue);
+          _bytesSize += Utf8.encodedLength(keyValue);
           return new RoaringBitmap();
         }).add(_nextFlattenedDocId);
       }
       _nextFlattenedDocId++;
-    }
-  }
-
-  private static int estimateLength(String value) {
-    // Utf8.encodedLength counts bytes without allocating but throws on malformed strings (e.g. unpaired surrogates).
-    // _bytesSize is only a heuristic, so fall back to getBytes (which never throws) instead of failing.
-    try {
-      return Utf8.encodedLength(value);
-    } catch (IllegalArgumentException e) {
-      return value.getBytes(StandardCharsets.UTF_8).length;
     }
   }
 
@@ -195,14 +190,17 @@ public class MutableJsonIndexImpl implements MutableJsonIndex {
     }
   }
 
-  /// Returns `true` if the given predicate type is exclusive for json_match calculation, `false` otherwise.
+  /**
+   * Returns {@code true} if the given predicate type is exclusive for json_match calculation, {@code false} otherwise.
+   */
   private boolean isExclusive(Predicate.Type predicateType) {
     return predicateType == Predicate.Type.IS_NULL;
   }
 
-  /// This class allows delaying of cloning posting list bitmap for as long as possible
-  /// It stores either a bitmap from posting list that must be cloned before mutating (readOnly=true)
-  /// or an already  cloned bitmap.
+  /** This class allows delaying of cloning posting list bitmap for as long as possible
+   * It stores either a bitmap from posting list that must be cloned before mutating (readOnly=true)
+   * or an already  cloned bitmap.
+   */
   private static class LazyBitmap {
     final static LazyBitmap EMPTY_BITMAP = createImmutable(new RoaringBitmap());
 
@@ -341,7 +339,9 @@ public class MutableJsonIndexImpl implements MutableJsonIndex {
     }
   }
 
-  /// Returns the matching flattened doc ids for the given filter.
+  /**
+   * Returns the matching flattened doc ids for the given filter.
+   */
   private LazyBitmap getMatchingFlattenedDocIds(FilterContext filter) {
     switch (filter.getType()) {
       case AND: {
@@ -376,10 +376,11 @@ public class MutableJsonIndexImpl implements MutableJsonIndex {
     }
   }
 
-  /// Returns the matching flattened doc ids for the given predicate.
-  ///
-  /// Exclusive predicate is handled as the inclusive predicate, and the caller should flip the unflattened doc ids in
-  /// order to get the correct exclusive predicate result.
+  /**
+   * Returns the matching flattened doc ids for the given predicate.
+   * <p>Exclusive predicate is handled as the inclusive predicate, and the caller should flip the unflattened doc ids in
+   * order to get the correct exclusive predicate result.
+   */
   private LazyBitmap getMatchingFlattenedDocIds(Predicate predicate) {
     ExpressionContext lhs = predicate.getLhs();
     Preconditions.checkArgument(lhs.getType() == ExpressionContext.Type.IDENTIFIER,
@@ -624,10 +625,12 @@ public class MutableJsonIndexImpl implements MutableJsonIndex {
     }
   }
 
-  /// If key doesn't contain the array index, return <original key, null bitmap>
-  /// Elif the key, i.e. the json path provided by user doesn't match any data, return <null, empty bitmap>
-  /// Else, return the json path that is generated by replacing array index with . on the original key
-  /// and the associated flattenDocId bitmap
+  /**
+   *  If key doesn't contain the array index, return <original key, null bitmap>
+   *  Elif the key, i.e. the json path provided by user doesn't match any data, return <null, empty bitmap>
+   *  Else, return the json path that is generated by replacing array index with . on the original key
+   *  and the associated flattenDocId bitmap
+   */
   private Pair<String, LazyBitmap> getKeyAndFlattenedDocIds(String key) {
     // Process the array index within the key if exists
     // E.g. "[*]"=1 -> "."='1'

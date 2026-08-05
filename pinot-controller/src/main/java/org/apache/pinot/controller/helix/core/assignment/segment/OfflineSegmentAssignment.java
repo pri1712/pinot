@@ -33,7 +33,9 @@ import org.apache.pinot.controller.helix.core.assignment.segment.strategy.Segmen
 import org.apache.pinot.spi.config.table.assignment.InstancePartitionsType;
 
 
-/// Segment assignment for offline table.
+/**
+ * Segment assignment for offline table.
+ */
 public class OfflineSegmentAssignment extends BaseSegmentAssignment {
 
   @Override

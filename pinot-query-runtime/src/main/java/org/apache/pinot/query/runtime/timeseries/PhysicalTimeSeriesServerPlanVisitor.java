@@ -20,6 +20,7 @@ package org.apache.pinot.query.runtime.timeseries;
 
 import com.google.common.annotations.VisibleForTesting;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -82,7 +83,7 @@ public class PhysicalTimeSeriesServerPlanVisitor {
 
   private TimeSeriesPhysicalTableScan convertLeafToPhysicalTableScan(LeafTimeSeriesPlanNode leafNode,
       TimeSeriesExecutionContext context) {
-    List<String> segments = context.getPlanIdToSegmentsMap().getOrDefault(leafNode.getId(), List.of());
+    List<String> segments = context.getPlanIdToSegmentsMap().getOrDefault(leafNode.getId(), Collections.emptyList());
     ServerQueryRequest serverQueryRequest = compileLeafServerQueryRequest(leafNode, segments, context);
     return new TimeSeriesPhysicalTableScan(context, leafNode.getId(), serverQueryRequest, _queryExecutor,
         _executorService);
@@ -94,7 +95,9 @@ public class PhysicalTimeSeriesServerPlanVisitor {
         segments, getServerQueryRequestMetadataMap(context), _serverMetrics);
   }
 
-  /// Create a transform expression, and link it with an aggregation function.
+  /**
+   * Create a transform expression, and link it with an aggregation function.
+   */
   @VisibleForTesting
   QueryContext compileQueryContext(LeafTimeSeriesPlanNode leafNode, TimeSeriesExecutionContext context) {
     FilterContext filterContext =
@@ -108,7 +111,7 @@ public class PhysicalTimeSeriesServerPlanVisitor {
         leafNode.getValueExpression(), rawTimeValuesInLong, leafNode.getTimeUnit(),
         leafNode.getOffsetSeconds() == null ? 0 : leafNode.getOffsetSeconds(), timeBuckets, leafNode.getAggInfo());
     Map<String, String> queryOptions = new HashMap<>(Optional.ofNullable(leafNode.getQueryOptions())
-            .orElseGet(Map::of));
+            .orElseGet(Collections::emptyMap));
     queryOptions.put(QueryOptionKey.TIMEOUT_MS, Long.toString(Math.max(0L, context.getRemainingTimeMs())));
     return new QueryContext.Builder()
         .setTableName(leafNode.getTableName())
@@ -116,7 +119,7 @@ public class PhysicalTimeSeriesServerPlanVisitor {
         .setGroupByExpressions(groupByExpressions)
         .setSelectExpressions(List.of(aggregation))
         .setQueryOptions(queryOptions)
-        .setAliasList(List.of())
+        .setAliasList(Collections.emptyList())
         .setLimit(leafNode.getLimit())
         .build();
   }

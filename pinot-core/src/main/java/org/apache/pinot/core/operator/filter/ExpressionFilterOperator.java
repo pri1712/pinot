@@ -19,6 +19,7 @@
 package org.apache.pinot.core.operator.filter;
 
 import com.google.common.base.CaseFormat;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -110,7 +111,7 @@ public class ExpressionFilterOperator extends BaseFilterOperator {
 
   @Override
   public List<Operator<?>> getChildOperators() {
-    return List.of();
+    return Collections.emptyList();
   }
 
   @Override

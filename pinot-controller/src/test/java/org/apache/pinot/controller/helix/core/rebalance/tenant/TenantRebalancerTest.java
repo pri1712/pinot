@@ -21,6 +21,7 @@ package org.apache.pinot.controller.helix.core.rebalance.tenant;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -198,8 +199,8 @@ public class TenantRebalancerTest extends ControllerTest {
       config.setDryRun(true);
 
       // leave allow and block tables empty
-      config.setIncludeTables(Set.of());
-      config.setExcludeTables(Set.of());
+      config.setIncludeTables(Collections.emptySet());
+      config.setExcludeTables(Collections.emptySet());
 
       TenantRebalanceResult tenantRebalanceResult = tenantRebalancer.rebalance(config);
 
@@ -213,7 +214,7 @@ public class TenantRebalancerTest extends ControllerTest {
       assertEquals(rebalanceResultB.getStatus(), RebalanceResult.Status.DONE);
 
       // block table B
-      config.setExcludeTables(Set.of(OFFLINE_TABLE_NAME_B));
+      config.setExcludeTables(Collections.singleton(OFFLINE_TABLE_NAME_B));
 
       tenantRebalanceResult = tenantRebalancer.rebalance(config);
 
@@ -229,7 +230,7 @@ public class TenantRebalancerTest extends ControllerTest {
       includeTables.add(OFFLINE_TABLE_NAME_A);
       includeTables.add(OFFLINE_TABLE_NAME_B);
       config.setIncludeTables(includeTables);
-      config.setExcludeTables(Set.of(OFFLINE_TABLE_NAME_B));
+      config.setExcludeTables(Collections.singleton(OFFLINE_TABLE_NAME_B));
 
       tenantRebalanceResult = tenantRebalancer.rebalance(config);
 
@@ -241,8 +242,8 @@ public class TenantRebalancerTest extends ControllerTest {
       assertEquals(rebalanceResultA.getStatus(), RebalanceResult.Status.DONE);
 
       // allow table B
-      config.setIncludeTables(Set.of(OFFLINE_TABLE_NAME_B));
-      config.setExcludeTables(Set.of());
+      config.setIncludeTables(Collections.singleton(OFFLINE_TABLE_NAME_B));
+      config.setExcludeTables(Collections.emptySet());
 
       tenantRebalanceResult = tenantRebalancer.rebalance(config);
 
@@ -255,16 +256,16 @@ public class TenantRebalancerTest extends ControllerTest {
       assertEquals(rebalanceResultB.getStatus(), RebalanceResult.Status.DONE);
 
       // allow table B, also block table B
-      config.setIncludeTables(Set.of(OFFLINE_TABLE_NAME_B));
-      config.setExcludeTables(Set.of(OFFLINE_TABLE_NAME_B));
+      config.setIncludeTables(Collections.singleton(OFFLINE_TABLE_NAME_B));
+      config.setExcludeTables(Collections.singleton(OFFLINE_TABLE_NAME_B));
 
       tenantRebalanceResult = tenantRebalancer.rebalance(config);
 
       assertTrue(tenantRebalanceResult.getRebalanceTableResults().isEmpty());
 
       // allow a non-existing table
-      config.setIncludeTables(Set.of("TableDoesNotExist_OFFLINE"));
-      config.setExcludeTables(Set.of());
+      config.setIncludeTables(Collections.singleton("TableDoesNotExist_OFFLINE"));
+      config.setExcludeTables(Collections.emptySet());
 
       tenantRebalanceResult = tenantRebalancer.rebalance(config);
 
@@ -320,7 +321,7 @@ public class TenantRebalancerTest extends ControllerTest {
           .setServerTenant(DEFAULT_TENANT_NAME)
           .setBrokerTenant(DEFAULT_TENANT_NAME)
           .setInstanceAssignmentConfigMap(
-              Map.of("OFFLINE", new InstanceAssignmentConfig(
+              Collections.singletonMap("OFFLINE", new InstanceAssignmentConfig(
                   new InstanceTagPoolConfig(TagNameUtils.getOfflineTagForTenant(TENANT_NAME), false, 0, null), null,
                   new InstanceReplicaGroupPartitionConfig(true, 0, 1, 0, 0, 0, false, null), null, true
               ))).build();
@@ -329,7 +330,7 @@ public class TenantRebalancerTest extends ControllerTest {
       TableConfig tableConfigD = new TableConfigBuilder(TableType.OFFLINE).setTableName(tableNameD)
           .setServerTenant(DEFAULT_TENANT_NAME)
           .setBrokerTenant(DEFAULT_TENANT_NAME)
-          .setTierConfigList(List.of(
+          .setTierConfigList(Collections.singletonList(
               new TierConfig("dummyTier", TierFactory.TIME_SEGMENT_SELECTOR_TYPE, "7d", null,
                   TierFactory.PINOT_SERVER_STORAGE_TYPE,
                   TagNameUtils.getOfflineTagForTenant(TENANT_NAME), null, null))).build();
@@ -461,7 +462,7 @@ public class TenantRebalancerTest extends ControllerTest {
           Queue<TenantRebalancer.TenantTableRebalanceJobContext>>
           queues =
           tenantRebalancer.createParallelAndSequentialQueues(config, dryRunResult.getRebalanceTableResults(), null,
-              Set.of(OFFLINE_TABLE_NAME_B));
+              Collections.singleton(OFFLINE_TABLE_NAME_B));
       Queue<TenantRebalancer.TenantTableRebalanceJobContext> parallelQueue = queues.getLeft();
       Queue<TenantRebalancer.TenantTableRebalanceJobContext> sequentialQueue = queues.getRight();
       jobContext = parallelQueue.poll();
@@ -475,7 +476,7 @@ public class TenantRebalancerTest extends ControllerTest {
 
       // set table B in parallel whitelist, so that it ends up in parallel queue, and table A in sequential queue
       queues = tenantRebalancer.createParallelAndSequentialQueues(config, dryRunResult.getRebalanceTableResults(),
-          Set.of(OFFLINE_TABLE_NAME_B), null);
+          Collections.singleton(OFFLINE_TABLE_NAME_B), null);
       parallelQueue = queues.getLeft();
       sequentialQueue = queues.getRight();
       jobContext = parallelQueue.poll();
@@ -490,7 +491,7 @@ public class TenantRebalancerTest extends ControllerTest {
       // set both tables in parallel whitelist, and table B in parallel blacklist, so that B ends up in sequential
       // queue, and table A in parallel queue
       queues = tenantRebalancer.createParallelAndSequentialQueues(config, dryRunResult.getRebalanceTableResults(),
-          Set.of(OFFLINE_TABLE_NAME_A, OFFLINE_TABLE_NAME_B), Set.of(OFFLINE_TABLE_NAME_B));
+          Set.of(OFFLINE_TABLE_NAME_A, OFFLINE_TABLE_NAME_B), Collections.singleton(OFFLINE_TABLE_NAME_B));
       parallelQueue = queues.getLeft();
       sequentialQueue = queues.getRight();
       jobContext = parallelQueue.poll();

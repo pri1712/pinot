@@ -24,7 +24,9 @@ import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.annotation.Nulls;
 
 
-/// Parameters used in RealtimeProvisioningRule
+/**
+ * Parameters used in RealtimeProvisioningRule
+ */
 public class RealtimeProvisioningRuleParams {
 
   // Number of partitions for the topic

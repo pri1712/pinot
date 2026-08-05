@@ -18,7 +18,9 @@
  */
 package org.apache.pinot.spi.trace;
 
-/// A scope wrapping an end to end synchronous pinot request.
-/// Can be extended by a custom tracer to meter request latency.
+/**
+ * A scope wrapping an end to end synchronous pinot request.
+ * Can be extended by a custom tracer to meter request latency.
+ */
 public interface RequestScope extends Scope, RequestContext {
 }

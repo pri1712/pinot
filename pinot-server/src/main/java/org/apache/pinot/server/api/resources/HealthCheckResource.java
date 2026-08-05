@@ -47,7 +47,9 @@ import org.apache.pinot.core.auth.TargetType;
 import org.apache.pinot.server.api.AdminApiApplication;
 
 
-/// REST API to do health check through ServiceStatus.
+/**
+ * REST API to do health check through ServiceStatus.
+ */
 @Api(tags = "Health")
 @Path("/")
 public class HealthCheckResource {

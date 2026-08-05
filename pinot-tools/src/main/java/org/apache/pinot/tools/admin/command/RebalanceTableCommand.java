@@ -29,7 +29,9 @@ import org.slf4j.LoggerFactory;
 import picocli.CommandLine;
 
 
-/// A sub-command for pinot-admin tool to rebalance a specific table
+/**
+ * A sub-command for pinot-admin tool to rebalance a specific table
+ */
 @SuppressWarnings({"FieldCanBeLocal", "unused"})
 @CommandLine.Command(name = "RebalanceTable", mixinStandardHelpOptions = true)
 public class RebalanceTableCommand extends AbstractBaseAdminCommand implements Command {

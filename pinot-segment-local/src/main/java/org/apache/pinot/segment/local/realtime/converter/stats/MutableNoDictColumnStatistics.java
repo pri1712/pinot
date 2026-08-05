@@ -117,9 +117,7 @@ public class MutableNoDictColumnStatistics implements ColumnStatistics, CLPStats
 
     int numDocs = _dataSourceMetadata.getNumDocs();
 
-    // Verify that values are non-decreasing when iterated in the given order. The BYTES path uses
-    // ByteArray.compare (unsigned byte-wise lexicographic), which is identical to UuidUtils.compare's unsigned
-    // 64-bit-word ordering on canonical 16-byte big-endian UUIDs, so a single comparator handles both.
+    // Verify that values are non-decreasing when iterated in the given order
     DataType storedType = getStoredType();
     if (_sortedDocIds != null) {
       switch (storedType) {

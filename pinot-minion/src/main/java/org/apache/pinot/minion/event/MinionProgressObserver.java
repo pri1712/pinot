@@ -32,7 +32,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 
-/// A minion event observer that can track task progress status in memory.
+/**
+ * A minion event observer that can track task progress status in memory.
+ */
 @ThreadSafe
 public class MinionProgressObserver extends DefaultMinionEventObserver {
   private static final Logger LOGGER = LoggerFactory.getLogger(MinionProgressObserver.class);
@@ -54,10 +56,12 @@ public class MinionProgressObserver extends DefaultMinionEventObserver {
     super.notifyTaskStart(pinotTaskConfig);
   }
 
-  /// Invoked to update a minion task progress status.
-  ///
-  /// @param pinotTaskConfig Pinot task config
-  /// @param progress progress status and its toString() returns sth meaningful.
+  /**
+   * Invoked to update a minion task progress status.
+   *
+   * @param pinotTaskConfig Pinot task config
+   * @param progress progress status and its toString() returns sth meaningful.
+   */
   @Override
   public synchronized void notifyProgress(PinotTaskConfig pinotTaskConfig, @Nullable Object progress) {
     String progressMessage = null;

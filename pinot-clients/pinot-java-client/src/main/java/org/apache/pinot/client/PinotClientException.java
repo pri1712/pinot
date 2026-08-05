@@ -18,7 +18,9 @@
  */
 package org.apache.pinot.client;
 
-/// Pinot client exception.
+/**
+ * Pinot client exception.
+ */
 public class PinotClientException extends RuntimeException {
   public PinotClientException(String message) {
     super(message);

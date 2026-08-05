@@ -33,7 +33,9 @@ import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertTrue;
 
 
-/// Unit test for [VarLengthValueReader] and [VarLengthValueWriter].
+/**
+ * Unit test for {@link VarLengthValueReader} and {@link VarLengthValueWriter}.
+ */
 public class VarLengthValueReaderWriterTest implements PinotBuffersAfterMethodCheckRule {
   private static final File TEMP_DIR = new File(FileUtils.getTempDirectory(), "VarLengthValueReaderWriterTest");
   private static final int MAX_STRING_LENGTH = 200;

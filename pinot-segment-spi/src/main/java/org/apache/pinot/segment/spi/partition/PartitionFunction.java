@@ -20,6 +20,7 @@ package org.apache.pinot.segment.spi.partition;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.io.Serializable;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import javax.annotation.Nullable;
@@ -50,7 +51,7 @@ public interface PartitionFunction extends Serializable {
   /// `MurmurPartitionFunction` registers under both `Murmur` and `Murmur2`.
   @JsonIgnore
   default List<String> getNames() {
-    return List.of(getName());
+    return Collections.singletonList(getName());
   }
 
   /// Returns the total number of possible partitions.

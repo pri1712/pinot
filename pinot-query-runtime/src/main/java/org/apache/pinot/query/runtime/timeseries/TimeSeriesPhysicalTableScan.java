@@ -19,6 +19,7 @@
 package org.apache.pinot.query.runtime.timeseries;
 
 import com.google.common.base.Preconditions;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import org.apache.pinot.core.query.executor.QueryExecutor;
@@ -39,7 +40,7 @@ public class TimeSeriesPhysicalTableScan extends BaseTimeSeriesPlanNode {
       ServerQueryRequest serverQueryRequest,
       QueryExecutor queryExecutor,
       ExecutorService executorService) {
-    super(id, List.of());
+    super(id, Collections.emptyList());
     _context = context;
     _request = serverQueryRequest;
     _queryExecutor = queryExecutor;

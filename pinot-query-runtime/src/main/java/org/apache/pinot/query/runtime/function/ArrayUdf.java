@@ -19,6 +19,7 @@
 package org.apache.pinot.query.runtime.function;
 
 import com.google.auto.service.AutoService;
+import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
 import org.apache.pinot.common.function.scalar.ArrayFunctions;
@@ -27,7 +28,9 @@ import org.apache.pinot.core.udf.UdfExample;
 import org.apache.pinot.core.udf.UdfSignature;
 
 
-/// UDF for array function.
+/**
+ * UDF for array function.
+ */
 @AutoService(Udf.class)
 public class ArrayUdf extends Udf.FromAnnotatedMethod {
   public ArrayUdf()
@@ -43,6 +46,6 @@ public class ArrayUdf extends Udf.FromAnnotatedMethod {
   @Override
   public Map<UdfSignature, Set<UdfExample>> getExamples() {
     // TODO: Support variadic parameters in UdfExampleBuilder and scenarios
-    return Map.of();
+    return Collections.emptyMap();
   }
 }

@@ -21,6 +21,7 @@ package org.apache.pinot.integration.tests;
 import com.fasterxml.jackson.databind.JsonNode;
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import org.apache.commons.io.FileUtils;
 import org.apache.helix.model.HelixConfigScope;
@@ -115,8 +116,8 @@ public class MultiStageWithoutStatsIntegrationTest extends BaseClusterIntegratio
 
   @Override
   protected List<FieldConfig> getFieldConfigs() {
-    return List.of(
-        new FieldConfig("DivAirports", FieldConfig.EncodingType.DICTIONARY, List.of(),
+    return Collections.singletonList(
+        new FieldConfig("DivAirports", FieldConfig.EncodingType.DICTIONARY, Collections.emptyList(),
             FieldConfig.CompressionCodec.MV_ENTRY_DICT, null));
   }
 

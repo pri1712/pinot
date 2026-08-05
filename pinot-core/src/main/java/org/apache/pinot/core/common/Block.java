@@ -18,7 +18,9 @@
  */
 package org.apache.pinot.core.common;
 
-/// A `Block` represents the data block returned by the [Operator]. Each operator can return multiple
-/// blocks. It can contain document ids, column values or result rows depending on the operator.
+/**
+ * A {@code Block} represents the data block returned by the {@link Operator}. Each operator can return multiple blocks.
+ * It can contain document ids, column values or result rows depending on the operator.
+ */
 public interface Block {
 }

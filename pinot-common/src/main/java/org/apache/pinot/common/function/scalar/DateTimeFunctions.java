@@ -27,7 +27,6 @@ import org.apache.pinot.common.function.DateTimePatternHandler;
 import org.apache.pinot.common.function.DateTimeUtils;
 import org.apache.pinot.common.function.FunctionUtils;
 import org.apache.pinot.common.function.TimeZoneKey;
-import org.apache.pinot.spi.annotations.FunctionVolatility;
 import org.apache.pinot.spi.annotations.ScalarFunction;
 import org.apache.pinot.spi.utils.TimeUtils;
 import org.joda.time.DateTime;
@@ -35,50 +34,51 @@ import org.joda.time.DateTimeZone;
 import org.joda.time.chrono.ISOChronology;
 
 
-/// Inbuilt date time related transform functions
-///
-///   NOTE:
-///   `toEpochXXXBucket` methods are only needed to convert from TimeFieldSpec to DateTimeFieldSpec, to
-///   maintain the backward compatibility.
-///   Practically, we should only need the `toEpochXXXRounded` methods.
-///   Use of `toEpochXXXBucket` bucket functions is discouraged unless you know what you are doing -
-///   (e.g. 5-minutes-since-epoch does not make sense to someone looking at the timestamp, or writing queries. instead,
-///   Millis-since-epoch rounded to 5 minutes makes a lot more sense)
-///
-///   An example timeFieldSpec that needs the bucketing function:
-///
-/// ```
-///   "timeFieldSpec": {
-///   "incomingGranularitySpec": {
-///     "name": "incoming",
-///     "dataType": "LONG",
-///     "timeType": "MILLISECONDS"
-///   },
-///   "outgoingGranularitySpec": {
-///      "name": "outgoing",
-///      "dataType": "LONG",
-///      "timeType": "MINUTES",
-///      "timeSize": 5
-///    }
-/// }
-/// ```
-///
-///   An equivalent dateTimeFieldSpec is
-///
-/// ```
-/// "dateTimeFieldSpecs": [{
-///   "name": "outgoing",
-///   "dataType": "LONG",
-///   "format": "5:MINUTES:EPOCH",
-///   "granularity": "5:MINUTES",
-///   "transformFunction": "toEpochMinutesBucket(incoming, 5)"
-/// }]
-/// ```
+/**
+ * Inbuilt date time related transform functions
+ *
+ *   NOTE:
+ *   <code>toEpochXXXBucket</code> methods are only needed to convert from TimeFieldSpec to DateTimeFieldSpec, to
+ *   maintain the backward compatibility.
+ *   Practically, we should only need the <code>toEpochXXXRounded</code> methods.
+ *   Use of <code>toEpochXXXBucket</code> bucket functions is discouraged unless you know what you are doing -
+ *   (e.g. 5-minutes-since-epoch does not make sense to someone looking at the timestamp, or writing queries. instead,
+ *   Millis-since-epoch rounded to 5 minutes makes a lot more sense)
+ *
+ *   An example timeFieldSpec that needs the bucketing function:
+ *   <code>
+ *     "timeFieldSpec": {
+ *     "incomingGranularitySpec": {
+ *       "name": "incoming",
+ *       "dataType": "LONG",
+ *       "timeType": "MILLISECONDS"
+ *     },
+ *     "outgoingGranularitySpec": {
+ *        "name": "outgoing",
+ *        "dataType": "LONG",
+ *        "timeType": "MINUTES",
+ *        "timeSize": 5
+ *      }
+ *   }
+ *   </code>
+ *   An equivalent dateTimeFieldSpec is
+ *   <code>
+ *     "dateTimeFieldSpecs": [{
+ *       "name": "outgoing",
+ *       "dataType": "LONG",
+ *       "format": "5:MINUTES:EPOCH",
+ *       "granularity": "5:MINUTES",
+ *       "transformFunction": "toEpochMinutesBucket(incoming, 5)"
+ *     }]
+ *   </code>
+ */
 public class DateTimeFunctions {
   private DateTimeFunctions() {
   }
 
-  /// Convert epoch millis to epoch seconds
+  /**
+   * Convert epoch millis to epoch seconds
+   */
   @ScalarFunction
   public static long toEpochSeconds(long millis) {
     return TimeUnit.MILLISECONDS.toSeconds(millis);
@@ -93,7 +93,9 @@ public class DateTimeFunctions {
     return results;
   }
 
-  /// Convert epoch millis to epoch minutes
+  /**
+   * Convert epoch millis to epoch minutes
+   */
   @ScalarFunction
   public static long toEpochMinutes(long millis) {
     return TimeUnit.MILLISECONDS.toMinutes(millis);
@@ -108,7 +110,9 @@ public class DateTimeFunctions {
     return results;
   }
 
-  /// Convert epoch millis to epoch hours
+  /**
+   * Convert epoch millis to epoch hours
+   */
   @ScalarFunction
   public static long toEpochHours(long millis) {
     return TimeUnit.MILLISECONDS.toHours(millis);
@@ -123,7 +127,9 @@ public class DateTimeFunctions {
     return results;
   }
 
-  /// Convert epoch millis to epoch days
+  /**
+   * Convert epoch millis to epoch days
+   */
   @ScalarFunction
   public static long toEpochDays(long millis) {
     return TimeUnit.MILLISECONDS.toDays(millis);
@@ -138,7 +144,9 @@ public class DateTimeFunctions {
     return results;
   }
 
-  /// Convert epoch millis to epoch seconds, round to nearest rounding bucket
+  /**
+   * Convert epoch millis to epoch seconds, round to nearest rounding bucket
+   */
   @ScalarFunction
   public static long toEpochSecondsRounded(long millis, long roundToNearest) {
     return (TimeUnit.MILLISECONDS.toSeconds(millis) / roundToNearest) * roundToNearest;
@@ -153,7 +161,9 @@ public class DateTimeFunctions {
     return results;
   }
 
-  /// Convert epoch millis to epoch minutes, round to nearest rounding bucket
+  /**
+   * Convert epoch millis to epoch minutes, round to nearest rounding bucket
+   */
   @ScalarFunction
   public static long toEpochMinutesRounded(long millis, long roundToNearest) {
     return (TimeUnit.MILLISECONDS.toMinutes(millis) / roundToNearest) * roundToNearest;
@@ -168,7 +178,9 @@ public class DateTimeFunctions {
     return results;
   }
 
-  /// Convert epoch millis to epoch hours, round to nearest rounding bucket
+  /**
+   * Convert epoch millis to epoch hours, round to nearest rounding bucket
+   */
   @ScalarFunction
   public static long toEpochHoursRounded(long millis, long roundToNearest) {
     return (TimeUnit.MILLISECONDS.toHours(millis) / roundToNearest) * roundToNearest;
@@ -183,7 +195,9 @@ public class DateTimeFunctions {
     return results;
   }
 
-  /// Convert epoch millis to epoch days, round to nearest rounding bucket
+  /**
+   * Convert epoch millis to epoch days, round to nearest rounding bucket
+   */
   @ScalarFunction
   public static long toEpochDaysRounded(long millis, long roundToNearest) {
     return (TimeUnit.MILLISECONDS.toDays(millis) / roundToNearest) * roundToNearest;
@@ -198,7 +212,9 @@ public class DateTimeFunctions {
     return results;
   }
 
-  /// Convert epoch millis to epoch seconds, divided by given bucket, to get nSecondsSinceEpoch
+  /**
+   * Convert epoch millis to epoch seconds, divided by given bucket, to get nSecondsSinceEpoch
+   */
   @ScalarFunction
   public static long toEpochSecondsBucket(long millis, long bucket) {
     return TimeUnit.MILLISECONDS.toSeconds(millis) / bucket;
@@ -213,7 +229,9 @@ public class DateTimeFunctions {
     return results;
   }
 
-  /// Convert epoch millis to epoch minutes, divided by given bucket, to get nMinutesSinceEpoch
+  /**
+   * Convert epoch millis to epoch minutes, divided by given bucket, to get nMinutesSinceEpoch
+   */
   @ScalarFunction
   public static long toEpochMinutesBucket(long millis, long bucket) {
     return TimeUnit.MILLISECONDS.toMinutes(millis) / bucket;
@@ -228,7 +246,9 @@ public class DateTimeFunctions {
     return results;
   }
 
-  /// Convert epoch millis to epoch hours, divided by given bucket, to get nHoursSinceEpoch
+  /**
+   * Convert epoch millis to epoch hours, divided by given bucket, to get nHoursSinceEpoch
+   */
   @ScalarFunction
   public static long toEpochHoursBucket(long millis, long bucket) {
     return TimeUnit.MILLISECONDS.toHours(millis) / bucket;
@@ -243,7 +263,9 @@ public class DateTimeFunctions {
     return results;
   }
 
-  /// Convert epoch millis to epoch days, divided by given bucket, to get nDaysSinceEpoch
+  /**
+   * Convert epoch millis to epoch days, divided by given bucket, to get nDaysSinceEpoch
+   */
   @ScalarFunction
   public static long toEpochDaysBucket(long millis, long bucket) {
     return TimeUnit.MILLISECONDS.toDays(millis) / bucket;
@@ -258,7 +280,9 @@ public class DateTimeFunctions {
     return results;
   }
 
-  /// Converts epoch seconds to epoch millis
+  /**
+   * Converts epoch seconds to epoch millis
+   */
   @ScalarFunction
   public static long fromEpochSeconds(long seconds) {
     return TimeUnit.SECONDS.toMillis(seconds);
@@ -273,7 +297,9 @@ public class DateTimeFunctions {
     return results;
   }
 
-  /// Converts epoch minutes to epoch millis
+  /**
+   * Converts epoch minutes to epoch millis
+   */
   @ScalarFunction
   public static long fromEpochMinutes(long minutes) {
     return TimeUnit.MINUTES.toMillis(minutes);
@@ -288,7 +314,9 @@ public class DateTimeFunctions {
     return results;
   }
 
-  /// Converts epoch hours to epoch millis
+  /**
+   * Converts epoch hours to epoch millis
+   */
   @ScalarFunction
   public static long fromEpochHours(long hours) {
     return TimeUnit.HOURS.toMillis(hours);
@@ -303,7 +331,9 @@ public class DateTimeFunctions {
     return results;
   }
 
-  /// Converts epoch days to epoch millis
+  /**
+   * Converts epoch days to epoch millis
+   */
   @ScalarFunction
   public static long fromEpochDays(long days) {
     return TimeUnit.DAYS.toMillis(days);
@@ -318,7 +348,9 @@ public class DateTimeFunctions {
     return results;
   }
 
-  /// Converts nSecondsSinceEpoch (seconds that have been divided by a bucket), to epoch millis
+  /**
+   * Converts nSecondsSinceEpoch (seconds that have been divided by a bucket), to epoch millis
+   */
   @ScalarFunction
   public static long fromEpochSecondsBucket(long seconds, long bucket) {
     return TimeUnit.SECONDS.toMillis(seconds * bucket);
@@ -333,7 +365,9 @@ public class DateTimeFunctions {
     return results;
   }
 
-  /// Converts nMinutesSinceEpoch (minutes that have been divided by a bucket), to epoch millis
+  /**
+   * Converts nMinutesSinceEpoch (minutes that have been divided by a bucket), to epoch millis
+   */
   @ScalarFunction
   public static long fromEpochMinutesBucket(long minutes, long bucket) {
     return TimeUnit.MINUTES.toMillis(minutes * bucket);
@@ -348,7 +382,9 @@ public class DateTimeFunctions {
     return results;
   }
 
-  /// Converts nHoursSinceEpoch (hours that have been divided by a bucket), to epoch millis
+  /**
+   * Converts nHoursSinceEpoch (hours that have been divided by a bucket), to epoch millis
+   */
   @ScalarFunction
   public static long fromEpochHoursBucket(long hours, long bucket) {
     return TimeUnit.HOURS.toMillis(hours * bucket);
@@ -363,7 +399,9 @@ public class DateTimeFunctions {
     return results;
   }
 
-  /// Converts nDaysSinceEpoch (days that have been divided by a bucket), to epoch millis
+  /**
+   * Converts nDaysSinceEpoch (days that have been divided by a bucket), to epoch millis
+   */
   @ScalarFunction
   public static long fromEpochDaysBucket(long days, long bucket) {
     return TimeUnit.DAYS.toMillis(days * bucket);
@@ -406,7 +444,9 @@ public class DateTimeFunctions {
     return results;
   }
 
-  /// Converts epoch millis to Timestamp
+  /**
+   * Converts epoch millis to Timestamp
+   */
   @ScalarFunction
   public static Timestamp toTimestamp(long millis) {
     return new Timestamp(millis);
@@ -421,7 +461,9 @@ public class DateTimeFunctions {
     return results;
   }
 
-  /// Converts Timestamp to epoch millis
+  /**
+   * Converts Timestamp to epoch millis
+   */
   @ScalarFunction
   public static long fromTimestamp(Timestamp timestamp) {
     return timestamp.getTime();
@@ -436,7 +478,9 @@ public class DateTimeFunctions {
     return results;
   }
 
-  /// Converts epoch millis to DateTime string represented by pattern
+  /**
+   * Converts epoch millis to DateTime string represented by pattern
+   */
   @ScalarFunction
   public static String toDateTime(long millis, String pattern) {
     return DateTimePatternHandler.parseEpochMillisToDateTimeString(millis, pattern);
@@ -451,7 +495,9 @@ public class DateTimeFunctions {
     return results;
   }
 
-  /// Converts epoch millis to DateTime string represented by pattern and the time zone id.
+  /**
+   * Converts epoch millis to DateTime string represented by pattern and the time zone id.
+   */
   @ScalarFunction
   public static String toDateTime(long millis, String pattern, String timezoneId) {
     return DateTimePatternHandler.parseEpochMillisToDateTimeString(millis, pattern, timezoneId);
@@ -466,7 +512,9 @@ public class DateTimeFunctions {
     return results;
   }
 
-  /// Converts DateTime string represented by pattern to epoch millis
+  /**
+   * Converts DateTime string represented by pattern to epoch millis
+   */
   @ScalarFunction
   public static long fromDateTime(String dateTimeString, String pattern) {
     return DateTimePatternHandler.parseDateTimeStringToEpochMillis(dateTimeString, pattern);
@@ -481,7 +529,9 @@ public class DateTimeFunctions {
     return results;
   }
 
-  /// Converts DateTime string represented by pattern to epoch millis
+  /**
+   * Converts DateTime string represented by pattern to epoch millis
+   */
   @ScalarFunction
   public static long fromDateTime(String dateTimeString, String pattern, String timeZoneId) {
     return DateTimePatternHandler.parseDateTimeStringToEpochMillis(dateTimeString, pattern, timeZoneId);
@@ -501,8 +551,10 @@ public class DateTimeFunctions {
     return results;
   }
 
-  /// Round the given time value to nearest multiple
-  /// @return the original value but rounded to the nearest multiple of @param roundToNearest
+  /**
+   * Round the given time value to nearest multiple
+   * @return the original value but rounded to the nearest multiple of @param roundToNearest
+   */
   @ScalarFunction
   public static long round(long timeValue, long roundToNearest) {
     return (timeValue / roundToNearest) * roundToNearest;
@@ -517,14 +569,16 @@ public class DateTimeFunctions {
     return results;
   }
 
-  /// Return current time as epoch millis
-  /// TODO: Consider changing the return type to Timestamp
-  @ScalarFunction(volatility = FunctionVolatility.VOLATILE)
+  /**
+   * Return current time as epoch millis
+   * TODO: Consider changing the return type to Timestamp
+   */
+  @ScalarFunction
   public static long now() {
     return System.currentTimeMillis();
   }
 
-  @ScalarFunction(volatility = FunctionVolatility.VOLATILE)
+  @ScalarFunction
   public static long sleep(long millis) {
     try {
       if (FunctionUtils.isAssertEnabled()) {
@@ -537,23 +591,25 @@ public class DateTimeFunctions {
     return millis;
   }
 
-  /// Return time as epoch millis before the given period (in ISO-8601 duration format).
-  /// Examples:
-  ///           "PT20.345S" -- parses as "20.345 seconds"
-  ///           "PT15M"     -- parses as "15 minutes" (where a minute is 60 seconds)
-  ///           "PT10H"     -- parses as "10 hours" (where an hour is 3600 seconds)
-  ///           "P2D"       -- parses as "2 days" (where a day is 24 hours or 86400 seconds)
-  ///           "P2DT3H4M"  -- parses as "2 days, 3 hours and 4 minutes"
-  ///           "P-6H3M"    -- parses as "-6 hours and +3 minutes"
-  ///           "-P6H3M"    -- parses as "-6 hours and -3 minutes"
-  ///           "-P-6H+3M"  -- parses as "+6 hours and -3 minutes"
-  @ScalarFunction(volatility = FunctionVolatility.VOLATILE)
+  /**
+   * Return time as epoch millis before the given period (in ISO-8601 duration format).
+   * Examples:
+   *           "PT20.345S" -- parses as "20.345 seconds"
+   *           "PT15M"     -- parses as "15 minutes" (where a minute is 60 seconds)
+   *           "PT10H"     -- parses as "10 hours" (where an hour is 3600 seconds)
+   *           "P2D"       -- parses as "2 days" (where a day is 24 hours or 86400 seconds)
+   *           "P2DT3H4M"  -- parses as "2 days, 3 hours and 4 minutes"
+   *           "P-6H3M"    -- parses as "-6 hours and +3 minutes"
+   *           "-P6H3M"    -- parses as "-6 hours and -3 minutes"
+   *           "-P-6H+3M"  -- parses as "+6 hours and -3 minutes"
+   */
+  @ScalarFunction
   public static long ago(String periodString) {
     Duration period = Duration.parse(periodString);
     return System.currentTimeMillis() - period.toMillis();
   }
 
-  @ScalarFunction(volatility = FunctionVolatility.VOLATILE)
+  @ScalarFunction
   public static long[] agoMV(String[] periodString) {
     long[] results = new long[periodString.length];
     for (int i = 0; i < periodString.length; i++) {
@@ -562,10 +618,14 @@ public class DateTimeFunctions {
     return results;
   }
 
-  /// The `timezoneId` for the following methods must be of a Joda-Time format:
-  /// https://www.joda.org/joda-time/timezones.html
+  /**
+   * The {@code timezoneId} for the following methods must be of a Joda-Time format:
+   * https://www.joda.org/joda-time/timezones.html
+   */
 
-  /// Returns the hour of the time zone offset.
+  /**
+   * Returns the hour of the time zone offset.
+   */
   @ScalarFunction
   public static int timezoneHour(String timezoneId) {
     return timezoneHour(timezoneId, 0);
@@ -580,8 +640,10 @@ public class DateTimeFunctions {
     return results;
   }
 
-  /// Returns the hour of the time zone offset, for the UTC timestamp at `millis`. This will
-  /// properly handle daylight savings time.
+  /**
+   * Returns the hour of the time zone offset, for the UTC timestamp at {@code millis}. This will
+   * properly handle daylight savings time.
+   */
   @ScalarFunction
   public static int timezoneHour(String timezoneId, long millis) {
     return (int) TimeUnit.MILLISECONDS.toHours(DateTimeZone.forID(timezoneId).getOffset(millis));
@@ -596,7 +658,9 @@ public class DateTimeFunctions {
     return results;
   }
 
-  /// Returns the minute of the time zone offset.
+  /**
+   * Returns the minute of the time zone offset.
+   */
   @ScalarFunction
   public static int timezoneMinute(String timezoneId) {
     return timezoneMinute(timezoneId, 0);
@@ -611,8 +675,10 @@ public class DateTimeFunctions {
     return results;
   }
 
-  /// Returns the minute of the time zone offset, for the UTC timestamp at `millis`. This will
-  /// properly handle daylight savings time
+  /**
+   * Returns the minute of the time zone offset, for the UTC timestamp at {@code millis}. This will
+   * properly handle daylight savings time
+   */
   @ScalarFunction
   public static int timezoneMinute(String timezoneId, long millis) {
     return (int) TimeUnit.MILLISECONDS.toMinutes(DateTimeZone.forID(timezoneId).getOffset(millis)) % 60;
@@ -627,7 +693,9 @@ public class DateTimeFunctions {
     return results;
   }
 
-  /// Returns the year from the given epoch millis in UTC timezone.
+  /**
+   * Returns the year from the given epoch millis in UTC timezone.
+   */
   @ScalarFunction
   public static int year(long millis) {
     return new DateTime(millis, DateTimeZone.UTC).getYear();
@@ -642,7 +710,9 @@ public class DateTimeFunctions {
     return results;
   }
 
-  /// Returns the year from the given epoch millis and timezone id.
+  /**
+   * Returns the year from the given epoch millis and timezone id.
+   */
   @ScalarFunction
   public static int year(long millis, String timezoneId) {
     return new DateTime(millis, DateTimeZone.forID(timezoneId)).getYear();
@@ -657,7 +727,9 @@ public class DateTimeFunctions {
     return results;
   }
 
-  /// Returns the year of the ISO week from the given epoch millis in UTC timezone.
+  /**
+   * Returns the year of the ISO week from the given epoch millis in UTC timezone.
+   */
   @ScalarFunction(names = {"yearOfWeek", "yow"})
   public static int yearOfWeek(long millis) {
     return new DateTime(millis, DateTimeZone.UTC).getWeekyear();
@@ -672,7 +744,9 @@ public class DateTimeFunctions {
     return results;
   }
 
-  /// Returns the year of the ISO week from the given epoch millis and timezone id.
+  /**
+   * Returns the year of the ISO week from the given epoch millis and timezone id.
+   */
   @ScalarFunction(names = {"yearOfWeek", "yow"})
   public static int yearOfWeek(long millis, String timezoneId) {
     return new DateTime(millis, DateTimeZone.forID(timezoneId)).getWeekyear();
@@ -687,7 +761,9 @@ public class DateTimeFunctions {
     return results;
   }
 
-  /// Returns the quarter of the year from the given epoch millis in UTC timezone. The value ranges from 1 to 4.
+  /**
+   * Returns the quarter of the year from the given epoch millis in UTC timezone. The value ranges from 1 to 4.
+   */
   @ScalarFunction
   public static int quarter(long millis) {
     return (month(millis) - 1) / 3 + 1;
@@ -702,7 +778,9 @@ public class DateTimeFunctions {
     return results;
   }
 
-  /// Returns the quarter of the year from the given epoch millis and timezone id. The value ranges from 1 to 4.
+  /**
+   * Returns the quarter of the year from the given epoch millis and timezone id. The value ranges from 1 to 4.
+   */
   @ScalarFunction
   public static int quarter(long millis, String timezoneId) {
     return (month(millis, timezoneId) - 1) / 3 + 1;
@@ -717,7 +795,9 @@ public class DateTimeFunctions {
     return results;
   }
 
-  /// Returns the month of the year from the given epoch millis in UTC timezone. The value ranges from 1 to 12.
+  /**
+   * Returns the month of the year from the given epoch millis in UTC timezone. The value ranges from 1 to 12.
+   */
   @ScalarFunction(names = {"month", "monthOfYear"})
   public static int month(long millis) {
     return new DateTime(millis, DateTimeZone.UTC).getMonthOfYear();
@@ -732,7 +812,9 @@ public class DateTimeFunctions {
     return results;
   }
 
-  /// Returns the month of the year from the given epoch millis and timezone id. The value ranges from 1 to 12.
+  /**
+   * Returns the month of the year from the given epoch millis and timezone id. The value ranges from 1 to 12.
+   */
   @ScalarFunction(names = {"month", "monthOfYear"})
   public static int month(long millis, String timezoneId) {
     return new DateTime(millis, DateTimeZone.forID(timezoneId)).getMonthOfYear();
@@ -747,7 +829,9 @@ public class DateTimeFunctions {
     return results;
   }
 
-  /// Returns the ISO week of the year from the given epoch millis in UTC timezone.The value ranges from 1 to 53.
+  /**
+   * Returns the ISO week of the year from the given epoch millis in UTC timezone.The value ranges from 1 to 53.
+   */
   @ScalarFunction(names = {"week", "weekOfYear"})
   public static int week(long millis) {
     return new DateTime(millis, DateTimeZone.UTC).getWeekOfWeekyear();
@@ -762,7 +846,9 @@ public class DateTimeFunctions {
     return results;
   }
 
-  /// Returns the ISO week of the year from the given epoch millis and timezone id. The value ranges from 1 to 53.
+  /**
+   * Returns the ISO week of the year from the given epoch millis and timezone id. The value ranges from 1 to 53.
+   */
   @ScalarFunction(names = {"week", "weekOfYear"})
   public static int week(long millis, String timezoneId) {
     return new DateTime(millis, DateTimeZone.forID(timezoneId)).getWeekOfWeekyear();
@@ -777,7 +863,9 @@ public class DateTimeFunctions {
     return results;
   }
 
-  /// Returns the day of the year from the given epoch millis in UTC timezone. The value ranges from 1 to 366.
+  /**
+   * Returns the day of the year from the given epoch millis in UTC timezone. The value ranges from 1 to 366.
+   */
   @ScalarFunction(names = {"dayOfYear", "doy"})
   public static int dayOfYear(long millis) {
     return new DateTime(millis, DateTimeZone.UTC).getDayOfYear();
@@ -792,7 +880,9 @@ public class DateTimeFunctions {
     return results;
   }
 
-  /// Returns the day of the year from the given epoch millis and timezone id. The value ranges from 1 to 366.
+  /**
+   * Returns the day of the year from the given epoch millis and timezone id. The value ranges from 1 to 366.
+   */
   @ScalarFunction(names = {"dayOfYear", "doy"})
   public static int dayOfYear(long millis, String timezoneId) {
     return new DateTime(millis, DateTimeZone.forID(timezoneId)).getDayOfYear();
@@ -807,7 +897,9 @@ public class DateTimeFunctions {
     return results;
   }
 
-  /// Returns the day of the month from the given epoch millis in UTC timezone. The value ranges from 1 to 31.
+  /**
+   * Returns the day of the month from the given epoch millis in UTC timezone. The value ranges from 1 to 31.
+   */
   @ScalarFunction(names = {"dayOfMonth", "day"})
   public static int dayOfMonth(long millis) {
     return new DateTime(millis, DateTimeZone.UTC).getDayOfMonth();
@@ -822,7 +914,9 @@ public class DateTimeFunctions {
     return results;
   }
 
-  /// Returns the day of the month from the given epoch millis and timezone id. The value ranges from 1 to 31.
+  /**
+   * Returns the day of the month from the given epoch millis and timezone id. The value ranges from 1 to 31.
+   */
   @ScalarFunction(names = {"dayOfMonth", "day"})
   public static int dayOfMonth(long millis, String timezoneId) {
     return new DateTime(millis, DateTimeZone.forID(timezoneId)).getDayOfMonth();
@@ -837,8 +931,10 @@ public class DateTimeFunctions {
     return results;
   }
 
-  /// Returns the day of the week from the given epoch millis in UTC timezone. The value ranges from 1 (Monday) to 7
-  /// (Sunday).
+  /**
+   * Returns the day of the week from the given epoch millis in UTC timezone. The value ranges from 1 (Monday) to 7
+   * (Sunday).
+   */
   @ScalarFunction(names = {"dayOfWeek", "dow"})
   public static int dayOfWeek(long millis) {
     return new DateTime(millis, DateTimeZone.UTC).getDayOfWeek();
@@ -853,8 +949,10 @@ public class DateTimeFunctions {
     return results;
   }
 
-  /// Returns the day of the week from the given epoch millis and timezone id. The value ranges from 1 (Monday) to 7
-  /// (Sunday).
+  /**
+   * Returns the day of the week from the given epoch millis and timezone id. The value ranges from 1 (Monday) to 7
+   * (Sunday).
+   */
   @ScalarFunction(names = {"dayOfWeek", "dow"})
   public static int dayOfWeek(long millis, String timezoneId) {
     return new DateTime(millis, DateTimeZone.forID(timezoneId)).getDayOfWeek();
@@ -869,7 +967,9 @@ public class DateTimeFunctions {
     return results;
   }
 
-  /// Returns the hour of the day from the given epoch millis in UTC timezone. The value ranges from 0 to 23.
+  /**
+   * Returns the hour of the day from the given epoch millis in UTC timezone. The value ranges from 0 to 23.
+   */
   @ScalarFunction
   public static int hour(long millis) {
     return new DateTime(millis, DateTimeZone.UTC).getHourOfDay();
@@ -884,7 +984,9 @@ public class DateTimeFunctions {
     return results;
   }
 
-  /// Returns the hour of the day from the given epoch millis and timezone id. The value ranges from 0 to 23.
+  /**
+   * Returns the hour of the day from the given epoch millis and timezone id. The value ranges from 0 to 23.
+   */
   @ScalarFunction
   public static int hour(long millis, String timezoneId) {
     return new DateTime(millis, DateTimeZone.forID(timezoneId)).getHourOfDay();
@@ -899,7 +1001,9 @@ public class DateTimeFunctions {
     return results;
   }
 
-  /// Returns the minute of the hour from the given epoch millis in UTC timezone. The value ranges from 0 to 59.
+  /**
+   * Returns the minute of the hour from the given epoch millis in UTC timezone. The value ranges from 0 to 59.
+   */
   @ScalarFunction
   public static int minute(long millis) {
     return new DateTime(millis, DateTimeZone.UTC).getMinuteOfHour();
@@ -914,7 +1018,9 @@ public class DateTimeFunctions {
     return results;
   }
 
-  /// Returns the minute of the hour from the given epoch millis and timezone id. The value ranges from 0 to 59.
+  /**
+   * Returns the minute of the hour from the given epoch millis and timezone id. The value ranges from 0 to 59.
+   */
   @ScalarFunction
   public static int minute(long millis, String timezoneId) {
     return new DateTime(millis, DateTimeZone.forID(timezoneId)).getMinuteOfHour();
@@ -929,7 +1035,9 @@ public class DateTimeFunctions {
     return results;
   }
 
-  /// Returns the second of the minute from the given epoch millis in UTC timezone. The value ranges from 0 to 59.
+  /**
+   * Returns the second of the minute from the given epoch millis in UTC timezone. The value ranges from 0 to 59.
+   */
   @ScalarFunction
   public static int second(long millis) {
     return new DateTime(millis, DateTimeZone.UTC).getSecondOfMinute();
@@ -944,7 +1052,9 @@ public class DateTimeFunctions {
     return results;
   }
 
-  /// Returns the second of the minute from the given epoch millis and timezone id. The value ranges from 0 to 59.
+  /**
+   * Returns the second of the minute from the given epoch millis and timezone id. The value ranges from 0 to 59.
+   */
   @ScalarFunction
   public static int second(long millis, String timezoneId) {
     return new DateTime(millis, DateTimeZone.forID(timezoneId)).getSecondOfMinute();
@@ -959,7 +1069,9 @@ public class DateTimeFunctions {
     return results;
   }
 
-  /// Returns the millisecond of the second from the given epoch millis in UTC timezone. The value ranges from 0 to 999.
+  /**
+   * Returns the millisecond of the second from the given epoch millis in UTC timezone. The value ranges from 0 to 999.
+   */
   @ScalarFunction
   public static int millisecond(long millis) {
     return new DateTime(millis, DateTimeZone.UTC).getMillisOfSecond();
@@ -974,7 +1086,9 @@ public class DateTimeFunctions {
     return results;
   }
 
-  /// Returns the millisecond of the second from the given epoch millis and timezone id. The value ranges from 0 to 999.
+  /**
+   * Returns the millisecond of the second from the given epoch millis and timezone id. The value ranges from 0 to 999.
+   */
   @ScalarFunction
   public static int millisecond(long millis, String timezoneId) {
     return new DateTime(millis, DateTimeZone.forID(timezoneId)).getMillisOfSecond();
@@ -989,11 +1103,13 @@ public class DateTimeFunctions {
     return results;
   }
 
-  /// The sql compatible date_trunc function for epoch time.
-  ///
-  /// @param unit truncate to unit (millisecond, second, minute, hour, day, week, month, quarter, year)
-  /// @param timeValue value to truncate
-  /// @return truncated timeValue in TimeUnit.MILLISECONDS
+  /**
+   * The sql compatible date_trunc function for epoch time.
+   *
+   * @param unit truncate to unit (millisecond, second, minute, hour, day, week, month, quarter, year)
+   * @param timeValue value to truncate
+   * @return truncated timeValue in TimeUnit.MILLISECONDS
+   */
   @ScalarFunction
   public static long dateTrunc(String unit, long timeValue) {
     return dateTrunc(unit, timeValue, TimeUnit.MILLISECONDS.name(), ISOChronology.getInstanceUTC(),
@@ -1009,12 +1125,14 @@ public class DateTimeFunctions {
     return results;
   }
 
-  /// The sql compatible date_trunc function for epoch time.
-  ///
-  /// @param unit truncate to unit (millisecond, second, minute, hour, day, week, month, quarter, year)
-  /// @param timeValue value to truncate
-  /// @param inputTimeUnit TimeUnit of value, expressed in Java's joda TimeUnit
-  /// @return truncated timeValue in same TimeUnit as the input
+  /**
+   * The sql compatible date_trunc function for epoch time.
+   *
+   * @param unit truncate to unit (millisecond, second, minute, hour, day, week, month, quarter, year)
+   * @param timeValue value to truncate
+   * @param inputTimeUnit TimeUnit of value, expressed in Java's joda TimeUnit
+   * @return truncated timeValue in same TimeUnit as the input
+   */
   @ScalarFunction
   public static long dateTrunc(String unit, long timeValue, String inputTimeUnit) {
     return dateTrunc(unit, timeValue, inputTimeUnit, ISOChronology.getInstanceUTC(), inputTimeUnit);
@@ -1029,13 +1147,15 @@ public class DateTimeFunctions {
     return results;
   }
 
-  /// The sql compatible date_trunc function for epoch time.
-  ///
-  /// @param unit truncate to unit (millisecond, second, minute, hour, day, week, month, quarter, year)
-  /// @param timeValue value to truncate
-  /// @param inputTimeUnit TimeUnit of value, expressed in Java's joda TimeUnit
-  /// @param timeZone timezone of the input
-  /// @return truncated timeValue in same TimeUnit as the input
+  /**
+   * The sql compatible date_trunc function for epoch time.
+   *
+   * @param unit truncate to unit (millisecond, second, minute, hour, day, week, month, quarter, year)
+   * @param timeValue value to truncate
+   * @param inputTimeUnit TimeUnit of value, expressed in Java's joda TimeUnit
+   * @param timeZone timezone of the input
+   * @return truncated timeValue in same TimeUnit as the input
+   */
   @ScalarFunction
   public static long dateTrunc(String unit, long timeValue, String inputTimeUnit, String timeZone) {
     return dateTrunc(unit, timeValue, inputTimeUnit, DateTimeUtils.getChronology(TimeZoneKey.getTimeZoneKey(timeZone)),
@@ -1051,14 +1171,17 @@ public class DateTimeFunctions {
     return results;
   }
 
-  /// The sql compatible date_trunc function for epoch time.
-  ///
-  /// @param unit truncate to unit (millisecond, second, minute, hour, day, week, month, quarter, year)
-  /// @param timeValue value to truncate
-  /// @param inputTimeUnit TimeUnit of value, expressed in Java's joda TimeUnit
-  /// @param timeZone timezone of the input
-  /// @param outputTimeUnit TimeUnit to convert the output to
-  /// @return truncated timeValue
+  /**
+   * The sql compatible date_trunc function for epoch time.
+   *
+   * @param unit truncate to unit (millisecond, second, minute, hour, day, week, month, quarter, year)
+   * @param timeValue value to truncate
+   * @param inputTimeUnit TimeUnit of value, expressed in Java's joda TimeUnit
+   * @param timeZone timezone of the input
+   * @param outputTimeUnit TimeUnit to convert the output to
+   * @return truncated timeValue
+   *
+   */
   @ScalarFunction
   public static long dateTrunc(String unit, long timeValue, String inputTimeUnit, String timeZone,
       String outputTimeUnit) {
@@ -1083,13 +1206,15 @@ public class DateTimeFunctions {
         TimeUnit.MILLISECONDS);
   }
 
-  /// Aligns a given timestamp to the nearest bin defined by the specified duration string, starting from an origin
-  /// timestamp.
-  ///
-  /// @param binWidthStr The width of each bin in Period format (e.g., "15m" for 15 minutes, "2d" for 2 days).
-  /// @param sourceTimestamp The timestamp to be aligned.
-  /// @param originTimestamp The origin timestamp from which binning starts.
-  /// @return A java.sql.Timestamp aligned to the nearest bin.
+  /**
+   * Aligns a given timestamp to the nearest bin defined by the specified duration string, starting from an origin
+   * timestamp.
+   *
+   * @param binWidthStr The width of each bin in Period format (e.g., "15m" for 15 minutes, "2d" for 2 days).
+   * @param sourceTimestamp The timestamp to be aligned.
+   * @param originTimestamp The origin timestamp from which binning starts.
+   * @return A java.sql.Timestamp aligned to the nearest bin.
+   */
   @ScalarFunction
   public static Timestamp dateBin(String binWidthStr, Timestamp sourceTimestamp, Timestamp originTimestamp) {
     long originMillis = originTimestamp.getTime();
@@ -1100,13 +1225,15 @@ public class DateTimeFunctions {
     return new Timestamp(binnedMillis);
   }
 
-  /// Utility method to aligns a given timestamp in epoch Millis to the nearest bin defined by the specified
-  /// duration string, starting from an origin timestamp in epoch Millis.
-  ///
-  /// @param binWidthStr The width of each bin as an ISO-8601 duration string (e.g., "PT15M" for 15 minutes).
-  /// @param sourceMillisEpoch The source time in epoch millis to be aligned.
-  /// @param originMillisEpoch The origin time in epoch millis from which binning starts.
-  /// @return A java.sql.Timestamp aligned to the nearest bin.
+  /**
+   * Utility method to aligns a given timestamp in epoch Millis to the nearest bin defined by the specified
+   * duration string, starting from an origin timestamp in epoch Millis.
+   *
+   * @param binWidthStr The width of each bin as an ISO-8601 duration string (e.g., "PT15M" for 15 minutes).
+   * @param sourceMillisEpoch The source time in epoch millis to be aligned.
+   * @param originMillisEpoch The origin time in epoch millis from which binning starts.
+   * @return A java.sql.Timestamp aligned to the nearest bin.
+   */
   public static long dateBin(String binWidthStr, long sourceMillisEpoch, long originMillisEpoch) {
     long binWidthMillis = TimeUtils.convertPeriodToMillis(binWidthStr);
     //long binWidthMillis = binWidth.toMillis();
@@ -1117,12 +1244,14 @@ public class DateTimeFunctions {
     return originMillisEpoch + binWidthMillis * binCount;
   }
 
-  /// Add a time period to the provided timestamp.
-  /// e.g. timestampAdd('days', 10, NOW()) will add 10 days to the current timestamp and return the value
-  /// @param unit the timeunit of the period to add. e.g. milliseconds, seconds, days, year
-  /// @param interval value of the period to add.
-  /// @param timestamp
-  /// @return
+  /**
+   * Add a time period to the provided timestamp.
+   * e.g. timestampAdd('days', 10, NOW()) will add 10 days to the current timestamp and return the value
+   * @param unit the timeunit of the period to add. e.g. milliseconds, seconds, days, year
+   * @param interval value of the period to add.
+   * @param timestamp
+   * @return
+   */
   @ScalarFunction(names = {"timestampAdd", "dateAdd"})
   public static long timestampAdd(String unit, long interval, long timestamp) {
     ISOChronology chronology = ISOChronology.getInstanceUTC();
@@ -1139,12 +1268,14 @@ public class DateTimeFunctions {
     return results;
   }
 
-  /// Get difference between two timestamps and return the result in the specified timeunit.
-  /// e.g. timestampDiff('days', ago('10D'), ago('2D')) will return 8 i.e. 8 days
-  /// @param unit
-  /// @param timestamp1
-  /// @param timestamp2
-  /// @return
+  /**
+   * Get difference between two timestamps and return the result in the specified timeunit.
+   * e.g. timestampDiff('days', ago('10D'), ago('2D')) will return 8 i.e. 8 days
+   * @param unit
+   * @param timestamp1
+   * @param timestamp2
+   * @return
+   */
   @ScalarFunction(names = {"timestampDiff", "dateDiff"})
   public static long timestampDiff(String unit, long timestamp1, long timestamp2) {
     ISOChronology chronology = ISOChronology.getInstanceUTC();

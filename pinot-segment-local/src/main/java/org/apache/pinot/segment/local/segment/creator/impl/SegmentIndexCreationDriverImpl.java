@@ -62,7 +62,10 @@ import org.apache.pinot.spi.data.readers.RecordReaderFactory;
 import org.roaringbitmap.RoaringBitmap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-/// Implementation of an index segment creator.
+/**
+ * Implementation of an index segment creator.
+ *
+ */
 // TODO: Check resource leaks
 public class SegmentIndexCreationDriverImpl implements SegmentIndexCreationDriver {
   private static final Logger LOGGER = LoggerFactory.getLogger(SegmentIndexCreationDriverImpl.class);
@@ -145,19 +148,14 @@ public class SegmentIndexCreationDriverImpl implements SegmentIndexCreationDrive
         new TransformPipeline(config.getTableConfig(), config.getSchema()));
   }
 
-  /// Initialize the driver for columnar segment building using a ColumnReaderFactory.
-  /// This method sets up the driver to use column-wise input data access instead of row-wise.
-  ///
-  /// The column-major build this driver currently performs is two-pass — a statistics pass (which
-  /// seals the dictionary) followed by an index pass — so each column's [ColumnReader] is read
-  /// sequentially, `rewind()`ed, and read again. A factory supplied here must therefore return
-  /// readers that support repeated `rewind()` and a full re-read; how it meets that (buffering all
-  /// values, or re-reading a seekable/batch-bounded backing store) is the factory's own choice and sets
-  /// the build's peak memory — this driver does not constrain it.
-  ///
-  /// @param config Segment generator configuration
-  /// @param columnReaderFactory Factory for creating column readers
-  /// @throws Exception if initialization fails
+  /**
+   * Initialize the driver for columnar segment building using a ColumnReaderFactory.
+   * This method sets up the driver to use column-wise input data access instead of row-wise.
+   *
+   * @param config Segment generator configuration
+   * @param columnReaderFactory Factory for creating column readers
+   * @throws Exception if initialization fails
+   */
   public void init(SegmentGeneratorConfig config, ColumnReaderFactory columnReaderFactory)
       throws Exception {
     // Initialize the column reader factory with target schema
@@ -229,11 +227,13 @@ public class SegmentIndexCreationDriverImpl implements SegmentIndexCreationDrive
     LOGGER.debug("tempIndexDir:{}", _tempIndexDir);
   }
 
-  /// Get sorted document IDs from the record reader if it supports this functionality.
-  /// This method handles the fact that getSortedDocIds() was removed from the RecordReader interface
-  /// but is still available on specific implementations.
-  ///
-  /// @return sorted document IDs array, or null if not available
+  /**
+   * Get sorted document IDs from the record reader if it supports this functionality.
+   * This method handles the fact that getSortedDocIds() was removed from the RecordReader interface
+   * but is still available on specific implementations.
+   *
+   * @return sorted document IDs array, or null if not available
+   */
   @Nullable
   private int[] getSortedDocIdsFromRecordReader() {
     if (_recordReader instanceof PinotSegmentRecordReader) {
@@ -426,7 +426,9 @@ public class SegmentIndexCreationDriverImpl implements SegmentIndexCreationDrive
     return _segmentStats.getColumnProfileFor(columnName);
   }
 
-  /// Complete the stats gathering process and store the stats information in indexCreationInfoMap.
+  /**
+   * Complete the stats gathering process and store the stats information in indexCreationInfoMap.
+   */
   void collectStatsAndIndexCreationInfo()
       throws Exception {
     long statsCollectorStartTime = System.nanoTime();
@@ -449,19 +451,25 @@ public class SegmentIndexCreationDriverImpl implements SegmentIndexCreationDrive
     _totalStatsCollectorTimeNs = System.nanoTime() - statsCollectorStartTime;
   }
 
-  /// Returns the name of the segment associated with this index creation driver.
+  /**
+   * Returns the name of the segment associated with this index creation driver.
+   */
   @Override
   public String getSegmentName() {
     return _segmentName;
   }
 
-  /// Returns the path of the output directory
+  /**
+   * Returns the path of the output directory
+   */
   @Override
   public File getOutputDirectory() {
     return new File(new File(_config.getOutDir()), _segmentName);
   }
 
-  /// Returns the schema validator.
+  /**
+   * Returns the schema validator.
+   */
   @Override
   public IngestionSchemaValidator getIngestionSchemaValidator() {
     return _ingestionSchemaValidator;
@@ -483,14 +491,15 @@ public class SegmentIndexCreationDriverImpl implements SegmentIndexCreationDrive
     return _sanitizedRowsFound;
   }
 
-  /// Build segment using columnar approach.
-  /// This method builds the segment by processing data column-wise instead of row-wise.
-  /// Following is not supported:
-  ///
-  /// - recort transformation
-  /// - sorted column change wrt to input data
-  ///
-  ///   @throws Exception if segment building fails
+  /**
+   * Build segment using columnar approach.
+   * This method builds the segment by processing data column-wise instead of row-wise.
+   * Following is not supported:
+   * <li> recort transformation
+   * <li> sorted column change wrt to input data
+   *
+   * @throws Exception if segment building fails
+   */
   private void buildColumnar()
       throws Exception {
     if (!(_dataSource instanceof ColumnarSegmentCreationDataSource)) {
@@ -540,11 +549,6 @@ public class SegmentIndexCreationDriverImpl implements SegmentIndexCreationDrive
 
       LOGGER.info("Finished indexing using columnar approach in IndexCreator!");
       handlePostCreation();
-
-      if (_indexCreator instanceof SegmentColumnarIndexCreator) {
-        // Logged after seal so the final segment name is available; only reads accumulated counters.
-        ((SegmentColumnarIndexCreator) _indexCreator).logColumnMajorBuildPathSummary();
-      }
     } catch (Exception e) {
       try {
         _indexCreator.close();

@@ -40,10 +40,12 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 
-/// Unit tests for the IVF_FLAT vector index implementation.
-///
-/// Tests cover serialization round-trips, search correctness with all distance functions,
-/// k-means training quality, and various edge cases.
+/**
+ * Unit tests for the IVF_FLAT vector index implementation.
+ *
+ * <p>Tests cover serialization round-trips, search correctness with all distance functions,
+ * k-means training quality, and various edge cases.</p>
+ */
 public class IvfFlatVectorIndexTest {
   private static final String COLUMN_NAME = "vectorCol";
   private static final long TEST_SEED = 42L;
@@ -206,8 +208,7 @@ public class IvfFlatVectorIndexTest {
     Assert.assertTrue(indexFile.length() > 0, "Index file should not be empty");
 
     // Read back and verify metadata
-    try (IvfFlatVectorIndexReader reader = new IvfFlatVectorIndexReader(COLUMN_NAME,
-        IvfCombinedBuffers.mapCombined(_tempDir, COLUMN_NAME, config, "test-vector"), config)) {
+    try (IvfFlatVectorIndexReader reader = new IvfFlatVectorIndexReader(COLUMN_NAME, _tempDir, config)) {
       Assert.assertEquals(reader.getDimension(), dimension);
       Assert.assertEquals(reader.getNumVectors(), numVectors);
       Assert.assertEquals(reader.getNlist(), Math.min(nlist, numVectors));
@@ -243,8 +244,7 @@ public class IvfFlatVectorIndexTest {
     File indexFile = new File(_tempDir, COLUMN_NAME + V1Constants.Indexes.VECTOR_IVF_FLAT_INDEX_FILE_EXTENSION);
     Assert.assertTrue(indexFile.exists(), "Index file should exist after quantized seal()");
 
-    try (IvfFlatVectorIndexReader reader = new IvfFlatVectorIndexReader(COLUMN_NAME,
-        IvfCombinedBuffers.mapCombined(_tempDir, COLUMN_NAME, config, "test-vector"), config)) {
+    try (IvfFlatVectorIndexReader reader = new IvfFlatVectorIndexReader(COLUMN_NAME, _tempDir, config)) {
       Assert.assertEquals(reader.getQuantizerType(), quantizerType);
       reader.setNprobe(reader.getNlist());
       ImmutableRoaringBitmap result = reader.getDocIds(vectors[0], 5);
@@ -280,8 +280,7 @@ public class IvfFlatVectorIndexTest {
     }
 
     // Search with nprobe = nlist (exhaustive scan)
-    try (IvfFlatVectorIndexReader reader = new IvfFlatVectorIndexReader(COLUMN_NAME,
-        IvfCombinedBuffers.mapCombined(_tempDir, COLUMN_NAME, config, "test-vector"), config)) {
+    try (IvfFlatVectorIndexReader reader = new IvfFlatVectorIndexReader(COLUMN_NAME, _tempDir, config)) {
       reader.setNprobe(nlist);
       MutableRoaringBitmap result = (MutableRoaringBitmap) reader.getDocIds(query, topK);
       Assert.assertEquals(result.getCardinality(), topK, "Should return exactly topK results");
@@ -322,8 +321,7 @@ public class IvfFlatVectorIndexTest {
       creator.seal();
     }
 
-    try (IvfFlatVectorIndexReader reader = new IvfFlatVectorIndexReader(COLUMN_NAME,
-        IvfCombinedBuffers.mapCombined(_tempDir, COLUMN_NAME, config, "test-vector"), config)) {
+    try (IvfFlatVectorIndexReader reader = new IvfFlatVectorIndexReader(COLUMN_NAME, _tempDir, config)) {
       reader.setNprobe(nlist);
       ImmutableRoaringBitmap onlyExactMatch = reader.getDocIdsWithinApproximateRadius(vectors[0], 0.0f, 10);
       Assert.assertTrue(onlyExactMatch.contains(0), "radius 0 should include the exact vector itself");
@@ -367,8 +365,7 @@ public class IvfFlatVectorIndexTest {
     }
 
     // Search
-    try (IvfFlatVectorIndexReader reader = new IvfFlatVectorIndexReader(COLUMN_NAME,
-        IvfCombinedBuffers.mapCombined(_tempDir, COLUMN_NAME, config, "test-vector"), config)) {
+    try (IvfFlatVectorIndexReader reader = new IvfFlatVectorIndexReader(COLUMN_NAME, _tempDir, config)) {
       // Use full scan for correctness
       reader.setNprobe(nlist);
       MutableRoaringBitmap result = (MutableRoaringBitmap) reader.getDocIds(query, topK);
@@ -406,8 +403,7 @@ public class IvfFlatVectorIndexTest {
     }
 
     // Search with nprobe=1 and nprobe=nlist
-    try (IvfFlatVectorIndexReader reader = new IvfFlatVectorIndexReader(COLUMN_NAME,
-        IvfCombinedBuffers.mapCombined(_tempDir, COLUMN_NAME, config, "test-vector"), config)) {
+    try (IvfFlatVectorIndexReader reader = new IvfFlatVectorIndexReader(COLUMN_NAME, _tempDir, config)) {
       reader.setNprobe(1);
       MutableRoaringBitmap result1 = (MutableRoaringBitmap) reader.getDocIds(query, topK);
 
@@ -440,8 +436,7 @@ public class IvfFlatVectorIndexTest {
       creator.seal();
     }
 
-    try (IvfFlatVectorIndexReader reader = new IvfFlatVectorIndexReader(COLUMN_NAME,
-        IvfCombinedBuffers.mapCombined(_tempDir, COLUMN_NAME, config, "test-vector"), config)) {
+    try (IvfFlatVectorIndexReader reader = new IvfFlatVectorIndexReader(COLUMN_NAME, _tempDir, config)) {
       Assert.assertEquals(reader.getNumVectors(), 1);
       Assert.assertEquals(reader.getNlist(), 1);
 
@@ -470,8 +465,7 @@ public class IvfFlatVectorIndexTest {
       creator.seal();
     }
 
-    try (IvfFlatVectorIndexReader reader = new IvfFlatVectorIndexReader(COLUMN_NAME,
-        IvfCombinedBuffers.mapCombined(_tempDir, COLUMN_NAME, config, "test-vector"), config)) {
+    try (IvfFlatVectorIndexReader reader = new IvfFlatVectorIndexReader(COLUMN_NAME, _tempDir, config)) {
       Assert.assertEquals(reader.getNlist(), 1);
       MutableRoaringBitmap result = (MutableRoaringBitmap) reader.getDocIds(query, topK);
       Assert.assertEquals(result.getCardinality(), topK);
@@ -497,8 +491,7 @@ public class IvfFlatVectorIndexTest {
       creator.seal();
     }
 
-    try (IvfFlatVectorIndexReader reader = new IvfFlatVectorIndexReader(COLUMN_NAME,
-        IvfCombinedBuffers.mapCombined(_tempDir, COLUMN_NAME, config, "test-vector"), config)) {
+    try (IvfFlatVectorIndexReader reader = new IvfFlatVectorIndexReader(COLUMN_NAME, _tempDir, config)) {
       // Setting nprobe > nlist should be clamped
       reader.setNprobe(100);
       Assert.assertEquals(reader.getNprobe(), nlist, "nprobe should be clamped to nlist");
@@ -525,8 +518,7 @@ public class IvfFlatVectorIndexTest {
       creator.seal();
     }
 
-    try (IvfFlatVectorIndexReader reader = new IvfFlatVectorIndexReader(COLUMN_NAME,
-        IvfCombinedBuffers.mapCombined(_tempDir, COLUMN_NAME, config, "test-vector"), config)) {
+    try (IvfFlatVectorIndexReader reader = new IvfFlatVectorIndexReader(COLUMN_NAME, _tempDir, config)) {
       int defaultNprobe = Math.min(4, reader.getNlist());
       Assert.assertEquals(reader.getNprobe(), defaultNprobe);
       reader.setNprobe(1);
@@ -553,8 +545,7 @@ public class IvfFlatVectorIndexTest {
       creator.seal();
     }
 
-    try (IvfFlatVectorIndexReader reader = new IvfFlatVectorIndexReader(COLUMN_NAME,
-        IvfCombinedBuffers.mapCombined(_tempDir, COLUMN_NAME, config, "test-vector"), config)) {
+    try (IvfFlatVectorIndexReader reader = new IvfFlatVectorIndexReader(COLUMN_NAME, _tempDir, config)) {
       int defaultNprobe = reader.getNprobe();
       reader.setNprobe(1);
       Assert.assertEquals(reader.getNprobe(), 1);
@@ -585,8 +576,7 @@ public class IvfFlatVectorIndexTest {
       creator.seal();
     }
 
-    try (IvfFlatVectorIndexReader reader = new IvfFlatVectorIndexReader(COLUMN_NAME,
-        IvfCombinedBuffers.mapCombined(_tempDir, COLUMN_NAME, config, "test-vector"), config)) {
+    try (IvfFlatVectorIndexReader reader = new IvfFlatVectorIndexReader(COLUMN_NAME, _tempDir, config)) {
       Assert.assertEquals(reader.getDimension(), 1);
 
       // Query for value 5.0, should find docId 5 in top-1
@@ -614,8 +604,7 @@ public class IvfFlatVectorIndexTest {
       creator.seal();
     }
 
-    try (IvfFlatVectorIndexReader reader = new IvfFlatVectorIndexReader(COLUMN_NAME,
-        IvfCombinedBuffers.mapCombined(_tempDir, COLUMN_NAME, config, "test-vector"), config)) {
+    try (IvfFlatVectorIndexReader reader = new IvfFlatVectorIndexReader(COLUMN_NAME, _tempDir, config)) {
       reader.setNprobe(nlist);
       // Ask for more results than we have vectors
       MutableRoaringBitmap result = (MutableRoaringBitmap) reader.getDocIds(vectors[0], 100);
@@ -641,8 +630,7 @@ public class IvfFlatVectorIndexTest {
       creator.seal();
     }
 
-    try (IvfFlatVectorIndexReader reader = new IvfFlatVectorIndexReader(COLUMN_NAME,
-        IvfCombinedBuffers.mapCombined(_tempDir, COLUMN_NAME, config, "test-vector"), config)) {
+    try (IvfFlatVectorIndexReader reader = new IvfFlatVectorIndexReader(COLUMN_NAME, _tempDir, config)) {
       // nlist should be clamped to numVectors
       Assert.assertEquals(reader.getNlist(), numVectors,
           "nlist should be clamped to numVectors when nlist > numVectors");
@@ -674,8 +662,7 @@ public class IvfFlatVectorIndexTest {
       creator.seal();
     }
 
-    try (IvfFlatVectorIndexReader reader = new IvfFlatVectorIndexReader(COLUMN_NAME,
-        IvfCombinedBuffers.mapCombined(_tempDir, COLUMN_NAME, config, "test-vector"), config)) {
+    try (IvfFlatVectorIndexReader reader = new IvfFlatVectorIndexReader(COLUMN_NAME, _tempDir, config)) {
       float[][] centroids = reader.getCentroids();
       Assert.assertEquals(centroids.length, nlist);
 
@@ -709,8 +696,7 @@ public class IvfFlatVectorIndexTest {
       creator.seal();
     }
 
-    try (IvfFlatVectorIndexReader reader = new IvfFlatVectorIndexReader(COLUMN_NAME,
-        IvfCombinedBuffers.mapCombined(_tempDir, COLUMN_NAME, config, "test-vector"), config)) {
+    try (IvfFlatVectorIndexReader reader = new IvfFlatVectorIndexReader(COLUMN_NAME, _tempDir, config)) {
       int[][] listDocIds = reader.getListDocIds();
       int totalDocs = 0;
       int minSize = Integer.MAX_VALUE;
@@ -755,8 +741,7 @@ public class IvfFlatVectorIndexTest {
       creator.seal();
     }
 
-    try (IvfFlatVectorIndexReader reader = new IvfFlatVectorIndexReader(COLUMN_NAME,
-        IvfCombinedBuffers.mapCombined(_tempDir, COLUMN_NAME, config, "test-vector"), config)) {
+    try (IvfFlatVectorIndexReader reader = new IvfFlatVectorIndexReader(COLUMN_NAME, _tempDir, config)) {
       reader.setNprobe(8); // Probe 8 out of 32 clusters
 
       float[][] queries = generateRandomVectors(numQueries, dimension, TEST_SEED + 1234);
@@ -826,8 +811,7 @@ public class IvfFlatVectorIndexTest {
       creator.seal();
     }
 
-    try (IvfFlatVectorIndexReader reader = new IvfFlatVectorIndexReader(COLUMN_NAME,
-        IvfCombinedBuffers.mapCombined(_tempDir, COLUMN_NAME, config, "test-vector"), config)) {
+    try (IvfFlatVectorIndexReader reader = new IvfFlatVectorIndexReader(COLUMN_NAME, _tempDir, config)) {
       Assert.assertEquals(reader.getNumVectors(), 0);
       MutableRoaringBitmap result = (MutableRoaringBitmap) reader.getDocIds(new float[]{1, 2, 3, 4}, 5);
       Assert.assertEquals(result.getCardinality(), 0);
@@ -866,7 +850,9 @@ public class IvfFlatVectorIndexTest {
     return vectors;
   }
 
-  /// Brute-force top-K computation for verification.
+  /**
+   * Brute-force top-K computation for verification.
+   */
   private Set<Integer> bruteForceTopK(float[][] vectors, float[] query, int topK,
       VectorIndexConfig.VectorDistanceFunction distanceFunction) {
     int numVectors = vectors.length;

@@ -26,7 +26,9 @@ import org.apache.pinot.spi.utils.ByteArray;
 import org.apache.pinot.spi.utils.BytesUtils;
 
 
-/// Extension of [BaseImmutableDictionary] that implements immutable dictionary for byte\[\] type.
+/**
+ * Extension of {@link BaseImmutableDictionary} that implements immutable dictionary for byte[] type.
+ */
 public class BytesDictionary extends BaseImmutableDictionary {
 
   public BytesDictionary(PinotDataBuffer dataBuffer, int length, int numBytesPerValue) {

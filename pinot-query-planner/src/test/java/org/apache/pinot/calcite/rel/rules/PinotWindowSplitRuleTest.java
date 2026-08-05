@@ -21,6 +21,7 @@ package org.apache.pinot.calcite.rel.rules;
 import com.google.common.collect.ImmutableList;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import org.apache.calcite.plan.RelOptCluster;
 import org.apache.calcite.plan.RelOptRuleCall;
@@ -166,7 +167,7 @@ public class PinotWindowSplitRuleTest {
         RexWindowBounds.UNBOUNDED_FOLLOWING,
         RexWindowExclusion.EXCLUDE_NO_OTHER,
         RelCollations.EMPTY,
-        List.of()
+        Collections.emptyList()
     );
 
     // Apply the shifter
@@ -230,7 +231,7 @@ public class PinotWindowSplitRuleTest {
 
     List<Window.Group> groups = createWindowGroups(numGroups);
 
-    List<RexLiteral> constants = List.of();
+    List<RexLiteral> constants = Collections.emptyList();
     return LogicalWindow.create(RelTraitSet.createEmpty(), _input, constants, intType, groups);
   }
 
@@ -269,7 +270,7 @@ public class PinotWindowSplitRuleTest {
     RelDataType inputRowType = TYPE_FACTORY.createStructType(inputFields);
     LogicalProject inputProject = LogicalProject.create(
         LogicalValues.create(cluster, inputRowType, ImmutableList.of()),
-        List.of(),
+        Collections.emptyList(),
         List.of(inputRef),
         inputRowType
     );
@@ -278,16 +279,16 @@ public class PinotWindowSplitRuleTest {
 
     // Create real window groups
     List<Window.Group> groups = createWindowGroups(numGroups);
-    List<RexLiteral> constants = List.of();
+    List<RexLiteral> constants = Collections.emptyList();
 
     // Create real struct row type for the window
     List<RelDataTypeField> windowFields = new ArrayList<>(inputFields);
     for (int i = 0; i < groups.size(); i++) {
       final int aggIdx = i;
       windowFields.add(new RelDataTypeFieldImpl(
-          "agg_field" + aggIdx,
-          inputFields.size() + aggIdx,
-          intType
+        "agg_field" + aggIdx,
+        inputFields.size() + aggIdx,
+        intType
       ));
     }
     RelDataType windowRowType = TYPE_FACTORY.createStructType(windowFields);
@@ -300,9 +301,9 @@ public class PinotWindowSplitRuleTest {
     List<RelDataTypeField> fields = new ArrayList<>();
     for (int i = 0; i < count; i++) {
       fields.add(new RelDataTypeFieldImpl(
-          "field" + i,
-          i,
-          TYPE_FACTORY.createSqlType(SqlTypeName.INTEGER)
+        "field" + i,
+        i,
+        TYPE_FACTORY.createSqlType(SqlTypeName.INTEGER)
       ));
     }
     return fields;

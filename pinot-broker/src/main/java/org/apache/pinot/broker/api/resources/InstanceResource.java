@@ -26,6 +26,7 @@ import io.swagger.annotations.ApiResponses;
 import io.swagger.annotations.Authorization;
 import io.swagger.annotations.SecurityDefinition;
 import io.swagger.annotations.SwaggerDefinition;
+import java.util.Collections;
 import java.util.List;
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -45,7 +46,9 @@ import org.apache.pinot.core.auth.TargetType;
 import static org.apache.pinot.spi.utils.CommonConstants.SWAGGER_AUTHORIZATION_KEY;
 
 
-/// This resource API can be used to retrieve instance level information like instance tags.
+/**
+ * This resource API can be used to retrieve instance level information like instance tags.
+ */
 @Api(tags = "Instance", authorizations = {@Authorization(value = SWAGGER_AUTHORIZATION_KEY)})
 @SwaggerDefinition(securityDefinition = @SecurityDefinition(apiKeyAuthDefinitions = @ApiKeyAuthDefinition(name =
     HttpHeaders.AUTHORIZATION, in = ApiKeyAuthDefinition.ApiKeyLocation.HEADER, key = SWAGGER_AUTHORIZATION_KEY,
@@ -74,6 +77,6 @@ public class InstanceResource {
     if (config != null && config.getTags() != null) {
       return config.getTags();
     }
-    return List.of();
+    return Collections.emptyList();
   }
 }

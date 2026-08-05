@@ -191,9 +191,7 @@ const getAllInstances = () => {
 
     data.instances.forEach((instance) => {
       const instanceType =  instance.split('_')[0].toUpperCase();
-      if (instanceTypeToInstancesMap[instanceType]) {
-        instanceTypeToInstancesMap[instanceType].push(instance);
-      }
+      instanceTypeToInstancesMap[instanceType].push(instance);
     });
 
     return instanceTypeToInstancesMap;

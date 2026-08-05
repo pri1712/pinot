@@ -25,8 +25,10 @@ import org.apache.pinot.segment.spi.compression.ChunkCompressionType;
 import org.apache.pinot.segment.spi.compression.ChunkCompressor;
 
 
-/// Implementation of [ChunkCompressor] using delta compression with LZ4.
-/// The delta values are further compressed using LZ4.
+/**
+ * Implementation of {@link ChunkCompressor} using delta compression with LZ4.
+ * The delta values are further compressed using LZ4.
+ */
 class DeltaCompressor implements ChunkCompressor {
 
   static final DeltaCompressor INSTANCE = new DeltaCompressor();

@@ -33,7 +33,9 @@ import org.apache.pinot.segment.spi.memory.PinotDataBuffer;
 import static java.nio.charset.StandardCharsets.UTF_8;
 
 
-/// Base implementation of immutable dictionary.
+/**
+ * Base implementation of immutable dictionary.
+ */
 @SuppressWarnings("rawtypes")
 public abstract class BaseImmutableDictionary implements Dictionary {
   private final ValueReader _valueReader;
@@ -55,7 +57,9 @@ public abstract class BaseImmutableDictionary implements Dictionary {
     _numBytesPerValue = numBytesPerValue;
   }
 
-  /// For virtual dictionary.
+  /**
+   * For virtual dictionary.
+   */
   protected BaseImmutableDictionary(int length) {
     _valueReader = null;
     _length = length;

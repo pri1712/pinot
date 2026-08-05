@@ -22,6 +22,7 @@ import com.google.common.base.Preconditions;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -35,7 +36,7 @@ import org.apache.pinot.tools.admin.command.QuickstartRunner;
 public class HybridQuickstart extends Quickstart {
   @Override
   public List<String> types() {
-    return List.of("HYBRID");
+    return Collections.singletonList("HYBRID");
   }
 
   public static void main(String[] args)

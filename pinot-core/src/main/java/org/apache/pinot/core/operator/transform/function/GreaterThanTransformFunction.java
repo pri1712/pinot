@@ -21,20 +21,23 @@ package org.apache.pinot.core.operator.transform.function;
 import org.apache.pinot.common.function.TransformFunctionType;
 
 
-/// The `GREATER_THAN` extends `BinaryOperatorTransformFunction` to implement the binary
-/// operator(>).
-///
-/// The results are in boolean format and stored as an integer array with 1 represents true and 0 represents false.
-///
-/// SQL Syntax:
-///    columnA > 12
-///    columnA > 12.0
-///    columnA > 'fooBar'
-///
-/// Sample Usage:
-///    GREATER_THAN(columnA, 12)
-///    GREATER_THAN(columnA, 12.0)
-///    GREATER_THAN(columnA, 'fooBar')
+/**
+ * The <code>GREATER_THAN</code> extends <code>BinaryOperatorTransformFunction</code> to implement the binary
+ * operator(>).
+ *
+ * The results are in boolean format and stored as an integer array with 1 represents true and 0 represents false.
+ *
+ * SQL Syntax:
+ *    columnA > 12
+ *    columnA > 12.0
+ *    columnA > 'fooBar'
+ *
+ * Sample Usage:
+ *    GREATER_THAN(columnA, 12)
+ *    GREATER_THAN(columnA, 12.0)
+ *    GREATER_THAN(columnA, 'fooBar')
+ *
+ */
 public class GreaterThanTransformFunction extends BinaryOperatorTransformFunction {
 
   public GreaterThanTransformFunction() {

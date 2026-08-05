@@ -19,6 +19,7 @@
 package org.apache.pinot.broker.routing.segmentpreselector;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
@@ -44,7 +45,7 @@ public class SegmentPreSelectorTest {
     ZkHelixPropertyStore<ZNRecord> propertyStore = new FakePropertyStore();
     String offlineTableName = "testTable_OFFLINE";
     ExternalView externalView = new ExternalView(offlineTableName);
-    Map<String, String> onlineInstanceStateMap = Map.of("server", ONLINE);
+    Map<String, String> onlineInstanceStateMap = Collections.singletonMap("server", ONLINE);
     Set<String> onlineSegments = new HashSet<>();
 
     int numOfflineSegments = 5;

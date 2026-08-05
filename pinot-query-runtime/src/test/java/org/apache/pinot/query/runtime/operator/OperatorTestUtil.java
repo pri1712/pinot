@@ -19,6 +19,7 @@
 package org.apache.pinot.query.runtime.operator;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import org.apache.pinot.common.datatable.StatMap;
@@ -48,8 +49,8 @@ import static org.mockito.Mockito.when;
 public class OperatorTestUtil {
   // simple key-value collision schema/data test set: "Aa" and "BB" have same hash code in java.
   private static final List<List<Object[]>> SIMPLE_KV_DATA_ROWS = List.of(
-      List.<Object[]>of(new Object[]{1, "Aa"}, new Object[]{2, "BB"}, new Object[]{3, "BB"}),
-      List.<Object[]>of(new Object[]{1, "AA"}, new Object[]{2, "Aa"})
+      List.of(new Object[]{1, "Aa"}, new Object[]{2, "BB"}, new Object[]{3, "BB"}),
+      List.of(new Object[]{1, "AA"}, new Object[]{2, "Aa"})
   );
   private static final MockDataBlockOperatorFactory MOCK_OPERATOR_FACTORY;
 
@@ -92,7 +93,7 @@ public class OperatorTestUtil {
   }
 
   public static ReceivingMailbox.MseBlockWithStats errorWithEmptyStats(Exception e) {
-    return new ReceivingMailbox.MseBlockWithStats(ErrorMseBlock.fromException(e), List.of());
+    return new ReceivingMailbox.MseBlockWithStats(ErrorMseBlock.fromException(e), Collections.emptyList());
   }
 
   public static ReceivingMailbox.MseBlockWithStats errorWithStats(Exception e, List<DataBuffer> serializedStats) {
@@ -100,7 +101,7 @@ public class OperatorTestUtil {
   }
 
   public static ReceivingMailbox.MseBlockWithStats eosWithEmptyStats() {
-    return new ReceivingMailbox.MseBlockWithStats(SuccessMseBlock.INSTANCE, List.of());
+    return new ReceivingMailbox.MseBlockWithStats(SuccessMseBlock.INSTANCE, Collections.emptyList());
   }
 
   public static ReceivingMailbox.MseBlockWithStats eosWithStats(List<DataBuffer> serializedStats) {
@@ -140,7 +141,9 @@ public class OperatorTestUtil {
     return opChainExecutionContext;
   }
 
-  /// Verifies that the last operator stats in the current stage stats is of the given key class and returns it.
+  /**
+   * Verifies that the last operator stats in the current stage stats is of the given key class and returns it.
+   */
   public static <K extends Enum<K> & StatMap.Key> StatMap<K> getStatMap(Class<K> keyClass, MultiStageQueryStats stats) {
     MultiStageQueryStats.StageStats stageStats = stats.getCurrentStats();
     Assert.assertEquals(stageStats.getLastOperatorStats().getKeyClass(), keyClass,

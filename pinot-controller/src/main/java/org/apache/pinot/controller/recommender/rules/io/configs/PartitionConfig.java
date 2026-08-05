@@ -25,7 +25,9 @@ import static org.apache.pinot.controller.recommender.rules.io.params.Recommende
 import static org.apache.pinot.controller.recommender.rules.io.params.RecommenderConstants.PartitionRule.DEFAULT_NUM_PARTITIONS;
 
 
-/// The output format of kafka partition and pinot table partition recommendation
+/**
+ * The output format of kafka partition and pinot table partition recommendation
+ */
 public class PartitionConfig {
   String _partitionDimension;
   int _numKafkaPartitions;

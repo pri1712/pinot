@@ -30,9 +30,11 @@ import org.testng.Assert;
 import org.testng.annotations.Test;
 
 
-/// Unit tests for TableConfigs serialization with @JsonValue annotation.
-/// These tests verify that Jackson serialization uses the toJsonObject() method
-/// which produces a minimal, canonical JSON format.
+/**
+ * Unit tests for TableConfigs serialization with @JsonValue annotation.
+ * These tests verify that Jackson serialization uses the toJsonObject() method
+ * which produces a minimal, canonical JSON format.
+ */
 public class TableConfigsSerializationTest {
 
   private static final String TEST_TABLE_NAME = "testTable";
@@ -66,7 +68,9 @@ public class TableConfigsSerializationTest {
         .build();
   }
 
-  /// Tests that TableConfigs serialization uses toJsonObject() format via @JsonValue.
+  /**
+   * Tests that TableConfigs serialization uses toJsonObject() format via @JsonValue.
+   */
   @Test
   public void testTableConfigsSerializationUsesToJsonObject()
       throws Exception {
@@ -88,7 +92,9 @@ public class TableConfigsSerializationTest {
     Assert.assertFalse(jsonNode.has("realtime"), "realtime should not be present when null");
   }
 
-  /// Tests that the embedded Schema in TableConfigs uses toJsonObject() format.
+  /**
+   * Tests that the embedded Schema in TableConfigs uses toJsonObject() format.
+   */
   @Test
   public void testTableConfigsSchemaSerializationFormat()
       throws Exception {
@@ -130,7 +136,9 @@ public class TableConfigsSerializationTest {
         "singleValueField should be omitted when true (default)");
   }
 
-  /// Tests that TableConfigs with both offline and realtime configs serializes correctly.
+  /**
+   * Tests that TableConfigs with both offline and realtime configs serializes correctly.
+   */
   @Test
   public void testTableConfigsWithBothTableTypes()
       throws Exception {
@@ -157,7 +165,9 @@ public class TableConfigsSerializationTest {
     Assert.assertEquals(realtimeNode.get("tableType").asText(), "REALTIME");
   }
 
-  /// Tests that Jackson serialization output matches toJsonObject() output.
+  /**
+   * Tests that Jackson serialization output matches toJsonObject() output.
+   */
   @Test
   public void testJacksonSerializationMatchesToJsonObject()
       throws Exception {
@@ -178,7 +188,9 @@ public class TableConfigsSerializationTest {
         "Jackson serialization should match toJsonObject() output");
   }
 
-  /// Tests round-trip serialization/deserialization of TableConfigs.
+  /**
+   * Tests round-trip serialization/deserialization of TableConfigs.
+   */
   @Test
   public void testRoundTripSerialization()
       throws Exception {
@@ -206,8 +218,10 @@ public class TableConfigsSerializationTest {
     Assert.assertNotNull(deserialized.getSchema().getDateTimeSpec("ts"));
   }
 
-  /// Tests that a fresh ObjectMapper produces the same serialization.
-  /// This verifies that @JsonValue works with any ObjectMapper.
+  /**
+   * Tests that a fresh ObjectMapper produces the same serialization.
+   * This verifies that @JsonValue works with any ObjectMapper.
+   */
   @Test
   public void testJsonValueWorksWithFreshObjectMapper()
       throws Exception {
@@ -231,7 +245,9 @@ public class TableConfigsSerializationTest {
     Assert.assertTrue(jsonNode.has("offline"));
   }
 
-  /// Tests that toJsonString() and Jackson serialization produce the same result.
+  /**
+   * Tests that toJsonString() and Jackson serialization produce the same result.
+   */
   @Test
   public void testToJsonStringMatchesJacksonSerialization()
       throws Exception {
@@ -254,7 +270,9 @@ public class TableConfigsSerializationTest {
         "toJsonString() and Jackson serialization should produce equivalent JSON");
   }
 
-  /// Tests serialization with realtime-only TableConfigs.
+  /**
+   * Tests serialization with realtime-only TableConfigs.
+   */
   @Test
   public void testRealtimeOnlyTableConfigs()
       throws Exception {

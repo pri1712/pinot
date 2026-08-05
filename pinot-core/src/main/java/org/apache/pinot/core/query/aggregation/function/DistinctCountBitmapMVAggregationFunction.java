@@ -27,9 +27,11 @@ import org.apache.pinot.core.query.aggregation.groupby.GroupByResultHolder;
 import org.apache.pinot.segment.spi.AggregationFunctionType;
 
 
-/// The `DistinctCountBitmapMVAggregationFunction` calculates the number of distinct values for a given
-/// multi-value expression using RoaringBitmap. The bitmap stores the actual values for `INT` expression, or
-/// hash code of the values for other data types (values with the same hash code will only be counted once).
+/**
+ * The {@code DistinctCountBitmapMVAggregationFunction} calculates the number of distinct values for a given multi-value
+ * expression using RoaringBitmap. The bitmap stores the actual values for {@code INT} expression, or hash code of the
+ * values for other data types (values with the same hash code will only be counted once).
+ */
 public class DistinctCountBitmapMVAggregationFunction extends DistinctCountBitmapAggregationFunction {
 
   public DistinctCountBitmapMVAggregationFunction(List<ExpressionContext> arguments) {

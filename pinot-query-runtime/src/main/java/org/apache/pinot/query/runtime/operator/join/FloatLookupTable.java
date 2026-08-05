@@ -25,7 +25,9 @@ import java.util.Set;
 import javax.annotation.Nullable;
 
 
-/// The `FloatLookupTable` is a lookup table for float keys.
+/**
+ * The {@code FloatLookupTable} is a lookup table for float keys.
+ */
 @SuppressWarnings("unchecked")
 public class FloatLookupTable extends PrimitiveLookupTable {
   private final Float2ObjectOpenHashMap<Object> _lookupTable = new Float2ObjectOpenHashMap<>(INITIAL_CAPACITY);

@@ -21,7 +21,9 @@ package org.apache.pinot.common.response.server;
 import org.apache.pinot.spi.annotations.InterfaceStability;
 
 
-/// DTO representing a single segment reload failure.
+/**
+ * DTO representing a single segment reload failure.
+ */
 @InterfaceStability.Unstable
 public class SegmentReloadFailureResponse {
   private String _segmentName;

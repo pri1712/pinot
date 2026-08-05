@@ -40,7 +40,9 @@ import org.apache.pinot.spi.environmentprovider.PinotEnvironmentProvider;
 import org.apache.pinot.spi.utils.JsonUtils;
 
 
-/// Azure Environment Provider used to retrieve azure cloud specific instance configuration.
+/**
+ * Azure Environment Provider used to retrieve azure cloud specific instance configuration.
+ */
 public class AzureEnvironmentProvider implements PinotEnvironmentProvider {
 
   protected static final String MAX_RETRY = "maxRetry";
@@ -89,9 +91,12 @@ public class AzureEnvironmentProvider implements PinotEnvironmentProvider {
         "[AzureEnvironmentProvider]: Closeable Http Client cannot be null");
   }
 
-  /// Utility used to query the azure instance metadata service (Azure IMDS) to fetch the failure domain information,
-  /// used at HelixServerStarter startup to update the instance configs.
-  /// @return failure domain information
+  /**
+   *
+   * Utility used to query the azure instance metadata service (Azure IMDS) to fetch the failure domain information,
+   * used at HelixServerStarter startup to update the instance configs.
+   * @return failure domain information
+   */
   @VisibleForTesting
   @Override
   public String getFailureDomain() {

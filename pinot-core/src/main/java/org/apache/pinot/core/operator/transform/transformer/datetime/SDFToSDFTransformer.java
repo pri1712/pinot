@@ -24,8 +24,10 @@ import org.apache.pinot.spi.data.DateTimeGranularitySpec;
 import org.joda.time.DateTimeZone;
 
 
-/// Date time transformer to transform and bucket date time values from a simple date format to another simple date
-/// format.
+/**
+ * Date time transformer to transform and bucket date time values from a simple date format to another simple date
+ * format.
+ */
 public class SDFToSDFTransformer extends BaseDateTimeTransformer<String[], String[]> {
 
   public SDFToSDFTransformer(DateTimeFormatSpec inputFormat, DateTimeFormatSpec outputFormat,

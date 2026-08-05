@@ -18,6 +18,7 @@
  */
 package org.apache.pinot.query.runtime.operator;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import org.apache.pinot.common.request.context.ExpressionContext;
@@ -31,8 +32,10 @@ import org.apache.pinot.query.runtime.operator.utils.TypeUtils;
 import org.roaringbitmap.RoaringBitmap;
 
 
-/// Class that executes all non-keyed aggregation functions (when there are no group by keys) for the multistage
-/// AggregateOperator.
+/**
+ * Class that executes all non-keyed aggregation functions (when there are no group by keys) for the multistage
+ * AggregateOperator.
+ */
 @SuppressWarnings({"rawtypes", "unchecked"})
 public class MultistageAggregationExecutor {
   private final AggregationFunction[] _aggFunctions;
@@ -66,7 +69,9 @@ public class MultistageAggregationExecutor {
     }
   }
 
-  /// Performs aggregation for the data in the block.
+  /**
+   * Performs aggregation for the data in the block.
+   */
   public void processBlock(MseBlock.Data block) {
     if (!_aggType.isInputIntermediateFormat()) {
       processAggregate(block);
@@ -75,7 +80,9 @@ public class MultistageAggregationExecutor {
     }
   }
 
-  /// Fetches the result.
+  /**
+   * Fetches the result.
+   */
   public List<Object[]> getResult() {
     Object[] row = new Object[_aggFunctions.length];
     for (int i = 0; i < _aggFunctions.length; i++) {
@@ -102,7 +109,7 @@ public class MultistageAggregationExecutor {
     }
     // Convert the results from AggregationFunction to the desired type
     TypeUtils.convertRow(row, _resultSchema.getStoredColumnDataTypes());
-    return List.<Object[]>of(row);
+    return Collections.singletonList(row);
   }
 
   private void processAggregate(MseBlock.Data block) {

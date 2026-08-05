@@ -49,7 +49,9 @@ public class BasicAuthAccessFactory implements AccessControlFactory {
     return _accessControl;
   }
 
-  /// Access Control using metadata-based basic grpc authentication
+  /**
+   * Access Control using metadata-based basic grpc authentication
+   */
   private static class BasicAuthAccessControl implements AccessControl {
     private final Map<String, BasicAuthPrincipal> _token2principal;
 

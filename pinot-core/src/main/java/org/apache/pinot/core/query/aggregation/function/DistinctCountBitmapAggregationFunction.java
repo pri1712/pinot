@@ -38,9 +38,11 @@ import org.roaringbitmap.PeekableIntIterator;
 import org.roaringbitmap.RoaringBitmap;
 
 
-/// The `DistinctCountBitmapAggregationFunction` calculates the number of distinct values for a given single-value
-/// expression using RoaringBitmap. The bitmap stores the actual values for `INT` expression, or hash code of the
-/// values for other data types (values with the same hash code will only be counted once).
+/**
+ * The {@code DistinctCountBitmapAggregationFunction} calculates the number of distinct values for a given single-value
+ * expression using RoaringBitmap. The bitmap stores the actual values for {@code INT} expression, or hash code of the
+ * values for other data types (values with the same hash code will only be counted once).
+ */
 public class DistinctCountBitmapAggregationFunction extends BaseSingleInputAggregationFunction<RoaringBitmap, Integer> {
 
   public DistinctCountBitmapAggregationFunction(List<ExpressionContext> arguments) {
@@ -100,7 +102,7 @@ public class DistinctCountBitmapAggregationFunction extends BaseSingleInputAggre
   protected void aggregateSV(int length, AggregationResultHolder aggregationResultHolder, BlockValSet blockValSet,
       DataType storedType) {
     // For dictionary-encoded expression, store dictionary ids into the bitmap
-    Dictionary dictionary = blockValSet.isDictionaryEncoded() ? blockValSet.getDictionary() : null;
+    Dictionary dictionary = blockValSet.getDictionary();
     if (dictionary != null) {
       int[] dictIds = blockValSet.getDictionaryIdsSV();
       getDictIdBitmap(aggregationResultHolder, dictionary).addN(dictIds, 0, length);
@@ -147,7 +149,7 @@ public class DistinctCountBitmapAggregationFunction extends BaseSingleInputAggre
   protected void aggregateMV(int length, AggregationResultHolder aggregationResultHolder, BlockValSet blockValSet,
       DataType storedType) {
     // For dictionary-encoded expression, store dictionary ids into the bitmap
-    Dictionary dictionary = blockValSet.isDictionaryEncoded() ? blockValSet.getDictionary() : null;
+    Dictionary dictionary = blockValSet.getDictionary();
     if (dictionary != null) {
       RoaringBitmap dictIdBitmap = getDictIdBitmap(aggregationResultHolder, dictionary);
       int[][] dictIds = blockValSet.getDictionaryIdsMV();
@@ -236,7 +238,7 @@ public class DistinctCountBitmapAggregationFunction extends BaseSingleInputAggre
   protected void aggregateSVGroupBySV(int length, int[] groupKeyArray, GroupByResultHolder groupByResultHolder,
       BlockValSet blockValSet, DataType storedType) {
     // For dictionary-encoded expression, store dictionary ids into the bitmap
-    Dictionary dictionary = blockValSet.isDictionaryEncoded() ? blockValSet.getDictionary() : null;
+    Dictionary dictionary = blockValSet.getDictionary();
     if (dictionary != null) {
       int[] dictIds = blockValSet.getDictionaryIdsSV();
       for (int i = 0; i < length; i++) {
@@ -286,7 +288,7 @@ public class DistinctCountBitmapAggregationFunction extends BaseSingleInputAggre
   protected void aggregateMVGroupBySV(int length, int[] groupKeyArray, GroupByResultHolder groupByResultHolder,
       BlockValSet blockValSet, DataType storedType) {
     // For dictionary-encoded expression, store dictionary ids into the bitmap
-    Dictionary dictionary = blockValSet.isDictionaryEncoded() ? blockValSet.getDictionary() : null;
+    Dictionary dictionary = blockValSet.getDictionary();
     if (dictionary != null) {
       int[][] dictIds = blockValSet.getDictionaryIdsMV();
       for (int i = 0; i < length; i++) {
@@ -379,7 +381,7 @@ public class DistinctCountBitmapAggregationFunction extends BaseSingleInputAggre
   protected void aggregateSVGroupByMV(int length, int[][] groupKeysArray, GroupByResultHolder groupByResultHolder,
       BlockValSet blockValSet, DataType storedType) {
     // For dictionary-encoded expression, store dictionary ids into the bitmap
-    Dictionary dictionary = blockValSet.isDictionaryEncoded() ? blockValSet.getDictionary() : null;
+    Dictionary dictionary = blockValSet.getDictionary();
     if (dictionary != null) {
       int[] dictIds = blockValSet.getDictionaryIdsSV();
       for (int i = 0; i < length; i++) {
@@ -429,7 +431,7 @@ public class DistinctCountBitmapAggregationFunction extends BaseSingleInputAggre
   protected void aggregateMVGroupByMV(int length, int[][] groupKeysArray, GroupByResultHolder groupByResultHolder,
       BlockValSet blockValSet, DataType storedType) {
     // For dictionary-encoded expression, store dictionary ids into the bitmap
-    Dictionary dictionary = blockValSet.isDictionaryEncoded() ? blockValSet.getDictionary() : null;
+    Dictionary dictionary = blockValSet.getDictionary();
     if (dictionary != null) {
       int[][] dictIds = blockValSet.getDictionaryIdsMV();
       for (int i = 0; i < length; i++) {
@@ -570,7 +572,9 @@ public class DistinctCountBitmapAggregationFunction extends BaseSingleInputAggre
     return finalResult1 + finalResult2;
   }
 
-  /// Returns the dictionary id bitmap from the result holder or creates a new one if it does not exist.
+  /**
+   * Returns the dictionary id bitmap from the result holder or creates a new one if it does not exist.
+   */
   protected static RoaringBitmap getDictIdBitmap(AggregationResultHolder aggregationResultHolder,
       Dictionary dictionary) {
     DictIdsWrapper dictIdsWrapper = aggregationResultHolder.getResult();
@@ -581,7 +585,9 @@ public class DistinctCountBitmapAggregationFunction extends BaseSingleInputAggre
     return dictIdsWrapper._dictIdBitmap;
   }
 
-  /// Returns the value bitmap from the result holder or creates a new one if it does not exist.
+  /**
+   * Returns the value bitmap from the result holder or creates a new one if it does not exist.
+   */
   protected static RoaringBitmap getValueBitmap(AggregationResultHolder aggregationResultHolder) {
     RoaringBitmap bitmap = aggregationResultHolder.getResult();
     if (bitmap == null) {
@@ -591,7 +597,9 @@ public class DistinctCountBitmapAggregationFunction extends BaseSingleInputAggre
     return bitmap;
   }
 
-  /// Returns the dictionary id bitmap for the given group key or creates a new one if it does not exist.
+  /**
+   * Returns the dictionary id bitmap for the given group key or creates a new one if it does not exist.
+   */
   protected static RoaringBitmap getDictIdBitmap(GroupByResultHolder groupByResultHolder, int groupKey,
       Dictionary dictionary) {
     DictIdsWrapper dictIdsWrapper = groupByResultHolder.getResult(groupKey);
@@ -602,7 +610,9 @@ public class DistinctCountBitmapAggregationFunction extends BaseSingleInputAggre
     return dictIdsWrapper._dictIdBitmap;
   }
 
-  /// Returns the value bitmap for the given group key or creates a new one if it does not exist.
+  /**
+   * Returns the value bitmap for the given group key or creates a new one if it does not exist.
+   */
   protected static RoaringBitmap getValueBitmap(GroupByResultHolder groupByResultHolder, int groupKey) {
     RoaringBitmap bitmap = groupByResultHolder.getResult(groupKey);
     if (bitmap == null) {
@@ -612,7 +622,9 @@ public class DistinctCountBitmapAggregationFunction extends BaseSingleInputAggre
     return bitmap;
   }
 
-  /// Helper method to set dictionary id for the given group keys into the result holder.
+  /**
+   * Helper method to set dictionary id for the given group keys into the result holder.
+   */
   private static void setDictIdForGroupKeys(GroupByResultHolder groupByResultHolder, int[] groupKeys,
       Dictionary dictionary, int dictId) {
     for (int groupKey : groupKeys) {
@@ -620,15 +632,19 @@ public class DistinctCountBitmapAggregationFunction extends BaseSingleInputAggre
     }
   }
 
-  /// Helper method to set value for the given group keys into the result holder.
+  /**
+   * Helper method to set value for the given group keys into the result holder.
+   */
   private void setValueForGroupKeys(GroupByResultHolder groupByResultHolder, int[] groupKeys, int value) {
     for (int groupKey : groupKeys) {
       getValueBitmap(groupByResultHolder, groupKey).add(value);
     }
   }
 
-  /// Helper method to read dictionary and convert dictionary ids to hash code of the values for dictionary-encoded
-  /// expression.
+  /**
+   * Helper method to read dictionary and convert dictionary ids to hash code of the values for dictionary-encoded
+   * expression.
+   */
   private static RoaringBitmap convertToValueBitmap(DictIdsWrapper dictIdsWrapper) {
     Dictionary dictionary = dictIdsWrapper._dictionary;
     RoaringBitmap dictIdBitmap = dictIdsWrapper._dictIdBitmap;

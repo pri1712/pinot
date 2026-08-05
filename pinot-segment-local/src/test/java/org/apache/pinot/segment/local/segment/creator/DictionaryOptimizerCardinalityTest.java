@@ -22,6 +22,7 @@ package org.apache.pinot.segment.local.segment.creator;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.Collections;
 import java.util.List;
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
@@ -115,7 +116,7 @@ public class DictionaryOptimizerCardinalityTest implements PinotBuffersAfterClas
             .collect(Collectors.toList());
 
     List<FieldConfig> fieldConfigList = stringColumns.stream().map(
-            x -> new FieldConfig(x.getName(), FieldConfig.EncodingType.DICTIONARY, List.of(), null, null))
+            x -> new FieldConfig(x.getName(), FieldConfig.EncodingType.DICTIONARY, Collections.emptyList(), null, null))
         .collect(Collectors.toList());
 
     SegmentGeneratorConfig segmentGenSpec =

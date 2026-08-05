@@ -21,7 +21,10 @@ package org.apache.pinot.common.metrics;
 import org.apache.pinot.common.Utils;
 
 
-/// Enumeration containing all the query phases executed by the Pinot broker.
+/**
+ * Enumeration containing all the query phases executed by the Pinot broker.
+ *
+ */
 public enum BrokerQueryPhase implements AbstractMetrics.QueryPhase {
   REQUEST_COMPILATION,
   QUERY_EXECUTION,

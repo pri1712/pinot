@@ -48,8 +48,10 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 
-/// Test demonstrating automatic JSON to MAP conversion using TransformConfig.
-/// This approach applies transformations during record processing without explicit UDF calls.
+/**
+ * Test demonstrating automatic JSON to MAP conversion using TransformConfig.
+ * This approach applies transformations during record processing without explicit UDF calls.
+ */
 public class ParquetMapUDFTest {
   private File _tempDir;
   private File _parquetFile;
@@ -71,7 +73,9 @@ public class ParquetMapUDFTest {
     }
   }
 
-  /// Generates a test parquet file with sample event data including JSON strings.
+  /**
+   * Generates a test parquet file with sample event data including JSON strings.
+   */
   private void generateTestParquetFile() throws IOException {
     // Define Avro schema for the parquet file
     org.apache.avro.Schema avroSchema = org.apache.avro.SchemaBuilder.record("Event")
@@ -108,13 +112,15 @@ public class ParquetMapUDFTest {
     }
   }
 
-  /// Demonstrates how to use TransformConfig with stringToMap() function.
-  /// stringToMap() converts a STRING column (containing JSON) into a MAP data type.
-  /// The MAP values are kept as OBJECT type, allowing the schema to handle different value types.
-  ///
-  /// Example:
-  ///   Input (STRING): "{\"user_id\": \"user_1\", \"action\": \"click\", \"count\": 5}"
-  ///   Output (MAP): Map with entries {user_id -> "user_1", action -> "click", count -> 5}
+  /**
+   * Demonstrates how to use TransformConfig with stringToMap() function.
+   * stringToMap() converts a STRING column (containing JSON) into a MAP data type.
+   * The MAP values are kept as OBJECT type, allowing the schema to handle different value types.
+   *
+   * Example:
+   *   Input (STRING): "{\"user_id\": \"user_1\", \"action\": \"click\", \"count\": 5}"
+   *   Output (MAP): Map with entries {user_id -> "user_1", action -> "click", count -> 5}
+   */
   @Test
   public void testStringToMapTransform()
       throws Exception {
@@ -163,8 +169,8 @@ public class ParquetMapUDFTest {
       recordsProcessed++;
 
       for (RecordTransformer transformer : transformers) {
-        transformer.transform(inputRow);
-      }
+           transformer.transform(inputRow);
+       }
 
       // Verify transformation created a MAP column
       Object eventPropsMap = inputRow.getValue("event_properties_map");

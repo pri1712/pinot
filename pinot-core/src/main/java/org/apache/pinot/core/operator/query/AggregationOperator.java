@@ -20,10 +20,9 @@ package org.apache.pinot.core.operator.query;
 
 import com.google.common.base.CaseFormat;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
-import java.util.Objects;
 import java.util.stream.Collectors;
-import javax.annotation.Nullable;
 import org.apache.pinot.core.operator.BaseOperator;
 import org.apache.pinot.core.operator.BaseProjectOperator;
 import org.apache.pinot.core.operator.ExecutionStatistics;
@@ -33,15 +32,14 @@ import org.apache.pinot.core.operator.blocks.results.AggregationResultsBlock;
 import org.apache.pinot.core.query.aggregation.AggregationExecutor;
 import org.apache.pinot.core.query.aggregation.DefaultAggregationExecutor;
 import org.apache.pinot.core.query.aggregation.function.AggregationFunction;
-import org.apache.pinot.core.query.aggregation.function.AggregationFunctionUtils;
 import org.apache.pinot.core.query.aggregation.function.AggregationFunctionUtils.AggregationInfo;
 import org.apache.pinot.core.query.request.context.QueryContext;
 import org.apache.pinot.core.startree.executor.StarTreeAggregationExecutor;
-import org.apache.pinot.segment.spi.datasource.DataSource;
-import org.apache.pinot.spi.query.QueryScanCostContext;
 
 
-/// The `AggregationOperator` class implements keyless aggregation query on a single segment in V1/SSQE.
+/**
+ * The <code>AggregationOperator</code> class implements keyless aggregation query on a single segment in V1/SSQE.
+ */
 @SuppressWarnings("rawtypes")
 public class AggregationOperator extends BaseOperator<AggregationResultsBlock> {
   private static final String EXPLAIN_NAME = "AGGREGATE";
@@ -50,42 +48,16 @@ public class AggregationOperator extends BaseOperator<AggregationResultsBlock> {
   private final AggregationFunction[] _aggregationFunctions;
   private final BaseProjectOperator<?> _projectOperator;
   private final boolean _useStarTree;
-  private final int _numTotalDocs;
+  private final long _numTotalDocs;
 
   private int _numDocsScanned = 0;
 
-  // Marks the functions that can be resolved from the column dictionary/metadata without scanning the segment. The
-  // aligned dataSources array holds the argument data source of each such function (a null entry is only valid for
-  // COUNT). Resolution is deferred to execution time (see getNextBlock) to keep query planning cheap. Both are null
-  // when no function is resolvable without scanning, in which case every function is computed by scanning.
-  @Nullable
-  private final boolean[] _nonScanResolvable;
-  @Nullable
-  private final DataSource[] _dataSources;
-
-  public AggregationOperator(QueryContext queryContext, AggregationInfo aggregationInfo, int numTotalDocs) {
-    this(queryContext, aggregationInfo, numTotalDocs, null, null);
-  }
-
-  /// Constructs an aggregation operator that optionally resolves some functions from the column dictionary/metadata
-  /// instead of scanning the segment. For each function flagged in {@code nonScanResolvable}, the result is resolved
-  /// from the aligned {@code dataSources} entry (via {@link AggregationFunctionUtils#getAggregationResult}) at
-  /// execution time and the function is skipped during the scan; all other functions are computed by scanning the
-  /// segment. Passing {@code null} for both means every function is computed by scanning.
-  ///
-  /// @param nonScanResolvable per-function flags (aligned by function index) marking the functions to resolve from
-  ///     dictionary/metadata, or {@code null} if none are resolvable
-  /// @param dataSources per-function argument data sources aligned by function index (a {@code null} entry is only
-  ///     valid for {@code COUNT}), or {@code null} if none are resolvable
-  public AggregationOperator(QueryContext queryContext, AggregationInfo aggregationInfo, int numTotalDocs,
-      @Nullable boolean[] nonScanResolvable, @Nullable DataSource[] dataSources) {
+  public AggregationOperator(QueryContext queryContext, AggregationInfo aggregationInfo, long numTotalDocs) {
     _queryContext = queryContext;
     _aggregationFunctions = queryContext.getAggregationFunctions();
     _projectOperator = aggregationInfo.getProjectOperator();
     _useStarTree = aggregationInfo.isUseStarTree();
     _numTotalDocs = numTotalDocs;
-    _nonScanResolvable = nonScanResolvable;
-    _dataSources = dataSources;
   }
 
   @Override
@@ -93,20 +65,13 @@ public class AggregationOperator extends BaseOperator<AggregationResultsBlock> {
     // Perform aggregation on all the transform blocks
     AggregationExecutor aggregationExecutor;
     if (_useStarTree) {
-      // StarTreeAggregationExecutor doesn't support non-scan results.
       aggregationExecutor = new StarTreeAggregationExecutor(_aggregationFunctions);
     } else {
-      aggregationExecutor = new DefaultAggregationExecutor(_aggregationFunctions, resolveNonScanResults());
+      aggregationExecutor = new DefaultAggregationExecutor(_aggregationFunctions);
     }
     ValueBlock valueBlock;
     while ((valueBlock = _projectOperator.nextBlock()) != null) {
       _numDocsScanned += valueBlock.getNumDocs();
-      QueryScanCostContext scanCost = getScanCostContext();
-      if (scanCost != null) {
-        scanCost.addDocsScanned(valueBlock.getNumDocs());
-        scanCost.addEntriesScannedPostFilter(
-            (long) valueBlock.getNumDocs() * _projectOperator.getNumColumnsProjected());
-      }
       aggregationExecutor.aggregate(valueBlock);
     }
 
@@ -114,29 +79,9 @@ public class AggregationOperator extends BaseOperator<AggregationResultsBlock> {
     return new AggregationResultsBlock(_aggregationFunctions, aggregationExecutor.getResult(), _queryContext);
   }
 
-  /// Returns {@code null} when no function is resolvable without scanning, in which case all functions are computed by
-  /// scanning. Each returned non-null entry is consumed by {@link DefaultAggregationExecutor}, which skips the scan for
-  /// that function and emits the resolved value directly.
-  @Nullable
-  private Object[] resolveNonScanResults() {
-    if (_nonScanResolvable == null) {
-      return null;
-    }
-
-    Objects.requireNonNull(_dataSources);
-    Object[] nonScanResults = new Object[_aggregationFunctions.length];
-    for (int i = 0; i < _aggregationFunctions.length; i++) {
-      if (_nonScanResolvable[i]) {
-        nonScanResults[i] = AggregationFunctionUtils.getAggregationResult(_aggregationFunctions[i],
-            _dataSources[i], _numTotalDocs, EXPLAIN_NAME);
-      }
-    }
-    return nonScanResults;
-  }
-
   @Override
   public List<BaseProjectOperator<?>> getChildOperators() {
-    return List.of(_projectOperator);
+    return Collections.singletonList(_projectOperator);
   }
 
   @Override

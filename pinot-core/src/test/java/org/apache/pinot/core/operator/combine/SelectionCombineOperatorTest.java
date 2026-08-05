@@ -58,7 +58,9 @@ import static org.testng.Assert.assertNotNull;
 import static org.testng.Assert.assertTrue;
 
 
-/// Test for [SelectionOnlyCombineOperator] and [SelectionOrderByCombineOperator].
+/**
+ * Test for {@link SelectionOnlyCombineOperator} and {@link SelectionOrderByCombineOperator}.
+ */
 public class SelectionCombineOperatorTest {
   private static final File TEMP_DIR = new File(FileUtils.getTempDirectory(), "SelectionCombineOperatorTest");
   private static final String RAW_TABLE_NAME = "testTable";

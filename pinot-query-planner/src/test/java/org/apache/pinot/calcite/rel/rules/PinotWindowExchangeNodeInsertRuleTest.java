@@ -18,6 +18,7 @@
  */
 package org.apache.pinot.calcite.rel.rules;
 
+import java.util.Collections;
 import java.util.List;
 import org.apache.calcite.plan.RelOptCluster;
 import org.apache.calcite.plan.RelOptRuleCall;
@@ -97,7 +98,7 @@ public class PinotWindowExchangeNodeInsertRuleTest {
     Mockito.when(upperBoundInputRef.getIndex()).thenReturn(4);
     Mockito.when(upperBoundInputRef.getType()).thenReturn(intType);
 
-    List<Window.Group> groups = List.of(
+    List<Window.Group> groups = Collections.singletonList(
         new Window.Group(ImmutableBitSet.of(List.of(1)), true, RexWindowBounds.preceding(lowerBoundInputRef),
             RexWindowBounds.following(upperBoundInputRef), RexWindowExclusion.EXCLUDE_NO_OTHER, RelCollations.of(2),
             List.of(

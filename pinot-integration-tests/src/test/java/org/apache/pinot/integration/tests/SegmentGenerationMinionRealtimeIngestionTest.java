@@ -21,6 +21,7 @@ package org.apache.pinot.integration.tests;
 import com.fasterxml.jackson.databind.JsonNode;
 import java.io.File;
 import java.io.IOException;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -91,8 +92,10 @@ public class SegmentGenerationMinionRealtimeIngestionTest extends BaseClusterInt
     addSchema(schema);
   }
 
-  /// Validates if we are able to ingest segments into realtime table, via adhoc mode.
-  /// @throws Exception
+  /**
+   * Validates if we are able to ingest segments into realtime table, via adhoc mode.
+   * @throws Exception
+   */
   @Test
   public void testAdhocIngestionIntoRealtimeTable()
       throws Exception {
@@ -106,7 +109,7 @@ public class SegmentGenerationMinionRealtimeIngestionTest extends BaseClusterInt
 
     String url = getControllerBaseApiUrl() + "/tasks/execute";
     sendPostRequest(url, JsonUtils.objectToString(adhocTaskConfig),
-        Map.of("accept", "application/json"));
+        Collections.singletonMap("accept", "application/json"));
     TestUtils.waitForCondition(aVoid -> {
       try {
         int totalDocs = getTotalDocs(REALTIME_TABLE_NAME);
@@ -119,8 +122,10 @@ public class SegmentGenerationMinionRealtimeIngestionTest extends BaseClusterInt
     assertEquals(result.get("numSegmentsQueried").asInt(), 14);
   }
 
-  /// Validates ingestion to realtime table via scheduled mode
-  /// @throws Exception
+  /**
+   * Validates ingestion to realtime table via scheduled mode
+   * @throws Exception
+   */
   @Test
   public void testScheduledIngestionIntoRealtimeTable()
       throws Exception {
@@ -129,7 +134,7 @@ public class SegmentGenerationMinionRealtimeIngestionTest extends BaseClusterInt
     taskConfigs.put(BatchConfigProperties.INPUT_FORMAT, "avro");
 
     TableTaskConfig tableTaskConfig =
-        new TableTaskConfig(Map.of("SegmentGenerationAndPushTask", taskConfigs));
+        new TableTaskConfig(Collections.singletonMap("SegmentGenerationAndPushTask", taskConfigs));
     BatchIngestionConfig batchIngestionConfig = new BatchIngestionConfig(List.of(taskConfigs), "APPEND", "DAILY");
     IngestionConfig ingestionConfig = new IngestionConfig();
     ingestionConfig.setBatchIngestionConfig(batchIngestionConfig);
@@ -139,7 +144,7 @@ public class SegmentGenerationMinionRealtimeIngestionTest extends BaseClusterInt
     String url = getControllerBaseApiUrl() + "/tasks/schedule?taskType=SegmentGenerationAndPushTask&tableName="
         + REALTIME_TABLE_NAME_WITH_TYPE;
 
-    sendPostRequest(url, null, Map.of("accept", "application/json"));
+    sendPostRequest(url, null, Collections.singletonMap("accept", "application/json"));
     TestUtils.waitForCondition(aVoid -> {
       try {
         int totalDocs = getTotalDocs(REALTIME_TABLE_NAME);

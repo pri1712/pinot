@@ -27,7 +27,9 @@ import org.apache.pinot.segment.spi.partition.PartitionFunction;
 import org.apache.pinot.spi.data.FieldSpec;
 
 
-/// The `ImmutableDataSource` class is the data source for a column in the immutable segment.
+/**
+ * The {@code ImmutableDataSource} class is the data source for a column in the immutable segment.
+ */
 public class ImmutableDataSource extends BaseDataSource {
 
   public ImmutableDataSource(ColumnMetadata columnMetadata, ColumnIndexContainer columnIndexContainer) {

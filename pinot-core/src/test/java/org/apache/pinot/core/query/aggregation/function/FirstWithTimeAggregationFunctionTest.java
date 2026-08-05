@@ -54,7 +54,8 @@ public class FirstWithTimeAggregationFunctionTest extends AbstractAggregationFun
       _valAsStr1 = valAsStr1;
       _valAsStr2 = valAsStr2;
       _defaultNullValue = defaultNullValue;
-      _pinotDataType = PinotDataType.valueOf(dataType.name());
+      _pinotDataType =
+          _dataType == FieldSpec.DataType.INT ? PinotDataType.INTEGER : PinotDataType.valueOf(_dataType.name());
     }
 
     public FluentQueryTest.DeclaringTable getDeclaringTable(boolean nullHandlingEnabled) {

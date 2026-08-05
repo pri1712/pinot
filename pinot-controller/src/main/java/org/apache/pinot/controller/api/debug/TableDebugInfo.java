@@ -30,11 +30,14 @@ import org.apache.pinot.common.restlet.resources.SegmentErrorInfo;
 import org.apache.pinot.spi.config.table.TableStatus;
 
 
-/// This class represents debug information associated with a table. For example:
-///
-/// - Table name, size, number of brokers, servers, segments, etc.
-/// - Debug information from server/brokers of the table.
-/// - Debug information related to segments of the table.
+/**
+ * This class represents debug information associated with a table. For example:
+ * <ul>
+ *   <li>Table name, size, number of brokers, servers, segments, etc.</li>
+ *   <li>Debug information from server/brokers of the table.</li>
+ *   <li>Debug information related to segments of the table.</li>
+ * </ul>
+ */
 @JsonPropertyOrder({
     "tableName", "numSegments", "numServers", "numBrokers", "segmentDebugInfos", "serverDebugInfos", "brokerDebugInfos"
 })
@@ -144,11 +147,15 @@ public class TableDebugInfo {
     }
   }
 
-  /// This class represents the state of segment on the server:
-  ///
-  /// - Ideal State vs External view.
-  /// - Segment related errors and consumer information.
-  /// - Segment size.
+  /**
+   * This class represents the state of segment on the server:
+   *
+   * <ul>
+   *   <li>Ideal State vs External view.</li>
+   *   <li>Segment related errors and consumer information.</li>
+   *   <li>Segment size.</li>
+   * </ul>
+   */
   @JsonIgnoreProperties(ignoreUnknown = true)
   @JsonPropertyOrder({"idealState", "externalView", "segmentSize", "consumerInfo", "errorInfo"})
   public static class SegmentState {
@@ -191,7 +198,9 @@ public class TableDebugInfo {
     }
   }
 
-  /// Debug information related to Server.
+  /**
+   * Debug information related to Server.
+   */
   @JsonIgnoreProperties(ignoreUnknown = true)
   @JsonPropertyOrder({"serverName", "numErrors", "numMessages"})
   public static class ServerDebugInfo {
@@ -220,7 +229,9 @@ public class TableDebugInfo {
     }
   }
 
-  /// Debug information related to broker.
+  /**
+   * Debug information related to broker.
+   */
   @JsonIgnoreProperties(ignoreUnknown = true)
   @JsonPropertyOrder({"brokerName", "state"})
   public static class BrokerDebugInfo {
@@ -249,7 +260,9 @@ public class TableDebugInfo {
     }
   }
 
-  /// Summary of table size - reported and estimated size.
+  /**
+   * Summary of table size - reported and estimated size.
+   */
   public static class TableSizeSummary {
     private final String _reportedSize;
     private final String _estimatedSize;

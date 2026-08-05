@@ -35,7 +35,10 @@ import org.slf4j.LoggerFactory;
 import picocli.CommandLine;
 
 
-/// Class to implement LaunchDataIngestionJob command.
+/**
+ * Class to implement LaunchDataIngestionJob command.
+ *
+ */
 @CommandLine.Command(name = "LaunchDataIngestionJob", mixinStandardHelpOptions = true)
 public class LaunchDataIngestionJobCommand extends AbstractBaseAdminCommand implements Command {
   private static final Logger LOGGER = LoggerFactory.getLogger(LaunchDataIngestionJobCommand.class);

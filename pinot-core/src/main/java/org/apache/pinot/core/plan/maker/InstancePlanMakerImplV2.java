@@ -21,6 +21,7 @@ package org.apache.pinot.core.plan.maker;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
@@ -59,7 +60,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 
-/// The `InstancePlanMakerImplV2` class is the default implementation of [PlanMaker].
+/**
+ * The <code>InstancePlanMakerImplV2</code> class is the default implementation of {@link PlanMaker}.
+ */
 public class InstancePlanMakerImplV2 implements PlanMaker {
   public static final int DEFAULT_NUM_THREADS_EXTRACT_FINAL_RESULT = 1;
   public static final int DEFAULT_CHUNK_SIZE_EXTRACT_FINAL_RESULT = 10_000;
@@ -102,7 +105,6 @@ public class InstancePlanMakerImplV2 implements PlanMaker {
 
   private final FetchPlanner _fetchPlanner = FetchPlannerRegistry.getPlanner();
   private int _maxExecutionThreads = Server.DEFAULT_QUERY_EXECUTOR_MAX_EXECUTION_THREADS;
-  private int _defaultExecutionThreads = Server.DEFAULT_QUERY_EXECUTOR_DEFAULT_EXECUTION_THREADS;
   private int _maxInitialResultHolderCapacity = Server.DEFAULT_QUERY_EXECUTOR_MAX_INITIAL_RESULT_HOLDER_CAPACITY;
   private int _minInitialIndexedTableCapacity = Server.DEFAULT_QUERY_EXECUTOR_MIN_INITIAL_INDEXED_TABLE_CAPACITY;
   // Limit on number of groups stored for each segment, beyond which no new group will be created
@@ -118,9 +120,6 @@ public class InstancePlanMakerImplV2 implements PlanMaker {
   public void init(PinotConfiguration queryExecutorConfig) {
     _maxExecutionThreads = queryExecutorConfig.getProperty(Server.MAX_EXECUTION_THREADS,
         Server.DEFAULT_QUERY_EXECUTOR_MAX_EXECUTION_THREADS);
-    _defaultExecutionThreads = queryExecutorConfig.getProperty(Server.DEFAULT_EXECUTION_THREADS,
-        Server.DEFAULT_QUERY_EXECUTOR_DEFAULT_EXECUTION_THREADS);
-    validateExecutionThreadConfig();
     _maxInitialResultHolderCapacity = queryExecutorConfig.getProperty(Server.MAX_INITIAL_RESULT_HOLDER_CAPACITY,
         Server.DEFAULT_QUERY_EXECUTOR_MAX_INITIAL_RESULT_HOLDER_CAPACITY);
     _minInitialIndexedTableCapacity = queryExecutorConfig.getProperty(Server.MIN_INITIAL_INDEXED_TABLE_CAPACITY,
@@ -143,31 +142,10 @@ public class InstancePlanMakerImplV2 implements PlanMaker {
         Server.DEFAULT_QUERY_EXECUTOR_GROUPBY_TRIM_THRESHOLD);
     Preconditions.checkState(_groupByTrimThreshold > 0,
         "Invalid configurable: groupByTrimThreshold: %d must be positive", _groupByTrimThreshold);
-    LOGGER.info("Initialized plan maker with maxExecutionThreads: {}, defaultExecutionThreads: {}, "
-            + "maxInitialResultHolderCapacity: {}, numGroupsLimit: {}, minSegmentGroupTrimSize: {}, "
-            + "minServerGroupTrimSize: {}, groupByTrimThreshold: {}",
-        _maxExecutionThreads, _defaultExecutionThreads, _maxInitialResultHolderCapacity, _numGroupsLimit,
-        _minSegmentGroupTrimSize, _minServerGroupTrimSize, _groupByTrimThreshold);
-  }
-
-  @VisibleForTesting
-  public void setMaxExecutionThreads(int maxExecutionThreads) {
-    _maxExecutionThreads = maxExecutionThreads;
-    validateExecutionThreadConfig();
-  }
-
-  @VisibleForTesting
-  public void setDefaultExecutionThreads(int defaultExecutionThreads) {
-    _defaultExecutionThreads = defaultExecutionThreads;
-    validateExecutionThreadConfig();
-  }
-
-  private void validateExecutionThreadConfig() {
-    if (_defaultExecutionThreads > 0 && _maxExecutionThreads > 0) {
-      Preconditions.checkState(_defaultExecutionThreads <= _maxExecutionThreads,
-          "Invalid configuration: defaultExecutionThreads: %d must be <= maxExecutionThreads: %d",
-          _defaultExecutionThreads, _maxExecutionThreads);
-    }
+    LOGGER.info("Initialized plan maker with maxExecutionThreads: {}, maxInitialResultHolderCapacity: {}, "
+            + "numGroupsLimit: {}, minSegmentGroupTrimSize: {}, minServerGroupTrimSize: {}, groupByTrimThreshold: {}",
+        _maxExecutionThreads, _maxInitialResultHolderCapacity, _numGroupsLimit, _minSegmentGroupTrimSize,
+        _minServerGroupTrimSize, _groupByTrimThreshold);
   }
 
   @VisibleForTesting
@@ -219,7 +197,7 @@ public class InstancePlanMakerImplV2 implements PlanMaker {
                 fetchContext));
       }
     } else {
-      fetchContexts = List.of();
+      fetchContexts = Collections.emptyList();
       for (SegmentContext segmentContext : segmentContexts) {
         planNodes.add(makeSegmentPlanNode(segmentContext, queryContext));
       }
@@ -230,8 +208,7 @@ public class InstancePlanMakerImplV2 implements PlanMaker {
         new InstanceResponsePlanNode(combinePlanNode, segmentContexts, fetchContexts, queryContext));
   }
 
-  @VisibleForTesting
-  void applyQueryOptions(QueryContext queryContext) {
+  private void applyQueryOptions(QueryContext queryContext) {
     Map<String, String> queryOptions = queryContext.getQueryOptions();
 
     // Set skipUpsert
@@ -250,20 +227,15 @@ public class InstancePlanMakerImplV2 implements PlanMaker {
     queryContext.setSkipIndexes(QueryOptionsUtils.getSkipIndexes(queryOptions));
 
     // Set maxExecutionThreads
-    // Resolution order:
-    //   1. Per-query override (SET maxExecutionThreads=N) — capped by server max
-    //   2. Server-level default (default.execution.threads) — decoupled from max, but still capped by it
-    //   3. Server-level max (max.execution.threads) — legacy fallback
     int maxExecutionThreads;
     Integer maxExecutionThreadsFromQuery = QueryOptionsUtils.getMaxExecutionThreads(queryOptions);
     if (maxExecutionThreadsFromQuery != null) {
+      // Do not allow query to override the execution threads over the instance-level limit
       if (_maxExecutionThreads > 0) {
         maxExecutionThreads = Math.min(_maxExecutionThreads, maxExecutionThreadsFromQuery);
       } else {
         maxExecutionThreads = maxExecutionThreadsFromQuery;
       }
-    } else if (_defaultExecutionThreads > 0) {
-      maxExecutionThreads = _defaultExecutionThreads;
     } else {
       maxExecutionThreads = _maxExecutionThreads;
     }
@@ -379,7 +351,7 @@ public class InstancePlanMakerImplV2 implements PlanMaker {
                 segmentContext, fetchContext));
       }
     } else {
-      fetchContexts = List.of();
+      fetchContexts = Collections.emptyList();
       for (SegmentContext segmentContext : segmentContexts) {
         planNodes.add(makeStreamingSegmentPlanNode(segmentContext, queryContext));
       }
@@ -401,10 +373,12 @@ public class InstancePlanMakerImplV2 implements PlanMaker {
     }
   }
 
-  /// In-place rewrite QueryContext based on the information from local IndexSegment.
-  ///
-  /// @param queryContext
-  /// @param indexSegment
+  /**
+   * In-place rewrite QueryContext based on the information from local IndexSegment.
+   *
+   * @param queryContext
+   * @param indexSegment
+   */
   @VisibleForTesting
   public static void rewriteQueryContextWithHints(QueryContext queryContext, IndexSegment indexSegment) {
     Map<ExpressionContext, ExpressionContext> expressionOverrideHints = queryContext.getExpressionOverrideHints();

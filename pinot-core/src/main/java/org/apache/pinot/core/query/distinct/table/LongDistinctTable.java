@@ -47,7 +47,9 @@ public class LongDistinctTable extends DistinctTable {
 
   private LongHeapPriorityQueue _priorityQueue;
 
-  /// Constructor for distinct table without data table (on the server side).
+  /**
+   * Constructor for distinct table without data table (on the server side).
+   */
   public LongDistinctTable(DataSchema dataSchema, int limit, boolean nullHandlingEnabled,
       @Nullable OrderByExpressionContext orderByExpression) {
     super(dataSchema, limit, nullHandlingEnabled);
@@ -56,7 +58,9 @@ public class LongDistinctTable extends DistinctTable {
     _orderByExpression = orderByExpression;
   }
 
-  /// Constructor for distinct table with data table (on the broker side).
+  /**
+   * Constructor for distinct table with data table (on the broker side).
+   */
   public LongDistinctTable(DataSchema dataSchema, int limit, boolean nullHandlingEnabled,
       @Nullable OrderByExpressionContext orderByExpression, DataTable dataTable) {
     super(dataSchema, limit, nullHandlingEnabled);

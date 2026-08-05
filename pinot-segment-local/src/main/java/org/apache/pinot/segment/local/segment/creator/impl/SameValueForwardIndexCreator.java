@@ -20,8 +20,6 @@ package org.apache.pinot.segment.local.segment.creator.impl;
 
 import java.io.IOException;
 import java.math.BigDecimal;
-import javax.annotation.Nullable;
-import org.apache.pinot.segment.spi.compression.ChunkCompressionType;
 import org.apache.pinot.segment.spi.index.creator.ForwardIndexCreator;
 import org.apache.pinot.spi.data.FieldSpec;
 
@@ -55,17 +53,6 @@ class SameValueForwardIndexCreator implements ForwardIndexCreator {
   @Override
   public FieldSpec.DataType getValueType() {
     return _delegate.getValueType();
-  }
-
-  @Override
-  public long getRawForwardIndexUncompressedValueSizeInBytes() {
-    return _delegate.getRawForwardIndexUncompressedValueSizeInBytes();
-  }
-
-  @Nullable
-  @Override
-  public ChunkCompressionType getRawForwardIndexChunkCompressionType() {
-    return _delegate.getRawForwardIndexChunkCompressionType();
   }
 
   @Override

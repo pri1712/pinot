@@ -21,7 +21,9 @@ package org.apache.pinot.client;
 import com.fasterxml.jackson.databind.JsonNode;
 
 
-/// Selection result set, which contains the results of a selection query.
+/**
+ * Selection result set, which contains the results of a selection query.
+ */
 class SelectionResultSet extends AbstractResultSet {
   private JsonNode _resultsArray;
   private JsonNode _columnsArray;

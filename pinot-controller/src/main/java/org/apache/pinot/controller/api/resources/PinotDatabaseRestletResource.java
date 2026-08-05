@@ -27,6 +27,7 @@ import io.swagger.annotations.Authorization;
 import io.swagger.annotations.SecurityDefinition;
 import io.swagger.annotations.SwaggerDefinition;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import javax.inject.Inject;
 import javax.ws.rs.Consumes;
@@ -129,8 +130,10 @@ public class PinotDatabaseRestletResource {
     return new DeleteDatabaseResponse(deletedTables, failedTables, dryRun);
   }
 
-  /// API to update the quota configs for database
-  /// If database config is not present it will be created implicitly
+  /**
+   * API to update the quota configs for database
+   * If database config is not present it will be created implicitly
+   */
   @POST
   @Produces(MediaType.APPLICATION_JSON)
   @Consumes(MediaType.APPLICATION_JSON)
@@ -149,7 +152,7 @@ public class PinotDatabaseRestletResource {
       DatabaseConfig databaseConfig = _pinotHelixResourceManager.getDatabaseConfig(databaseName);
       QuotaConfig quotaConfig = new QuotaConfig(null, queryQuota);
       if (databaseConfig == null) {
-        databaseConfig = new DatabaseConfig(databaseName, quotaConfig);
+         databaseConfig = new DatabaseConfig(databaseName, quotaConfig);
         _pinotHelixResourceManager.addDatabaseConfig(databaseConfig);
       } else {
         databaseConfig.setQuotaConfig(quotaConfig);
@@ -161,8 +164,10 @@ public class PinotDatabaseRestletResource {
     }
   }
 
-  /// API to get database quota configs.
-  /// Will return null if database config is not defined or database quotas are not defined
+  /**
+   * API to get database quota configs.
+   * Will return null if database config is not defined or database quotas are not defined
+   */
   @GET
   @Produces(MediaType.APPLICATION_JSON)
   @Path("/databases/{databaseName}/quotas")
@@ -182,7 +187,7 @@ public class PinotDatabaseRestletResource {
     HelixConfigScope configScope = new HelixConfigScopeBuilder(HelixConfigScope.ConfigScopeProperty.CLUSTER)
         .forCluster(_pinotHelixResourceManager.getHelixClusterName()).build();
     String defaultQueryQuota = helixAdmin.getConfig(configScope,
-            List.of(CommonConstants.Helix.DATABASE_MAX_QUERIES_PER_SECOND))
+            Collections.singletonList(CommonConstants.Helix.DATABASE_MAX_QUERIES_PER_SECOND))
             .getOrDefault(CommonConstants.Helix.DATABASE_MAX_QUERIES_PER_SECOND, null);
     return new QuotaConfig(null, defaultQueryQuota);
   }

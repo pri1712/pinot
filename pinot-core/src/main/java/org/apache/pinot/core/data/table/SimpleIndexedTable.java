@@ -25,7 +25,9 @@ import org.apache.pinot.common.utils.DataSchema;
 import org.apache.pinot.core.query.request.context.QueryContext;
 
 
-/// [Table] implementation for aggregating TableRecords based on combination of keys
+/**
+ * {@link Table} implementation for aggregating TableRecords based on combination of keys
+ */
 @NotThreadSafe
 public class SimpleIndexedTable extends IndexedTable {
 
@@ -35,7 +37,9 @@ public class SimpleIndexedTable extends IndexedTable {
         executorService);
   }
 
-  /// Non thread safe implementation of upsert to insert [Record] into the [Table]
+  /**
+   * Non thread safe implementation of upsert to insert {@link Record} into the {@link Table}
+   */
   @Override
   public boolean upsert(Key key, Record record) {
     if (_hasOrderBy) {

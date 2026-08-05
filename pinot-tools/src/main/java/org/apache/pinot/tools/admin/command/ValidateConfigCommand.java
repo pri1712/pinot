@@ -39,12 +39,14 @@ import org.slf4j.LoggerFactory;
 import picocli.CommandLine;
 
 
-/// Class for command to validate configs.
-///
-/// Validate the following configs:
-///
-/// - Table Config
-/// - Schema
+/**
+ * Class for command to validate configs.
+ * <p>Validate the following configs:
+ * <ul>
+ *   <li>Table Config</li>
+ *   <li>Schema</li>
+ * </ul>
+ */
 @CommandLine.Command(name = "ValidateConfig", mixinStandardHelpOptions = true)
 public class ValidateConfigCommand extends AbstractBaseCommand implements Command {
   private static final Logger LOGGER = LoggerFactory.getLogger(ValidateConfigCommand.class);

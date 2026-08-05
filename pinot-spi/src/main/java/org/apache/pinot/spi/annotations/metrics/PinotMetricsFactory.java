@@ -27,25 +27,39 @@ import org.apache.pinot.spi.metrics.PinotMetricName;
 import org.apache.pinot.spi.metrics.PinotMetricsRegistry;
 
 
-/// Factory for generating objects of Pinot metrics.
+/**
+ * Factory for generating objects of Pinot metrics.
+ */
 public interface PinotMetricsFactory {
 
-  /// Initializes the Pinot metrics factory.
+  /**
+   * Initializes the Pinot metrics factory.
+   */
   void init(PinotConfiguration metricsConfiguration);
 
-  /// Gets [PinotMetricsRegistry]. There should be only one such instance in every [PinotMetricsRegistry].
+  /**
+   * Gets {@link PinotMetricsRegistry}. There should be only one such instance in every {@link PinotMetricsRegistry}.
+   */
   PinotMetricsRegistry getPinotMetricsRegistry();
 
-  /// Makes a [PinotMetricName] given the class and the metric name.
+  /**
+   * Makes a {@link PinotMetricName} given the class and the metric name.
+   */
   PinotMetricName makePinotMetricName(Class<?> klass, String name);
 
-  /// Makes a [PinotGauge] given a function.
+  /**
+   * Makes a {@link PinotGauge} given a function.
+   */
   <T> PinotGauge<T> makePinotGauge(Function<Void, T> condition);
 
-  /// Makes a [PinotJmxReporter] given a [PinotMetricsRegistry].
+  /**
+   * Makes a {@link PinotJmxReporter} given a {@link PinotMetricsRegistry}.
+   */
   PinotJmxReporter makePinotJmxReporter(PinotMetricsRegistry metricsRegistry);
 
-  /// Returns the name of metrics factory.
+  /**
+   * Returns the name of metrics factory.
+   */
   String getMetricsFactoryName();
 
   class Noop implements PinotMetricsFactory {

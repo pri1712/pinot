@@ -21,6 +21,7 @@ package org.apache.pinot.calcite.rel.rules;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import org.apache.calcite.plan.RelOptRule;
 import org.apache.calcite.plan.RelOptRuleCall;
@@ -35,7 +36,6 @@ import org.apache.calcite.rel.core.TableScan;
 import org.apache.calcite.rel.logical.LogicalFilter;
 import org.apache.calcite.rel.logical.LogicalJoin;
 import org.apache.calcite.rel.logical.LogicalProject;
-import org.apache.calcite.rel.logical.LogicalWindow;
 import org.apache.calcite.rel.type.RelDataTypeField;
 import org.apache.calcite.tools.RelBuilderFactory;
 import org.apache.calcite.util.mapping.IntPair;
@@ -53,11 +53,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 
-/// Special rule for Pinot, this rule populates [RelDistribution] across the entire relational tree.
-///
-/// we implement this rule as a workaround b/c [org.apache.calcite.plan.RelTraitPropagationVisitor], which is
-/// deprecated. The idea is to associate every node with a RelDistribution derived from [RelNode#getInputs()]
-/// or from the node itself (via hints, or special handling of the type of node in question).
+/**
+ * Special rule for Pinot, this rule populates {@link RelDistribution} across the entire relational tree.
+ *
+ * we implement this rule as a workaround b/c {@link org.apache.calcite.plan.RelTraitPropagationVisitor}, which is
+ * deprecated. The idea is to associate every node with a RelDistribution derived from {@link RelNode#getInputs()}
+ * or from the node itself (via hints, or special handling of the type of node in question).
+ */
 public class PinotRelDistributionTraitRule extends RelOptRule {
   public static final PinotRelDistributionTraitRule INSTANCE =
       new PinotRelDistributionTraitRule(PinotRuleUtils.PINOT_REL_FACTORY);
@@ -81,8 +83,10 @@ public class PinotRelDistributionTraitRule extends RelOptRule {
     call.transformTo(attachTrait(current, relDistribution));
   }
 
-  /// currently, Pinot has [RelTraitSet] default set to empty and thus we directly pull the cluster trait set,
-  /// then plus the [RelDistribution] trait.
+  /**
+   * currently, Pinot has {@link RelTraitSet} default set to empty and thus we directly pull the cluster trait set,
+   * then plus the {@link RelDistribution} trait.
+   */
   private static RelNode attachTrait(RelNode relNode, RelTrait trait) {
     RelTraitSet clusterTraitSet = relNode.getCluster().traitSet();
     if (relNode instanceof LogicalJoin) {
@@ -94,7 +98,7 @@ public class PinotRelDistributionTraitRule extends RelOptRule {
           ImmutableList.copyOf(join.getSystemFieldList()));
     } else if (relNode instanceof PinotLogicalTableScan) {
       PinotLogicalTableScan tableScan = (PinotLogicalTableScan) relNode;
-      return tableScan.copy(clusterTraitSet.plus(trait), List.of());
+      return tableScan.copy(clusterTraitSet.plus(trait), Collections.emptyList());
     } else {
       return relNode.copy(clusterTraitSet.plus(trait), relNode.getInputs());
     }
@@ -152,13 +156,6 @@ public class PinotRelDistributionTraitRule extends RelOptRule {
       if (inputRelDistribution != null) {
         // Since we only support LEFT RelTrait propagation, the inputRelDistribution can directly be applied
         // b/c the Join node always puts left relation RowTypes then right relation RowTypes sequentially.
-        return inputRelDistribution;
-      }
-    } else if (node instanceof LogicalWindow) {
-      assert inputs.size() == 1;
-      // Window input should be an exchange node that is hash distributed by the window's partition keys
-      RelDistribution inputRelDistribution = inputs.get(0).getTraitSet().getDistribution();
-      if (inputRelDistribution != null) {
         return inputRelDistribution;
       }
     }

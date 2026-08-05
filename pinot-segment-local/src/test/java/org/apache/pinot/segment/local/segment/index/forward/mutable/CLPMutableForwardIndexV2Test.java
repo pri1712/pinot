@@ -65,7 +65,9 @@ public class CLPMutableForwardIndexV2Test implements PinotBuffersAfterClassCheck
     _memoryManager.close();
   }
 
-  /// Sanity check
+  /**
+   * Sanity check
+   */
   @Test
   public void testReadWriteOnLogMessages()
       throws IOException {

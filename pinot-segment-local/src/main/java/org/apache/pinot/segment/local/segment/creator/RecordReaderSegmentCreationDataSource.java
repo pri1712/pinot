@@ -29,8 +29,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 
-/// [SegmentCreationDataSource] that uses a
-/// [RecordReader] as the underlying data source.
+/**
+ * {@link SegmentCreationDataSource} that uses a
+ * {@link RecordReader} as the underlying data source.
+ */
 // TODO: make it Closeable so that resource in record reader can be released
 public class RecordReaderSegmentCreationDataSource implements SegmentCreationDataSource {
   private static final Logger LOGGER = LoggerFactory.getLogger(RecordReaderSegmentCreationDataSource.class);

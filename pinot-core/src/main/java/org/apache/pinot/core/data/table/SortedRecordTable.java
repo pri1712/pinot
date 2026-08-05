@@ -33,9 +33,11 @@ import org.apache.pinot.core.util.QueryMultiThreadingUtils;
 import org.apache.pinot.core.util.trace.TraceCallable;
 
 
-/// Table used for wrapping merged result of sorted group-by aggregation
-/// This table is initialized with a [SortedRecords], which is already merged and trimmed
-/// to desired size.
+/**
+ * Table used for wrapping merged result of sorted group-by aggregation
+ * This table is initialized with a {@link SortedRecords}, which is already merged and trimmed
+ * to desired size.
+ */
 @SuppressWarnings({"rawtypes", "unchecked"})
 public class SortedRecordTable extends BaseTable {
   private final ExecutorService _executorService;
@@ -51,7 +53,7 @@ public class SortedRecordTable extends BaseTable {
       QueryContext queryContext, ExecutorService executorService) {
     super(dataSchema);
     assert queryContext.getGroupByExpressions() != null;
-    _numKeyColumns = queryContext.getNumGroupByKeyColumns();
+    _numKeyColumns = queryContext.getGroupByExpressions().size();
     _aggregationFunctions = queryContext.getAggregationFunctions();
     _executorService = executorService;
     _numThreadsExtractFinalResult = Math.min(queryContext.getNumThreadsExtractFinalResult(),
@@ -170,7 +172,7 @@ public class SortedRecordTable extends BaseTable {
     return false;
   }
 
-  /// Not used. Instead, create a [SortedRecords] and initialize this with it
+  /// Not used. Instead, create a {@link SortedRecords} and initialize this with it
   @Override
   public boolean upsert(Record record) {
     throw new UnsupportedOperationException("method unused for SortedRecordTable");

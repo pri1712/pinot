@@ -42,10 +42,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 
-/// The `QueryRouter` class provides methods to route the query based on the routing table, and returns a
-/// [AsyncQueryResponse] so that caller can handle the query response asynchronously.
-///
-/// It works on [ServerChannels] which maintains only a single connection between the broker and each server.
+/**
+ * The {@code QueryRouter} class provides methods to route the query based on the routing table, and returns a
+ * {@link AsyncQueryResponse} so that caller can handle the query response asynchronously.
+ * <p>It works on {@link ServerChannels} which maintains only a single connection between the broker and each server.
+ */
 @ThreadSafe
 public class QueryRouter {
   private static final Logger LOGGER = LoggerFactory.getLogger(QueryRouter.class);
@@ -58,11 +59,13 @@ public class QueryRouter {
   private final BrokerMetrics _brokerMetrics = BrokerMetrics.get();
   private final ConcurrentHashMap<Long, AsyncQueryResponse> _asyncQueryResponseMap = new ConcurrentHashMap<>();
 
-  /// Creates a query router with TLS config.
-  ///
-  /// @param brokerId broker id
-  /// @param nettyConfig configurations for netty library
-  /// @param tlsConfig TLS config
+  /**
+   * Creates a query router with TLS config.
+   *
+   * @param brokerId broker id
+   * @param nettyConfig configurations for netty library
+   * @param tlsConfig TLS config
+   */
   public QueryRouter(String brokerId, @Nullable NettyConfig nettyConfig, @Nullable TlsConfig tlsConfig,
       ServerRoutingStatsManager serverRoutingStatsManager, ThreadAccountant threadAccountant) {
     _brokerId = brokerId;
@@ -148,23 +151,21 @@ public class QueryRouter {
 
   public boolean hasChannel(ServerInstance serverInstance) {
     if (_serverChannelsTls != null) {
-      return _serverChannelsTls.hasChannel(
-          serverInstance.toServerRoutingInstance(TableType.OFFLINE, ServerInstance.RoutingType.NETTY_TLS));
+      return _serverChannelsTls.hasChannel(serverInstance.toServerRoutingInstance(TableType.OFFLINE, true));
     } else {
-      return _serverChannels.hasChannel(
-          serverInstance.toServerRoutingInstance(TableType.OFFLINE, ServerInstance.RoutingType.NETTY));
+      return _serverChannels.hasChannel(serverInstance.toServerRoutingInstance(TableType.OFFLINE, false));
     }
   }
 
-  /// Connects to the given server, returns `true` if the server is successfully connected.
+  /**
+   * Connects to the given server, returns {@code true} if the server is successfully connected.
+   */
   public boolean connect(ServerInstance serverInstance) {
     try {
       if (_serverChannelsTls != null) {
-        _serverChannelsTls.connect(
-            serverInstance.toServerRoutingInstance(TableType.OFFLINE, ServerInstance.RoutingType.NETTY_TLS));
+        _serverChannelsTls.connect(serverInstance.toServerRoutingInstance(TableType.OFFLINE, true));
       } else {
-        _serverChannels.connect(
-            serverInstance.toServerRoutingInstance(TableType.OFFLINE, ServerInstance.RoutingType.NETTY));
+        _serverChannels.connect(serverInstance.toServerRoutingInstance(TableType.OFFLINE, false));
       }
       return true;
     } catch (Exception e) {

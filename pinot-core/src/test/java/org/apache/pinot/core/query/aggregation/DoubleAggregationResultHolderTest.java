@@ -23,7 +23,9 @@ import org.testng.Assert;
 import org.testng.annotations.Test;
 
 
-/// Test for DoubleAggregationResultHolder class.
+/**
+ * Test for DoubleAggregationResultHolder class.
+ */
 @Test
 public class DoubleAggregationResultHolderTest {
   private static final long RANDOM_SEED = System.nanoTime();
@@ -39,9 +41,11 @@ public class DoubleAggregationResultHolderTest {
         "Default Value mismatch: Actual: " + actual + " Expected: " + DEFAULT_VALUE + " Random seed: " + RANDOM_SEED);
   }
 
-  /// This test is for the AggregationResultHolder.SetValue() api.
-  /// - Sets a random value in the result holder.
-  /// - Asserts that the value returned by the result holder is as expected.
+  /**
+   * This test is for the AggregationResultHolder.SetValue() api.
+   * - Sets a random value in the result holder.
+   * - Asserts that the value returned by the result holder is as expected.
+   */
   @Test
   void testSetValue() {
     AggregationResultHolder resultHolder = new DoubleAggregationResultHolder(DEFAULT_VALUE);

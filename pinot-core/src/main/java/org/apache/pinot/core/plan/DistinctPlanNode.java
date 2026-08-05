@@ -39,7 +39,9 @@ import org.apache.pinot.segment.spi.index.reader.SortedIndexReader;
 import org.apache.pinot.spi.config.table.FieldConfig;
 
 
-/// Execution plan for distinct queries on a single segment.
+/**
+ * Execution plan for distinct queries on a single segment.
+ */
 public class DistinctPlanNode implements PlanNode {
   private final IndexSegment _indexSegment;
   private final SegmentContext _segmentContext;
@@ -82,9 +84,9 @@ public class DistinctPlanNode implements PlanNode {
       ExpressionContext expr = expressions.get(0);
 
       // JSON index path
-      if (JsonIndexDistinctOperator.canUseJsonIndexDistinct(expr)) {
+      if (JsonIndexDistinctOperator.canUseJsonIndexDistinct(_indexSegment, expr)) {
         BaseFilterOperator filterOperator = new FilterPlanNode(_segmentContext, _queryContext).run();
-        return new JsonIndexDistinctOperator(_indexSegment, _queryContext, filterOperator);
+        return new JsonIndexDistinctOperator(_indexSegment, _segmentContext, _queryContext, filterOperator);
       }
 
       // Inverted/sorted index path. For unsorted dictionaries the operator still avoids the scan/projection path,

@@ -23,7 +23,9 @@ import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.annotation.Nulls;
 
 
-/// Parameters used in SegmentSizeRule
+/**
+ * Parameters used in SegmentSizeRule
+ */
 public class SegmentSizeRuleParams {
 
   // Desired segment size in MB

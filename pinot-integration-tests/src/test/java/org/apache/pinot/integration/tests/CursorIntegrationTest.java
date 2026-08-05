@@ -23,6 +23,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import org.apache.pinot.common.exception.HttpErrorStatusException;
@@ -131,11 +132,13 @@ public class CursorIntegrationTest extends BaseClusterIntegrationTestSet {
   }
 
   protected Map<String, String> getHeaders() {
-    return Map.of();
+    return Collections.emptyMap();
   }
 
-  /// Deletes all cursor responses currently in the broker's response store.
-  /// Call at the start of tests that need a known clean state.
+  /**
+   * Deletes all cursor responses currently in the broker's response store.
+   * Call at the start of tests that need a known clean state.
+   */
   protected void deleteAllResponses()
       throws Exception {
     List<CursorResponseNative> responses = JsonUtils.stringToObject(

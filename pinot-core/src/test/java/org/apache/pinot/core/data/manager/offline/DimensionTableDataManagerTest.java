@@ -24,6 +24,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.Executors;
 import org.apache.commons.io.FileUtils;
@@ -142,7 +143,7 @@ public class DimensionTableDataManagerTest {
         .setSchemaName("dimBaseballTeams")
         .addSingleValueDimension("teamID", DataType.STRING)
         .addSingleValueDimension("teamName", DataType.STRING)
-        .setPrimaryKeyColumns(List.of("teamID"))
+        .setPrimaryKeyColumns(Collections.singletonList("teamID"))
         .build();
   }
 
@@ -151,7 +152,7 @@ public class DimensionTableDataManagerTest {
         .addSingleValueDimension("teamID", DataType.STRING)
         .addSingleValueDimension("teamName", DataType.STRING)
         .addSingleValueDimension("teamCity", DataType.STRING)
-        .setPrimaryKeyColumns(List.of("teamID"))
+        .setPrimaryKeyColumns(Collections.singletonList("teamID"))
         .build();
   }
 
@@ -249,7 +250,7 @@ public class DimensionTableDataManagerTest {
 
     // Confirm we can read primary column list
     List<String> pkColumns = tableDataManager.getPrimaryKeyColumns();
-    assertEquals(pkColumns, List.of("teamID"), "Should return PK column list");
+    assertEquals(pkColumns, Collections.singletonList("teamID"), "Should return PK column list");
 
     // Remove the segment
     List<SegmentDataManager> segmentManagers = tableDataManager.acquireAllSegments();
@@ -346,7 +347,7 @@ public class DimensionTableDataManagerTest {
 
     // Confirm we can read primary column list
     List<String> pkColumns = tableDataManager.getPrimaryKeyColumns();
-    assertEquals(pkColumns, List.of("teamID"), "Should return PK column list");
+    assertEquals(pkColumns, Collections.singletonList("teamID"), "Should return PK column list");
 
     // Remove the segment
     List<SegmentDataManager> segmentManagers = tableDataManager.acquireAllSegments();

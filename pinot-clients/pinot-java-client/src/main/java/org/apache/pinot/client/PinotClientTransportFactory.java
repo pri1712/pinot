@@ -18,8 +18,12 @@
  */
 package org.apache.pinot.client;
 
-/// Factory for client transports.
+/**
+ * Factory for client transports.
+ */
 public interface PinotClientTransportFactory {
-  /// This method is deprecating. Method with headers can be used in place of this by passing null headers.
+  /**
+   * This method is deprecating. Method with headers can be used in place of this by passing null headers.
+   */
   PinotClientTransport buildTransport();
 }

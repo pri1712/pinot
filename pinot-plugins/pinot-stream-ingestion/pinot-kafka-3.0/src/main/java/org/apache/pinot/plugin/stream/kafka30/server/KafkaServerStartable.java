@@ -20,6 +20,7 @@ package org.apache.pinot.plugin.stream.kafka30.server;
 
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -39,10 +40,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 
-/// Kafka 3.x implementation of [StreamDataServerStartable].
-///
-/// This class can either connect to an external broker or start a managed single-node KRaft
-/// container for local quickstart usage. It is not thread-safe.
+/**
+ * Kafka 3.x implementation of {@link StreamDataServerStartable}.
+ *
+ * This class can either connect to an external broker or start a managed single-node KRaft
+ * container for local quickstart usage. It is not thread-safe.
+ */
 public class KafkaServerStartable implements StreamDataServerStartable {
   private static final Logger LOGGER = LoggerFactory.getLogger(KafkaServerStartable.class);
 
@@ -164,7 +167,7 @@ public class KafkaServerStartable implements StreamDataServerStartable {
     short replicationFactor = (short) Math.max(1, Math.min(_clusterSize, requestedReplicationFactor));
     try (AdminClient adminClient = createKafkaAdminClient()) {
       NewTopic newTopic = new NewTopic(topic, numPartitions, replicationFactor);
-      runAdminWithRetry(() -> adminClient.createTopics(List.of(newTopic)).all().get(),
+      runAdminWithRetry(() -> adminClient.createTopics(Collections.singletonList(newTopic)).all().get(),
           "create topic: " + topic);
     } catch (Exception e) {
       if (e instanceof ExecutionException
@@ -180,7 +183,7 @@ public class KafkaServerStartable implements StreamDataServerStartable {
   public void deleteTopic(String topic) {
     ensureStarted();
     try (AdminClient adminClient = createKafkaAdminClient()) {
-      runAdminWithRetry(() -> adminClient.deleteTopics(List.of(topic)).all().get(),
+      runAdminWithRetry(() -> adminClient.deleteTopics(Collections.singletonList(topic)).all().get(),
           "delete topic: " + topic);
     } catch (Exception e) {
       throw new RuntimeException("Failed to delete topic: " + topic, e);
@@ -192,7 +195,7 @@ public class KafkaServerStartable implements StreamDataServerStartable {
     ensureStarted();
     try (AdminClient adminClient = createKafkaAdminClient()) {
       runAdminWithRetry(() -> {
-        adminClient.createPartitions(Map.of(topic, NewPartitions.increaseTo(numPartitions))).all()
+        adminClient.createPartitions(Collections.singletonMap(topic, NewPartitions.increaseTo(numPartitions))).all()
             .get();
         return null;
       }, "create partitions for topic: " + topic);
@@ -207,7 +210,7 @@ public class KafkaServerStartable implements StreamDataServerStartable {
     TopicPartition topicPartition = new TopicPartition(topic, partition);
     try (AdminClient adminClient = createKafkaAdminClient()) {
       runAdminWithRetry(() -> {
-        adminClient.deleteRecords(Map.of(topicPartition, RecordsToDelete.beforeOffset(offset))).all()
+        adminClient.deleteRecords(Collections.singletonMap(topicPartition, RecordsToDelete.beforeOffset(offset))).all()
             .get();
         return null;
       }, "delete records before offset for topic: " + topic + ", partition: " + partition);

@@ -23,7 +23,9 @@ import org.joda.time.DurationFieldType;
 import org.joda.time.chrono.ISOChronology;
 
 
-/// Implementation of [TimeUnitTransformer] to handle custom time units such as WEEKS, MONTHS, YEARS.
+/**
+ * Implementation of {@link TimeUnitTransformer} to handle custom time units such as WEEKS, MONTHS, YEARS.
+ */
 public class CustomTimeUnitTransformer implements TimeUnitTransformer {
   private final TimeUnit _inputTimeUnit;
   private final CustomTimeUnit _outputTimeUnit;
@@ -46,10 +48,12 @@ public class CustomTimeUnitTransformer implements TimeUnitTransformer {
       }
     };
 
-    /// Convert the given millisecond since epoch into the desired time unit.
-    ///
-    /// @param millisSinceEpoch Millisecond since epoch
-    /// @return Time since epoch of desired time unit
+    /**
+     * Convert the given millisecond since epoch into the desired time unit.
+     *
+     * @param millisSinceEpoch Millisecond since epoch
+     * @return Time since epoch of desired time unit
+     */
     abstract long fromMillis(long millisSinceEpoch);
   }
 

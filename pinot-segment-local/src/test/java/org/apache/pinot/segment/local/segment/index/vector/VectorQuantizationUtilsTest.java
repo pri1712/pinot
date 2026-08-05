@@ -23,7 +23,9 @@ import org.testng.Assert;
 import org.testng.annotations.Test;
 
 
-/// Unit tests for [VectorQuantizationUtils].
+/**
+ * Unit tests for {@link VectorQuantizationUtils}.
+ */
 public class VectorQuantizationUtilsTest {
 
   @Test

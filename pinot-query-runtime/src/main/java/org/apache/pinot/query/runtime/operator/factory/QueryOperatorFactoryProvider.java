@@ -19,7 +19,9 @@
 package org.apache.pinot.query.runtime.operator.factory;
 
 
-/// Provider for operator factories used to construct multi-stage query operators.
+/**
+ * Provider for operator factories used to construct multi-stage query operators.
+ */
 public interface QueryOperatorFactoryProvider {
   JoinOperatorFactory getJoinOperatorFactory();
 

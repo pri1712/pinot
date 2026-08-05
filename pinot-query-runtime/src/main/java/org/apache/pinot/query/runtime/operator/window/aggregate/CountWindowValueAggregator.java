@@ -21,7 +21,9 @@ package org.apache.pinot.query.runtime.operator.window.aggregate;
 import javax.annotation.Nullable;
 
 
-/// Window value aggregator for COUNT window function.
+/**
+ * Window value aggregator for COUNT window function.
+ */
 public class CountWindowValueAggregator implements WindowValueAggregator<Object> {
   private long _count = 0;
 

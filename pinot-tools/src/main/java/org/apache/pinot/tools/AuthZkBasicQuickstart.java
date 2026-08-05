@@ -18,6 +18,7 @@
  */
 package org.apache.pinot.tools;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -30,7 +31,7 @@ import org.apache.pinot.spi.plugin.PluginManager;
 public class AuthZkBasicQuickstart extends Quickstart {
   @Override
   public List<String> types() {
-    return List.of("AUTH-ZK");
+    return Collections.singletonList("AUTH-ZK");
   }
 
   @Override

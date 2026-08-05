@@ -281,12 +281,11 @@
       "dataType": "INT"
     }
   ],
-  "dateTimeFieldSpecs": [
-    {
+  "timeFieldSpec": {
+    "incomingGranularitySpec": {
       "name": "DaysSinceEpoch",
       "dataType": "INT",
-      "format": "EPOCH|DAYS",
-      "granularity": "DAYS"
+      "timeType": "DAYS"
     }
-  ]
+  }
 }

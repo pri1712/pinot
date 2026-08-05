@@ -30,8 +30,10 @@ import org.apache.pinot.segment.local.customobject.SerializedQuantileDigest;
 import org.apache.pinot.segment.spi.AggregationFunctionType;
 
 
-/// The `PercentileRawEstAggregationFunction` returns the serialized `QuantileDigest` data structure of the
-/// `PercentileEstAggregationFunction`.
+/**
+ * The {@code PercentileRawEstAggregationFunction} returns the serialized {@code QuantileDigest} data structure of the
+ * {@code PercentileEstAggregationFunction}.
+ */
 public class PercentileRawEstAggregationFunction
     extends BaseSingleInputAggregationFunction<QuantileDigest, SerializedQuantileDigest> {
   private final PercentileEstAggregationFunction _percentileEstAggregationFunction;

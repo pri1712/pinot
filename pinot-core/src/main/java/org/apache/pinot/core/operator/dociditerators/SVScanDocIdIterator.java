@@ -31,8 +31,10 @@ import org.roaringbitmap.RoaringBitmapWriter;
 import org.roaringbitmap.buffer.MutableRoaringBitmap;
 
 
-/// The `SVScanDocIdIterator` is the scan-based iterator for SVScanDocIdSet to scan a single-value column for the
-/// matching document ids.
+/**
+ * The {@code SVScanDocIdIterator} is the scan-based iterator for SVScanDocIdSet to scan a single-value column for the
+ * matching document ids.
+ */
 @SuppressWarnings({"rawtypes", "unchecked"})
 public final class SVScanDocIdIterator implements ScanBasedDocIdIterator {
   private final PredicateEvaluator _predicateEvaluator;
@@ -147,8 +149,10 @@ public final class SVScanDocIdIterator implements ScanBasedDocIdIterator {
     return _numEntriesScanned;
   }
 
-  /// This is an approximation of probability calculation in
-  /// org.apache.pinot.controller.recommender.rules.utils.QueryInvertedSortedIndexRecommender#percentSelected
+  /**
+   * This is an approximation of probability calculation in
+   * org.apache.pinot.controller.recommender.rules.utils.QueryInvertedSortedIndexRecommender#percentSelected
+   */
   @Override
   public float getEstimatedCardinality(boolean isAndDocIdSet) {
     int numMatchingItems = _predicateEvaluator.getNumMatchingItems();
@@ -186,13 +190,17 @@ public final class SVScanDocIdIterator implements ScanBasedDocIdIterator {
 
   private interface ValueMatcher {
 
-    /// Returns `true` if the value for the given document id matches the predicate, `false` Otherwise.
+    /**
+     * Returns {@code true} if the value for the given document id matches the predicate, {@code false} Otherwise.
+     */
     boolean doesValueMatch(int docId);
 
-    /// Filters out non matching values and compacts matching docIds in the start of the array.
-    /// @param limit how much of the input to read
-    /// @param docIds the docIds to match - may be modified by this method so take a copy if necessary.
-    /// @return the index in the array of the first non-matching element - all elements before this index match.
+    /**
+     * Filters out non matching values and compacts matching docIds in the start of the array.
+     * @param limit how much of the input to read
+     * @param docIds the docIds to match - may be modified by this method so take a copy if necessary.
+     * @return the index in the array of the first non-matching element - all elements before this index match.
+     */
     default int matchValues(int limit, int[] docIds) {
       int matchCount = 0;
       for (int i = 0; i < limit; i++) {

@@ -35,16 +35,26 @@ import org.apache.pinot.segment.spi.partition.PartitionFunction;
 import org.apache.pinot.spi.data.FieldSpec.DataType;
 
 
-/// The `ColumnValueSegmentPruner` is the segment pruner that prunes segments based on the value inside the
-/// filter. This pruner is supposed to use segment metadata like min/max or partition id only. Pruners that need to
-/// access segment data like bloom filter is implemented separately and called after this one to reduce required data
-/// access.
-///
-/// - For EQUALITY filter, prune the segment based on:
-///   - Column min/max value
-///   - Column partition
-/// - For RANGE filter, prune the segment based on:
-///   - Column min/max value<
+/**
+ * The {@code ColumnValueSegmentPruner} is the segment pruner that prunes segments based on the value inside the filter.
+ * This pruner is supposed to use segment metadata like min/max or partition id only. Pruners that need to access
+ * segment data like bloom filter is implemented separately and called after this one to reduce required data access.
+ * <ul>
+ *   <li>
+ *     For EQUALITY filter, prune the segment based on:
+ *     <ul>
+ *       <li>Column min/max value</li>
+ *       <li>Column partition</li>
+ *     </ul>
+ *   </li>
+ *   <li>
+ *     For RANGE filter, prune the segment based on:
+ *     <ul>
+ *       <li>Column min/max value<</li>
+ *     </ul>
+ *   </li>
+ * </ul>
+ */
 @SuppressWarnings({"rawtypes", "unchecked", "RedundantIfStatement"})
 public class ColumnValueSegmentPruner extends ValueBasedSegmentPruner {
   @Override
@@ -82,10 +92,13 @@ public class ColumnValueSegmentPruner extends ValueBasedSegmentPruner {
     }
   }
 
-  /// For EQ predicate, prune the segments based on:
-  ///
-  /// - Column min/max value
-  /// - Column partition
+  /**
+   * For EQ predicate, prune the segments based on:
+   * <ul>
+   *   <li>Column min/max value</li>
+   *   <li>Column partition</li>
+   * </ul>
+   */
   private boolean pruneEqPredicate(IndexSegment segment, EqPredicate eqPredicate,
       Map<String, DataSource> dataSourceCache, ValueCache valueCache, QueryContext query) {
     String column = eqPredicate.getLhs().getIdentifier();
@@ -110,11 +123,13 @@ public class ColumnValueSegmentPruner extends ValueBasedSegmentPruner {
     return false;
   }
 
-  /// For IN predicate, prune the segments based on:
-  ///
-  /// - Column min/max value
-  ///
-  /// NOTE: segments will not be pruned if the number of values is greater than the threshold.
+  /**
+   * For IN predicate, prune the segments based on:
+   * <ul>
+   *   <li>Column min/max value</li>
+   * </ul>
+   * <p>NOTE: segments will not be pruned if the number of values is greater than the threshold.
+   */
   private boolean pruneInPredicate(IndexSegment segment, InPredicate inPredicate,
       Map<String, DataSource> dataSourceCache, ValueCache valueCache, QueryContext query) {
     List<String> values = inPredicate.getValues();
@@ -137,9 +152,12 @@ public class ColumnValueSegmentPruner extends ValueBasedSegmentPruner {
     return true;
   }
 
-  /// For RANGE predicate, prune the segments based on:
-  ///
-  /// - Column min/max value
+  /**
+   * For RANGE predicate, prune the segments based on:
+   * <ul>
+   *   <li>Column min/max value</li>
+   * </ul>
+   */
   private boolean pruneRangePredicate(IndexSegment segment, RangePredicate rangePredicate,
       Map<String, DataSource> dataSourceCache, QueryContext query) {
     String column = rangePredicate.getLhs().getIdentifier();
@@ -209,7 +227,9 @@ public class ColumnValueSegmentPruner extends ValueBasedSegmentPruner {
     return false;
   }
 
-  /// Returns `true` if the value is within the column's min/max value range, `false` otherwise.
+  /**
+   * Returns {@code true} if the value is within the column's min/max value range, {@code false} otherwise.
+   */
   private boolean checkMinMaxRange(DataSourceMetadata dataSourceMetadata, Comparable value) {
     Comparable minValue = dataSourceMetadata.getMinValue();
     if (minValue != null) {

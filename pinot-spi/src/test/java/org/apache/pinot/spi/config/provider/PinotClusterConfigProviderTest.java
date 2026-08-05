@@ -26,7 +26,9 @@ import org.testng.annotations.Test;
 import static org.assertj.core.api.Assertions.assertThat;
 
 
-/// Unit tests for DefaultClusterConfigChangeHandler focusing on the getChangedProperties method.
+/**
+ * Unit tests for DefaultClusterConfigChangeHandler focusing on the getChangedProperties method.
+ */
 public class PinotClusterConfigProviderTest {
 
   @Test

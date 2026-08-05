@@ -37,11 +37,13 @@ import static java.lang.invoke.MethodHandles.guardWithTest;
 import static java.lang.invoke.MethodType.methodType;
 
 
-/// sun.misc.Cleaner has moved in OpenJDK 9 and
-/// sun.misc.Unsafe#invokeCleaner(ByteBuffer) is the replacement.
-/// This class is a hack to use sun.misc.Cleaner in Java 8 and
-/// use the replacement in Java 9+.
-/// This implementation is shamelessly borrowed from HADOOP-12760.
+/**
+ * sun.misc.Cleaner has moved in OpenJDK 9 and
+ * sun.misc.Unsafe#invokeCleaner(ByteBuffer) is the replacement.
+ * This class is a hack to use sun.misc.Cleaner in Java 8 and
+ * use the replacement in Java 9+.
+ * This implementation is shamelessly borrowed from HADOOP-12760.
+ */
 public final class CleanerUtil {
   private static final Logger LOGGER = LoggerFactory.getLogger(CleanerUtil.class);
 
@@ -49,17 +51,23 @@ public final class CleanerUtil {
   private CleanerUtil() {
   }
 
-  /// `true`, if this platform supports unmapping mmapped files.
+  /**
+   * <code>true</code>, if this platform supports unmapping mmapped files.
+   */
   public static final boolean UNMAP_SUPPORTED;
 
-  /// if [#UNMAP_SUPPORTED] is `false`, this contains the reason
-  /// why unmapping is not supported.
+  /**
+   * if {@link #UNMAP_SUPPORTED} is {@code false}, this contains the reason
+   * why unmapping is not supported.
+   */
   public static final String UNMAP_NOT_SUPPORTED_REASON;
 
   private static final BufferCleaner CLEANER;
 
-  /// Reference to a BufferCleaner that does unmapping.
-  /// @return `null` if not supported.
+  /**
+   * Reference to a BufferCleaner that does unmapping.
+   * @return {@code null} if not supported.
+   */
   public static BufferCleaner getCleaner() {
     return CLEANER;
   }
@@ -177,9 +185,11 @@ public final class CleanerUtil {
     }
   }
 
-  /// Pass in an implementation of this interface to cleanup ByteBuffers.
-  /// CleanerUtil implements this to allow unmapping of bytebuffers
-  /// with private Java APIs.
+  /**
+   * Pass in an implementation of this interface to cleanup ByteBuffers.
+   * CleanerUtil implements this to allow unmapping of bytebuffers
+   * with private Java APIs.
+   */
   @FunctionalInterface
   public interface BufferCleaner {
     void freeBuffer(ByteBuffer b)

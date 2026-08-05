@@ -222,7 +222,9 @@ public class HelixBrokerStarterTest extends ControllerTest {
     assertTrue(routingManager.routingExists(newOfflineTableName));
   }
 
-  /// This test verifies that when the segments of an OFFLINE are refreshed, the TimeBoundaryInfo is also updated.
+  /**
+   * This test verifies that when the segments of an OFFLINE are refreshed, the TimeBoundaryInfo is also updated.
+   */
   @Test
   public void testTimeBoundaryUpdate() {
     BrokerRoutingManager routingManager = _brokerStarter.getRoutingManager();

@@ -23,11 +23,13 @@ import java.util.HashMap;
 import java.util.Map;
 
 
-/// Simple POJO to hold query execution statistics for a request. These stats come in every
-/// query that's executed and can be used for debugging Pinot slow queries.
-///
-/// Please note that objects of this class will hold a reference to the given JsonNode object
-/// and that will only be released when the object is GC'ed.
+/**
+ * Simple POJO to hold query execution statistics for a request. These stats come in every
+ * query that's executed and can be used for debugging Pinot slow queries.
+ *
+ * <p>Please note that objects of this class will hold a reference to the given JsonNode object
+ * and that will only be released when the object is GC'ed.</p>
+ */
 public class ExecutionStats {
 
   private static final String NUM_SERVERS_QUERIED = "numServersQueried";

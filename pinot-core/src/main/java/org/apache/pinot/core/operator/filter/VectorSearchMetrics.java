@@ -28,26 +28,29 @@ import javax.annotation.Nullable;
 import org.apache.pinot.segment.spi.index.creator.VectorBackendType;
 
 
-/// Collects aggregate vector search metrics for observability and debugging.
-///
-/// Tracks counters for:
-///
-/// - Search mode usage (POST_FILTER_ANN, FILTER_THEN_ANN, EXACT_SCAN)
-/// - Backend type usage (HNSW, IVF_FLAT, IVF_PQ, IVF_ON_DISK)
-/// - Fallback events by reason
-/// - Candidate and rerank budget distributions
-/// - Threshold/radius search counts
-/// - HNSW efSearch usage
-///
-/// Thread-safe. Uses LongAdder for high-contention counters.
-///
-/// This class is a singleton per server instance. Metrics are cumulative since server start
-/// and intended to be scraped by a metrics reporter (e.g., Dropwizard/Yammer).
+/**
+ * Collects aggregate vector search metrics for observability and debugging.
+ *
+ * <p>Tracks counters for:</p>
+ * <ul>
+ *   <li>Search mode usage (POST_FILTER_ANN, FILTER_THEN_ANN, EXACT_SCAN)</li>
+ *   <li>Backend type usage (HNSW, IVF_FLAT, IVF_PQ, IVF_ON_DISK)</li>
+ *   <li>Fallback events by reason</li>
+ *   <li>Candidate and rerank budget distributions</li>
+ *   <li>Threshold/radius search counts</li>
+ *   <li>HNSW efSearch usage</li>
+ * </ul>
+ *
+ * <p>Thread-safe. Uses LongAdder for high-contention counters.</p>
+ *
+ * <p>This class is a singleton per server instance. Metrics are cumulative since server start
+ * and intended to be scraped by a metrics reporter (e.g., Dropwizard/Yammer).</p>
+ */
 public final class VectorSearchMetrics {
 
   private static final VectorSearchMetrics INSTANCE = new VectorSearchMetrics();
 
-  /// Maximum number of distinct fallback reasons to track (prevents unbounded map growth).
+  /** Maximum number of distinct fallback reasons to track (prevents unbounded map growth). */
   private static final int MAX_FALLBACK_REASONS = 100;
 
   // Search mode counters
@@ -94,10 +97,12 @@ public final class VectorSearchMetrics {
   // Recording methods
   // -----------------------------------------------------------------------
 
-  /// Records a vector search execution.
-  ///
-  /// @param mode the search mode used
-  /// @param backendType the backend type (may be null for exact scan fallback)
+  /**
+   * Records a vector search execution.
+   *
+   * @param mode the search mode used
+   * @param backendType the backend type (may be null for exact scan fallback)
+   */
   public void recordSearch(VectorSearchMode mode, @Nullable VectorBackendType backendType) {
     _totalSearches.increment();
     _modeCounts.get(mode).increment();
@@ -109,9 +114,11 @@ public final class VectorSearchMetrics {
     }
   }
 
-  /// Records a fallback to exact scan.
-  ///
-  /// @param reason the fallback reason
+  /**
+   * Records a fallback to exact scan.
+   *
+   * @param reason the fallback reason
+   */
   public void recordFallback(String reason) {
     _totalFallbacks.increment();
     if (_fallbackCounts.size() < MAX_FALLBACK_REASONS) {
@@ -125,17 +132,23 @@ public final class VectorSearchMetrics {
     }
   }
 
-  /// Records a radius/threshold search.
+  /**
+   * Records a radius/threshold search.
+   */
   public void recordRadiusSearch() {
     _radiusSearches.increment();
   }
 
-  /// Records an efSearch override.
+  /**
+   * Records an efSearch override.
+   */
   public void recordEfSearchOverride() {
     _efSearchOverrides.increment();
   }
 
-  /// Records candidate and rerank budgets for a search.
+  /**
+   * Records candidate and rerank budgets for a search.
+   */
   public void recordBudgets(int candidateBudget, int rerankBudget) {
     _candidateBudgetSum.add(candidateBudget);
     _candidateBudgetCount.increment();
@@ -191,7 +204,9 @@ public final class VectorSearchMetrics {
     return count > 0 ? (double) _rerankBudgetSum.sum() / count : 0.0;
   }
 
-  /// Returns a snapshot of all metrics as a map (for debug endpoints).
+  /**
+   * Returns a snapshot of all metrics as a map (for debug endpoints).
+   */
   public Map<String, Object> toMap() {
     Map<String, Object> map = new LinkedHashMap<>();
     map.put("totalSearches", getTotalSearches());
@@ -222,7 +237,9 @@ public final class VectorSearchMetrics {
     return map;
   }
 
-  /// Resets all counters. Intended for testing only.
+  /**
+   * Resets all counters. Intended for testing only.
+   */
   @com.google.common.annotations.VisibleForTesting
   public void reset() {
     _totalSearches.reset();

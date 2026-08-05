@@ -18,7 +18,9 @@
  */
 package org.apache.pinot.controller.recommender.data.generator;
 
-/// Sep 13, 2014
+/**
+ * Sep 13, 2014
+ */
 
 public interface Generator {
 

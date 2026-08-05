@@ -30,14 +30,20 @@ import org.apache.pinot.spi.annotations.InterfaceAudience;
 import org.apache.pinot.spi.env.PinotConfiguration;
 
 
-/// The `PlanMaker` makes logical execution plan for the queries.
+/**
+ * The {@code PlanMaker} makes logical execution plan for the queries.
+ */
 @InterfaceAudience.Private
 public interface PlanMaker {
 
-  /// Initializes the plan maker.
+  /**
+   * Initializes the plan maker.
+   */
   void init(PinotConfiguration queryExecutorConfig);
 
-  /// Returns an instance level [Plan] which contains the logical execution plan for multiple segments.
+  /**
+   * Returns an instance level {@link Plan} which contains the logical execution plan for multiple segments.
+   */
   default Plan makeInstancePlan(List<SegmentContext> segmentContexts, QueryContext queryContext,
       ExecutorService executorService) {
     return makeInstancePlan(segmentContexts, queryContext, executorService, ServerMetrics.get());
@@ -49,11 +55,15 @@ public interface PlanMaker {
     return makeInstancePlan(segmentContexts, queryContext, executorService);
   }
 
-  /// Returns a segment level [PlanNode] which contains the logical execution plan for one segment.
+  /**
+   * Returns a segment level {@link PlanNode} which contains the logical execution plan for one segment.
+   */
   PlanNode makeSegmentPlanNode(SegmentContext segmentContext, QueryContext queryContext);
 
-  /// Returns an instance level [Plan] for a streaming query which contains the logical execution plan for
-  /// multiple segments.
+  /**
+   * Returns an instance level {@link Plan} for a streaming query which contains the logical execution plan for multiple
+   * segments.
+   */
   default Plan makeStreamingInstancePlan(List<SegmentContext> segmentContexts, QueryContext queryContext,
       ExecutorService executorService, ResultsBlockStreamer streamer) {
     return makeStreamingInstancePlan(segmentContexts, queryContext, executorService, streamer, ServerMetrics.get());
@@ -65,7 +75,9 @@ public interface PlanMaker {
     return makeStreamingInstancePlan(segmentContexts, queryContext, executorService, streamer);
   }
 
-  /// Returns a segment level [PlanNode] for a streaming query which contains the logical execution plan for one
-  /// segment.
+  /**
+   * Returns a segment level {@link PlanNode} for a streaming query which contains the logical execution plan for one
+   * segment.
+   */
   PlanNode makeStreamingSegmentPlanNode(SegmentContext segmentContext, QueryContext queryContext);
 }

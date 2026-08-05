@@ -22,8 +22,10 @@ import java.util.HashMap;
 import java.util.Map;
 
 
-/// The class `SegmentGenerationAndPushResult` wraps the segment generation and push
-/// results.
+/**
+ * The class <code>SegmentGenerationAndPushResult</code> wraps the segment generation and push
+ * results.
+ */
 public class SegmentGenerationAndPushResult {
   private final boolean _succeed;
   private final String _segmentName;

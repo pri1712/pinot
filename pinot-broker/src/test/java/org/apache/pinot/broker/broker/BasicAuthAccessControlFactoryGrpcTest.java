@@ -20,6 +20,7 @@ package org.apache.pinot.broker.broker;
 
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -150,7 +151,7 @@ public class BasicAuthAccessControlFactoryGrpcTest {
     Assert.assertFalse(result.hasAccess());
     Assert.assertTrue(result instanceof TableAuthorizationResult);
     TableAuthorizationResult tableResult = (TableAuthorizationResult) result;
-    Assert.assertEquals(tableResult.getFailedTables(), Set.of("restrictedTable"));
+    Assert.assertEquals(tableResult.getFailedTables(), Collections.singleton("restrictedTable"));
   }
 
   @Test
@@ -166,7 +167,7 @@ public class BasicAuthAccessControlFactoryGrpcTest {
     Assert.assertFalse(result.hasAccess());
     Assert.assertTrue(result instanceof TableAuthorizationResult);
     TableAuthorizationResult tableResult = (TableAuthorizationResult) result;
-    Assert.assertEquals(tableResult.getFailedTables(), Set.of("restrictedTable"));
+    Assert.assertEquals(tableResult.getFailedTables(), Collections.singleton("restrictedTable"));
   }
 
   @Test
@@ -204,7 +205,7 @@ public class BasicAuthAccessControlFactoryGrpcTest {
     Map<String, String> metadata = new HashMap<>();
     metadata.put("authorization", "Basic dXNlcjpzZWNyZXQ="); // user:secret
 
-    Set<String> tables = Set.of();
+    Set<String> tables = Collections.emptySet();
 
     GrpcRequesterIdentity identity = createGrpcRequesterIdentity(metadata);
 

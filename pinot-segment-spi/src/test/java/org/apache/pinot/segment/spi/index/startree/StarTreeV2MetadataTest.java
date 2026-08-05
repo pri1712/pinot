@@ -18,6 +18,7 @@
  */
 package org.apache.pinot.segment.spi.index.startree;
 
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -86,7 +87,7 @@ public class StarTreeV2MetadataTest {
     expected.add(thetaColumnPair);
     expected.add(rawThetaColumnPair);
 
-    Configuration metadataProperties = createMetadata(List.of("dimX"), expected);
+    Configuration metadataProperties = createMetadata(Collections.singletonList("dimX"), expected);
     StarTreeV2Metadata starTreeV2Metadata = new StarTreeV2Metadata(metadataProperties);
     Set<AggregationFunctionColumnPair> actual = starTreeV2Metadata.getFunctionColumnPairs();
 

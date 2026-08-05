@@ -28,9 +28,11 @@ import org.apache.pinot.common.restlet.resources.RebalanceResult;
 import org.apache.pinot.common.restlet.resources.ServerRebalanceJobStatusResponse;
 import org.apache.pinot.spi.utils.JsonUtils;
 
-/// Client for rebalance-oriented administration operations.
-/// Instances are lightweight views over the shared admin transport and are thread-safe as long as the parent
-/// [PinotAdminClient] remains open.
+/**
+ * Client for rebalance-oriented administration operations.
+ * Instances are lightweight views over the shared admin transport and are thread-safe as long as the parent
+ * {@link PinotAdminClient} remains open.
+ */
 public class RebalanceAdminClient extends BaseServiceAdminClient {
 
   public RebalanceAdminClient(PinotAdminTransport transport, String controllerAddress,
@@ -38,14 +40,18 @@ public class RebalanceAdminClient extends BaseServiceAdminClient {
     super(transport, controllerAddress, headers);
   }
 
-  /// Gets table rebalance job status by job id.
+  /**
+   * Gets table rebalance job status by job id.
+   */
   public String getRebalanceStatus(String jobId)
       throws PinotAdminException {
     JsonNode response = _transport.executeGet(_controllerAddress, "/rebalanceStatus/" + jobId, null, _headers);
     return response.toString();
   }
 
-  /// Gets table rebalance job status by job id as a [ServerRebalanceJobStatusResponse].
+  /**
+   * Gets table rebalance job status by job id as a {@link ServerRebalanceJobStatusResponse}.
+   */
   public ServerRebalanceJobStatusResponse getRebalanceStatusObject(String jobId)
       throws PinotAdminException {
     JsonNode response = _transport.executeGet(_controllerAddress, "/rebalanceStatus/" + jobId, null, _headers);
@@ -56,7 +62,9 @@ public class RebalanceAdminClient extends BaseServiceAdminClient {
     }
   }
 
-  /// Triggers a table rebalance with arbitrary query parameters.
+  /**
+   * Triggers a table rebalance with arbitrary query parameters.
+   */
   public String rebalanceTable(String tableName, Map<String, String> queryParams)
       throws PinotAdminException {
     JsonNode response = _transport.executePost(_controllerAddress, "/tables/" + tableName + "/rebalance", null,
@@ -64,7 +72,9 @@ public class RebalanceAdminClient extends BaseServiceAdminClient {
     return response.toString();
   }
 
-  /// Triggers a table rebalance with arbitrary query parameters and returns a [RebalanceResult].
+  /**
+   * Triggers a table rebalance with arbitrary query parameters and returns a {@link RebalanceResult}.
+   */
   public RebalanceResult rebalanceTableObject(String tableName, Map<String, String> queryParams)
       throws PinotAdminException {
     JsonNode response = _transport.executePost(_controllerAddress, "/tables/" + tableName + "/rebalance", null,
@@ -76,7 +86,9 @@ public class RebalanceAdminClient extends BaseServiceAdminClient {
     }
   }
 
-  /// Advanced rebalance API mirroring controller REST query params, returning a [RebalanceResult].
+  /**
+   * Advanced rebalance API mirroring controller REST query params, returning a {@link RebalanceResult}.
+   */
   public RebalanceResult rebalanceTable(String tableName, String tableType, boolean dryRun,
       boolean reassignInstances, boolean includeConsuming, boolean downtime, int minAvailableReplicas)
       throws PinotAdminException {
@@ -85,7 +97,9 @@ public class RebalanceAdminClient extends BaseServiceAdminClient {
         "downtime", String.valueOf(downtime), "minAvailableReplicas", String.valueOf(minAvailableReplicas)));
   }
 
-  /// Cancels rebalance jobs for a table.
+  /**
+   * Cancels rebalance jobs for a table.
+   */
   public List<String> cancelRebalance(String tableName, @Nullable String tableType)
       throws PinotAdminException {
     Map<String, String> queryParams = tableType != null ? Map.of("type", tableType) : null;

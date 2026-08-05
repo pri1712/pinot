@@ -28,7 +28,9 @@ import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 
-/// Tests the bitwise scalar transform functions.
+/**
+ * Tests the bitwise scalar transform functions.
+ */
 public class BitFunctionsTest {
 
   private void testFunction(String functionExpression, List<String> expectedArguments, GenericRow row,

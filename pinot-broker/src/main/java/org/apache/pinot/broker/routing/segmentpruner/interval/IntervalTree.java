@@ -28,7 +28,9 @@ import java.util.Map;
 import org.apache.pinot.spi.utils.Pairs;
 
 
-/// The `IntervalTree` class represents read-only balanced binary interval tree map (from intervals to values)
+/**
+ * The {@code IntervalTree} class represents read-only balanced binary interval tree map (from intervals to values)
+ */
 public class IntervalTree<VALUE> {
 
   // List representation of BST with root at index 0. For node with index x, it's left child index is (2x+1), right
@@ -51,14 +53,16 @@ public class IntervalTree<VALUE> {
     buildAuxiliaryInfo();
   }
 
-  /// Build interval bst by bfs, the root for each subtree will be the one with median interval.
-  /// A typical balanced tree:
-  ///                              \[10, 20\]
-  ///                              /       \
-  ///                       \[8, 15\]        \[12, 20\]
-  ///                          /            /
-  ///                   \[5, 10\]       \[10, 30\]
-  /// is represented as  { \[10, 20\], \[8, 15\], \[12, 20\], \[5, 10\], null, \[10, 30\] }
+  /**
+   * Build interval bst by bfs, the root for each subtree will be the one with median interval.
+   * A typical balanced tree:
+   *                              [10, 20]
+   *                              /       \
+   *                       [8, 15]        [12, 20]
+   *                          /            /
+   *                   [5, 10]       [10, 30]
+   * is represented as  { [10, 20], [8, 15], [12, 20], [5, 10], null, [10, 30] }
+   */
   private List<Node> buildIntervalTree(List<Node<VALUE>> sortedNodes) {
     List<Node> resNodes = new ArrayList<>();
     LinkedList<Pairs.IntPair> indexQueue = new LinkedList<>();
@@ -118,10 +122,12 @@ public class IntervalTree<VALUE> {
     return _nodes.get(index)._max;
   }
 
-  /// Find all values whose intervals intersect with the input interval.
-  ///
-  /// @param searchInterval search interval
-  /// @return list of all qualified values.
+  /**
+   * Find all values whose intervals intersect with the input interval.
+   *
+   * @param searchInterval search interval
+   * @return list of all qualified values.
+   */
   public List<VALUE> searchAll(Interval searchInterval) {
     List<VALUE> list = new ArrayList<>();
     if (searchInterval == null) {

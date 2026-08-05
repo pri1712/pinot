@@ -18,9 +18,13 @@
  */
 package org.apache.pinot.core.query.reduce.filter;
 
-/// Filter matcher for the rows.
+/**
+ * Filter matcher for the rows.
+ */
 public interface RowMatcher {
 
-  /// Returns `true` if the given row matches the filter, `false` otherwise.
+  /**
+   * Returns {@code true} if the given row matches the filter, {@code false} otherwise.
+   */
   boolean isMatch(Object[] row);
 }

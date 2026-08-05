@@ -18,19 +18,25 @@
  */
 package org.apache.pinot.core.query.aggregation;
 
-/// AggregationResultHolder interface implementation for result type 'object'.
+/**
+ * AggregationResultHolder interface implementation for result type 'object'.
+ */
 public class ObjectAggregationResultHolder implements AggregationResultHolder {
   Object _value;
 
-  /// {@inheritDoc}
-  /// @param value
+  /**
+   * {@inheritDoc}
+   * @param value
+   */
   @Override
   public void setValue(double value) {
     _value = value;
   }
 
-  /// {@inheritDoc}
-  /// @param value
+  /**
+   * {@inheritDoc}
+   * @param value
+   */
   @Override
   public void setValue(Object value) {
     _value = value;
@@ -47,31 +53,39 @@ public class ObjectAggregationResultHolder implements AggregationResultHolder {
     _value = value;
   }
 
-  /// {@inheritDoc}
-  /// @return
+  /**
+   * {@inheritDoc}
+   * @return
+   */
   @Override
   public double getDoubleResult() {
     throw new RuntimeException("Method 'getDoubleResult' not supported in ObjectAggregationResultHolder");
   }
 
-  /// {@inheritDoc}
-  ///
-  /// @return
+  /**
+   * {@inheritDoc}
+   *
+   * @return
+   */
   @Override
   public int getIntResult() {
     throw new RuntimeException("Method 'getIntResult' not supported in ObjectAggregationResultHolder");
   }
 
-  /// {@inheritDoc}
-  ///
-  /// @return
+  /**
+   * {@inheritDoc}
+   *
+   * @return
+   */
   @Override
   public long getLongResult() {
     throw new RuntimeException("Method 'getLongResult' not supported in ObjectAggregationResultHolder");
   }
 
-  /// {@inheritDoc}
-  /// @return
+  /**
+   * {@inheritDoc}
+   * @return
+   */
   @Override
   @SuppressWarnings("unchecked")
   public <T> T getResult() {

@@ -23,7 +23,9 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.List;
 
 
-/// Configuration for the CLP enricher.
+/**
+ * Configuration for the CLP enricher.
+ */
 public class CLPEncodingEnricherConfig {
   private final List<String> _fields;
 

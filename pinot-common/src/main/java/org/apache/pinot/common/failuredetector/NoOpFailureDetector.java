@@ -18,6 +18,7 @@
  */
 package org.apache.pinot.common.failuredetector;
 
+import java.util.Collections;
 import java.util.Set;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -60,7 +61,7 @@ public class NoOpFailureDetector implements FailureDetector {
 
   @Override
   public Set<String> getUnhealthyServers() {
-    return Set.of();
+    return Collections.emptySet();
   }
 
   @Override

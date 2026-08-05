@@ -18,7 +18,9 @@
  */
 package org.apache.pinot.spi.utils;
 
-/// Global runtime switch for disabling MD5-dependent code paths in Pinot.
+/**
+ * Global runtime switch for disabling MD5-dependent code paths in Pinot.
+ */
 public class PinotMd5Mode {
   private static volatile boolean _pinotMd5Disabled = readFromSystemProperty();
 

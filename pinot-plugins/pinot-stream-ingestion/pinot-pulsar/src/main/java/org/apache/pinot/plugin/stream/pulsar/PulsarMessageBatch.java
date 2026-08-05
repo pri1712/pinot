@@ -23,7 +23,9 @@ import org.apache.pinot.spi.stream.BytesStreamMessage;
 import org.apache.pinot.spi.stream.MessageBatch;
 
 
-/// A [MessageBatch] for collecting messages from pulsar topic
+/**
+ * A {@link MessageBatch} for collecting messages from pulsar topic
+ */
 public class PulsarMessageBatch implements MessageBatch<byte[]> {
   private final List<BytesStreamMessage> _messages;
   private final MessageIdStreamOffset _offsetOfNextBatch;

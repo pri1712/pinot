@@ -22,7 +22,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.LinkedHashSet;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -34,8 +34,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 
-/// Client for tenant administration operations.
-/// Provides methods to create, update, delete, and manage Pinot tenants.
+/**
+ * Client for tenant administration operations.
+ * Provides methods to create, update, delete, and manage Pinot tenants.
+ */
 public class TenantAdminClient extends BaseServiceAdminClient {
   private static final Logger LOGGER = LoggerFactory.getLogger(TenantAdminClient.class);
 
@@ -44,18 +46,22 @@ public class TenantAdminClient extends BaseServiceAdminClient {
     super(transport, controllerAddress, headers);
   }
 
-  /// Lists all tenants in the cluster.
-  ///
-  /// @return List of tenant names
-  /// @throws PinotAdminException If the request fails
+  /**
+   * Lists all tenants in the cluster.
+   *
+   * @return List of tenant names
+   * @throws PinotAdminException If the request fails
+   */
   public List<String> listTenants()
       throws PinotAdminException {
     return listTenants(null);
   }
 
-  /// Lists tenants, optionally filtered by type.
-  ///
-  /// @param type tenant type filter (BROKER or SERVER)
+  /**
+   * Lists tenants, optionally filtered by type.
+   *
+   * @param type tenant type filter (BROKER or SERVER)
+   */
   public List<String> listTenants(@Nullable String type)
       throws PinotAdminException {
     Map<String, String> queryParams = new HashMap<>();
@@ -65,15 +71,7 @@ public class TenantAdminClient extends BaseServiceAdminClient {
 
     JsonNode response =
         _transport.executeGet(_controllerAddress, "/tenants", queryParams.isEmpty() ? null : queryParams, _headers);
-    return parseTenantNames(response);
-  }
-
-  /// Extracts the broker and server tenant names from a `GET /tenants` response.
-  ///
-  /// The controller returns a `TenantsList` serialized as `{"SERVER_TENANTS": [...], "BROKER_TENANTS": [...]}`;
-  /// there is no flat `tenants` field.
-  private static List<String> parseTenantNames(JsonNode response) {
-    Set<String> tenants = new LinkedHashSet<>();
+    Set<String> tenants = new HashSet<>();
     JsonNode brokerTenants = response.get("BROKER_TENANTS");
     if (brokerTenants != null && brokerTenants.isArray()) {
       brokerTenants.forEach(node -> tenants.add(node.asText()));
@@ -85,13 +83,17 @@ public class TenantAdminClient extends BaseServiceAdminClient {
     return new ArrayList<>(tenants);
   }
 
-  /// Returns the tenants overview payload (BROKER_TENANTS and SERVER_TENANTS).
+  /**
+   * Returns the tenants overview payload (BROKER_TENANTS and SERVER_TENANTS).
+   */
   public String getTenants()
       throws PinotAdminException {
     return getTenants(null);
   }
 
-  /// Returns the tenants overview payload filtered by type (optional).
+  /**
+   * Returns the tenants overview payload filtered by type (optional).
+   */
   public String getTenants(@Nullable String type)
       throws PinotAdminException {
     Map<String, String> queryParams = new HashMap<>();
@@ -103,35 +105,41 @@ public class TenantAdminClient extends BaseServiceAdminClient {
     return response.toString();
   }
 
-  /// Creates a new tenant.
-  ///
-  /// @param tenantConfig Tenant configuration as JSON string
-  /// @return Success response
-  /// @throws PinotAdminException If the request fails
+  /**
+   * Creates a new tenant.
+   *
+   * @param tenantConfig Tenant configuration as JSON string
+   * @return Success response
+   * @throws PinotAdminException If the request fails
+   */
   public String createTenant(String tenantConfig)
       throws PinotAdminException {
     JsonNode response = _transport.executePost(_controllerAddress, "/tenants", tenantConfig, null, _headers);
     return response.toString();
   }
 
-  /// Updates an existing tenant.
-  ///
-  /// @param tenantConfig Updated tenant configuration as JSON string
-  /// @return Success response
-  /// @throws PinotAdminException If the request fails
+  /**
+   * Updates an existing tenant.
+   *
+   * @param tenantConfig Updated tenant configuration as JSON string
+   * @return Success response
+   * @throws PinotAdminException If the request fails
+   */
   public String updateTenant(String tenantConfig)
       throws PinotAdminException {
     JsonNode response = _transport.executePut(_controllerAddress, "/tenants", tenantConfig, null, _headers);
     return response.toString();
   }
 
-  /// Gets instances for a specific tenant.
-  ///
-  /// @param tenantName Name of the tenant
-  /// @param tenantType Tenant type (server or broker)
-  /// @param tableType Table type (offline or realtime)
-  /// @return Tenant instances as JSON string
-  /// @throws PinotAdminException If the request fails
+  /**
+   * Gets instances for a specific tenant.
+   *
+   * @param tenantName Name of the tenant
+   * @param tenantType Tenant type (server or broker)
+   * @param tableType Table type (offline or realtime)
+   * @return Tenant instances as JSON string
+   * @throws PinotAdminException If the request fails
+   */
   public String getTenantInstances(String tenantName, @Nullable String tenantType, @Nullable String tableType)
       throws PinotAdminException {
     Map<String, String> queryParams = new HashMap<>();
@@ -146,23 +154,27 @@ public class TenantAdminClient extends BaseServiceAdminClient {
     return response.toString();
   }
 
-  /// Gets instances for a specific tenant (server type by default).
-  ///
-  /// @param tenantName Name of the tenant
-  /// @return Tenant instances as JSON string
-  /// @throws PinotAdminException If the request fails
+  /**
+   * Gets instances for a specific tenant (server type by default).
+   *
+   * @param tenantName Name of the tenant
+   * @return Tenant instances as JSON string
+   * @throws PinotAdminException If the request fails
+   */
   public String getTenantInstances(String tenantName)
       throws PinotAdminException {
     return getTenantInstances(tenantName, null, null);
   }
 
-  /// Enables or disables a tenant.
-  ///
-  /// @param tenantName Name of the tenant
-  /// @param tenantType Tenant type (server or broker)
-  /// @param state State to set (enable or disable)
-  /// @return Success response
-  /// @throws PinotAdminException If the request fails
+  /**
+   * Enables or disables a tenant.
+   *
+   * @param tenantName Name of the tenant
+   * @param tenantType Tenant type (server or broker)
+   * @param state State to set (enable or disable)
+   * @return Success response
+   * @throws PinotAdminException If the request fails
+   */
   public String setTenantState(String tenantName, @Nullable String tenantType, String state)
       throws PinotAdminException {
     Map<String, String> queryParams = new HashMap<>();
@@ -176,13 +188,15 @@ public class TenantAdminClient extends BaseServiceAdminClient {
     return response.toString();
   }
 
-  /// Gets tables on a server or broker tenant.
-  ///
-  /// @param tenantName Name of the tenant
-  /// @param tenantType Tenant type (server or broker)
-  /// @param withTableProperties Whether to include table properties
-  /// @return Tenant tables as JSON string
-  /// @throws PinotAdminException If the request fails
+  /**
+   * Gets tables on a server or broker tenant.
+   *
+   * @param tenantName Name of the tenant
+   * @param tenantType Tenant type (server or broker)
+   * @param withTableProperties Whether to include table properties
+   * @return Tenant tables as JSON string
+   * @throws PinotAdminException If the request fails
+   */
   public String getTenantTables(String tenantName, @Nullable String tenantType, boolean withTableProperties)
       throws PinotAdminException {
     Map<String, String> queryParams = new HashMap<>();
@@ -196,12 +210,14 @@ public class TenantAdminClient extends BaseServiceAdminClient {
     return response.toString();
   }
 
-  /// Gets the instance partitions of a tenant.
-  ///
-  /// @param tenantName Name of the tenant
-  /// @param instancePartitionType Instance partition type (OFFLINE, CONSUMING, COMPLETED)
-  /// @return Instance partitions as JSON string
-  /// @throws PinotAdminException If the request fails
+  /**
+   * Gets the instance partitions of a tenant.
+   *
+   * @param tenantName Name of the tenant
+   * @param instancePartitionType Instance partition type (OFFLINE, CONSUMING, COMPLETED)
+   * @return Instance partitions as JSON string
+   * @throws PinotAdminException If the request fails
+   */
   public String getInstancePartitions(String tenantName, String instancePartitionType)
       throws PinotAdminException {
     Map<String, String> queryParams = Map.of("instancePartitionType", instancePartitionType);
@@ -211,13 +227,15 @@ public class TenantAdminClient extends BaseServiceAdminClient {
     return response.toString();
   }
 
-  /// Updates an instance partition for a server type in a tenant.
-  ///
-  /// @param tenantName Name of the tenant
-  /// @param instancePartitionType Instance partition type (OFFLINE, CONSUMING, COMPLETED)
-  /// @param instancePartitionsConfig Instance partitions configuration as JSON string
-  /// @return Success response
-  /// @throws PinotAdminException If the request fails
+  /**
+   * Updates an instance partition for a server type in a tenant.
+   *
+   * @param tenantName Name of the tenant
+   * @param instancePartitionType Instance partition type (OFFLINE, CONSUMING, COMPLETED)
+   * @param instancePartitionsConfig Instance partitions configuration as JSON string
+   * @return Success response
+   * @throws PinotAdminException If the request fails
+   */
   public String updateInstancePartitions(String tenantName, String instancePartitionType,
       String instancePartitionsConfig)
       throws PinotAdminException {
@@ -228,12 +246,14 @@ public class TenantAdminClient extends BaseServiceAdminClient {
     return response.toString();
   }
 
-  /// Gets tenant metadata information.
-  ///
-  /// @param tenantName Name of the tenant
-  /// @param tenantType Tenant type (optional)
-  /// @return Tenant metadata as JSON string
-  /// @throws PinotAdminException If the request fails
+  /**
+   * Gets tenant metadata information.
+   *
+   * @param tenantName Name of the tenant
+   * @param tenantType Tenant type (optional)
+   * @return Tenant metadata as JSON string
+   * @throws PinotAdminException If the request fails
+   */
   public String getTenantMetadata(String tenantName, @Nullable String tenantType)
       throws PinotAdminException {
     Map<String, String> queryParams = new HashMap<>();
@@ -246,13 +266,15 @@ public class TenantAdminClient extends BaseServiceAdminClient {
     return response.toString();
   }
 
-  /// Changes tenant state.
-  ///
-  /// @param tenantName Name of the tenant
-  /// @param tenantType Tenant type (optional)
-  /// @param state New state (enable, disable, drop)
-  /// @return Success response
-  /// @throws PinotAdminException If the request fails
+  /**
+   * Changes tenant state.
+   *
+   * @param tenantName Name of the tenant
+   * @param tenantType Tenant type (optional)
+   * @param state New state (enable, disable, drop)
+   * @return Success response
+   * @throws PinotAdminException If the request fails
+   */
   public String changeTenantState(String tenantName, @Nullable String tenantType, String state)
       throws PinotAdminException {
     Map<String, String> queryParams = new HashMap<>();
@@ -266,12 +288,14 @@ public class TenantAdminClient extends BaseServiceAdminClient {
     return response.toString();
   }
 
-  /// Deletes a tenant.
-  ///
-  /// @param tenantName Name of the tenant
-  /// @param tenantType Tenant type (SERVER or BROKER)
-  /// @return Success response
-  /// @throws PinotAdminException If the request fails
+  /**
+   * Deletes a tenant.
+   *
+   * @param tenantName Name of the tenant
+   * @param tenantType Tenant type (SERVER or BROKER)
+   * @return Success response
+   * @throws PinotAdminException If the request fails
+   */
   public String deleteTenant(String tenantName, String tenantType)
       throws PinotAdminException {
     Map<String, String> queryParams = Map.of("type", tenantType);
@@ -280,63 +304,70 @@ public class TenantAdminClient extends BaseServiceAdminClient {
     return response.toString();
   }
 
-  /// Cancels a running tenant rebalance job.
-  ///
-  /// @param jobId Job ID of the rebalance job
-  /// @return Success response
-  /// @throws PinotAdminException If the request fails
+  /**
+   * Cancels a running tenant rebalance job.
+   *
+   * @param jobId Job ID of the rebalance job
+   * @return Success response
+   * @throws PinotAdminException If the request fails
+   */
   public String cancelRebalance(String jobId)
       throws PinotAdminException {
     JsonNode response = _transport.executeDelete(_controllerAddress, "/tenants/rebalance/" + jobId, null, _headers);
     return response.toString();
   }
 
-  /// Rebalances all tables that are part of the tenant.
-  ///
-  /// The controller endpoint reads the include/exclude filters from the `includeTables`/`excludeTables`
-  /// query params and requires a `TenantRebalanceConfig` request body; this method sends an empty config object
-  /// so the query params can populate it. Use [#rebalanceTenantWithConfig(String, String, Map)] when you need to
-  /// supply a full rebalance config.
-  ///
-  /// @param tenantName Name of the tenant
-  /// @param degreeOfParallelism Number of table rebalance jobs allowed to run at the same time
-  /// @param includeTables Comma-separated list of tables (with type) to include (optional)
-  /// @param excludeTables Comma-separated list of tables (with type) to exclude (optional)
-  /// @return Rebalance result
-  /// @throws PinotAdminException If the request fails
-  public String rebalanceTenant(String tenantName, int degreeOfParallelism, @Nullable String includeTables,
-      @Nullable String excludeTables)
+  /**
+   * Rebalances all tables that are part of the tenant.
+   *
+   * @param tenantName Name of the tenant
+   * @param degreeOfParallelism Number of table rebalance jobs allowed to run at the same time
+   * @param includeTableTypes Comma-separated list of table types to include (optional)
+   * @param excludeTableTypes Comma-separated list of table types to exclude (optional)
+   * @param rebalanceMode Rebalance mode (optional)
+   * @return Rebalance result
+   * @throws PinotAdminException If the request fails
+   */
+  public String rebalanceTenant(String tenantName, int degreeOfParallelism, @Nullable String includeTableTypes,
+      @Nullable String excludeTableTypes, @Nullable String rebalanceMode)
       throws PinotAdminException {
     Map<String, String> queryParams = new HashMap<>();
     queryParams.put("degreeOfParallelism", String.valueOf(degreeOfParallelism));
-    if (includeTables != null) {
-      queryParams.put("includeTables", includeTables);
+    if (includeTableTypes != null) {
+      queryParams.put("includeTableTypes", includeTableTypes);
     }
-    if (excludeTables != null) {
-      queryParams.put("excludeTables", excludeTables);
+    if (excludeTableTypes != null) {
+      queryParams.put("excludeTableTypes", excludeTableTypes);
+    }
+    if (rebalanceMode != null) {
+      queryParams.put("rebalanceMode", rebalanceMode);
     }
 
     JsonNode response = _transport.executePost(_controllerAddress, "/tenants/" + tenantName + "/rebalance",
-        "{}", queryParams, _headers);
+        null, queryParams, _headers);
     return response.toString();
   }
 
-  /// Gets detailed stats of a tenant rebalance operation.
-  ///
-  /// @param jobId Tenant rebalance job ID
-  /// @return Rebalance status as JSON string
-  /// @throws PinotAdminException If the request fails
+  /**
+   * Gets detailed stats of a tenant rebalance operation.
+   *
+   * @param jobId Tenant rebalance job ID
+   * @return Rebalance status as JSON string
+   * @throws PinotAdminException If the request fails
+   */
   public String getRebalanceStatus(String jobId)
       throws PinotAdminException {
     JsonNode response = _transport.executeGet(_controllerAddress, "/tenants/rebalanceStatus/" + jobId, null, _headers);
     return response.toString();
   }
 
-  /// Gets list of rebalance jobs for a tenant.
-  ///
-  /// @param tenantName Name of the tenant
-  /// @return Rebalance jobs as JSON string
-  /// @throws PinotAdminException If the request fails
+  /**
+   * Gets list of rebalance jobs for a tenant.
+   *
+   * @param tenantName Name of the tenant
+   * @return Rebalance jobs as JSON string
+   * @throws PinotAdminException If the request fails
+   */
   public String getRebalanceJobs(String tenantName)
       throws PinotAdminException {
     JsonNode response = _transport.executeGet(_controllerAddress, "/tenants/" + tenantName + "/rebalanceJobs",
@@ -344,13 +375,15 @@ public class TenantAdminClient extends BaseServiceAdminClient {
     return response.toString();
   }
 
-  /// Runs tenant rebalance with a request body (e.g., TenantRebalanceConfig) and optional query parameters.
-  ///
-  /// @param tenantName Name of the tenant to rebalance
-  /// @param rebalanceConfigJson JSON payload describing the rebalance configuration
-  /// @param queryParams Optional query parameters such as includeTables/excludeTables
-  /// @return Rebalance result as JSON string
-  /// @throws PinotAdminException If the request fails
+  /**
+   * Runs tenant rebalance with a request body (e.g., TenantRebalanceConfig) and optional query parameters.
+   *
+   * @param tenantName Name of the tenant to rebalance
+   * @param rebalanceConfigJson JSON payload describing the rebalance configuration
+   * @param queryParams Optional query parameters such as includeTables/excludeTables
+   * @return Rebalance result as JSON string
+   * @throws PinotAdminException If the request fails
+   */
   public String rebalanceTenantWithConfig(String tenantName, String rebalanceConfigJson,
       @Nullable Map<String, String> queryParams)
       throws PinotAdminException {
@@ -359,7 +392,9 @@ public class TenantAdminClient extends BaseServiceAdminClient {
     return response.toString();
   }
 
-  /// Runs tenant rebalance with a request body and returns a [TenantRebalanceResult].
+  /**
+   * Runs tenant rebalance with a request body and returns a {@link TenantRebalanceResult}.
+   */
   public TenantRebalanceResult rebalanceTenantWithConfigObject(String tenantName, String rebalanceConfigJson,
       @Nullable Map<String, String> queryParams)
       throws PinotAdminException {
@@ -372,14 +407,18 @@ public class TenantAdminClient extends BaseServiceAdminClient {
     }
   }
 
-  /// Runs tenant rebalance with a request body (no additional query parameters).
+  /**
+   * Runs tenant rebalance with a request body (no additional query parameters).
+   */
   public String rebalanceTenantWithConfig(String tenantName, String rebalanceConfigJson)
       throws PinotAdminException {
     return rebalanceTenantWithConfig(tenantName, rebalanceConfigJson, (Map<String, String>) null);
   }
 
-  /// Runs tenant rebalance with a request body (no additional query parameters) and returns a
-  /// [TenantRebalanceResult].
+  /**
+   * Runs tenant rebalance with a request body (no additional query parameters) and returns a
+   * {@link TenantRebalanceResult}.
+   */
   public TenantRebalanceResult rebalanceTenantWithConfigObject(String tenantName, String rebalanceConfigJson)
       throws PinotAdminException {
     return rebalanceTenantWithConfigObject(tenantName, rebalanceConfigJson, null);
@@ -387,19 +426,25 @@ public class TenantAdminClient extends BaseServiceAdminClient {
 
   // Async versions of key methods
 
-  /// Lists all tenants in the cluster (async).
+  /**
+   * Lists all tenants in the cluster (async).
+   */
   public CompletableFuture<List<String>> listTenantsAsync() {
     return _transport.executeGetAsync(_controllerAddress, "/tenants", null, _headers)
-        .thenApply(TenantAdminClient::parseTenantNames);
+        .thenApply(response -> PinotAdminTransport.getObjectMapper().convertValue(response.get("tenants"), List.class));
   }
 
-  /// Creates a new tenant (async).
+  /**
+   * Creates a new tenant (async).
+   */
   public CompletableFuture<String> createTenantAsync(String tenantConfig) {
     return _transport.executePostAsync(_controllerAddress, "/tenants", tenantConfig, null, _headers)
         .thenApply(JsonNode::toString);
   }
 
-  /// Gets tenant metadata information (async).
+  /**
+   * Gets tenant metadata information (async).
+   */
   public CompletableFuture<String> getTenantMetadataAsync(String tenantName, @Nullable String tenantType) {
     Map<String, String> queryParams = new HashMap<>();
     if (tenantType != null) {
@@ -410,7 +455,9 @@ public class TenantAdminClient extends BaseServiceAdminClient {
         .thenApply(JsonNode::toString);
   }
 
-  /// Deletes a tenant (async).
+  /**
+   * Deletes a tenant (async).
+   */
   public CompletableFuture<String> deleteTenantAsync(String tenantName, String tenantType) {
     Map<String, String> queryParams = Map.of("type", tenantType);
 

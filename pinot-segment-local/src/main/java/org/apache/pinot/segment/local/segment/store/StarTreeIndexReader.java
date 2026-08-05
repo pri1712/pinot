@@ -42,8 +42,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 
-/// This class provides access to the StarTree index data in a segment directory. The StarTree index data is stored in
-/// star_tree_index file, whose content can be parsed according to offset/size from star_tree_index_map file.
+/**
+ * This class provides access to the StarTree index data in a segment directory. The StarTree index data is stored in
+ * star_tree_index file, whose content can be parsed according to offset/size from star_tree_index_map file.
+ */
 public class StarTreeIndexReader implements Closeable {
   private static final Logger LOGGER = LoggerFactory.getLogger(StarTreeIndexReader.class);
 
@@ -57,9 +59,11 @@ public class StarTreeIndexReader implements Closeable {
   private final List<Map<IndexKey, StarTreeIndexEntry>> _indexColumnEntries;
   private PinotDataBuffer _dataBuffer;
 
-  /// @param segmentDirectory the segment directory contains StarTree index
-  /// @param segmentMetadata  segment metadata must be fully initialized
-  /// @param readMode         mmap vs heap mode
+  /**
+   * @param segmentDirectory the segment directory contains StarTree index
+   * @param segmentMetadata  segment metadata must be fully initialized
+   * @param readMode         mmap vs heap mode
+   */
   public StarTreeIndexReader(File segmentDirectory, SegmentMetadataImpl segmentMetadata, ReadMode readMode)
       throws IOException, ConfigurationException {
     _segmentDirectory = segmentDirectory;

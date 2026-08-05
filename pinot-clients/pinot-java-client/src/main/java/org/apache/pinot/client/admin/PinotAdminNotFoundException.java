@@ -18,7 +18,9 @@
  */
 package org.apache.pinot.client.admin;
 
-/// Exception thrown when a requested resource is not found.
+/**
+ * Exception thrown when a requested resource is not found.
+ */
 public class PinotAdminNotFoundException extends PinotAdminException {
 
   public PinotAdminNotFoundException(String message) {

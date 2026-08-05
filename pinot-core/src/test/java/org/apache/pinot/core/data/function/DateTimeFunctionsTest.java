@@ -20,12 +20,11 @@ package org.apache.pinot.core.data.function;
 
 import com.google.common.collect.Lists;
 import java.sql.Timestamp;
-import java.time.LocalDate;
-import java.time.LocalTime;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.function.Consumer;
 import org.apache.pinot.common.evaluator.InbuiltFunctionEvaluator;
@@ -43,7 +42,9 @@ import static org.testng.Assert.assertTrue;
 import static org.testng.Assert.fail;
 
 
-/// Tests the Pinot inbuilt transform functions
+/**
+ * Tests the Pinot inbuilt transform functions
+ */
 public class DateTimeFunctionsTest {
   private static final ZoneOffset WEIRD_ZONE = ZoneOffset.ofHoursMinutes(7, 9);
   private static final DateTimeZone WEIRD_DATE_TIME_ZONE = DateTimeZone.forID(WEIRD_ZONE.getId());
@@ -331,7 +332,7 @@ public class DateTimeFunctionsTest {
     });
 
     // timezone_hour and timezone_minute
-    List<String> expectedArguments = List.of("tz");
+    List<String> expectedArguments = Collections.singletonList("tz");
     GenericRow row120 = new GenericRow();
     row120.putValue("tz", "UTC");
     inputs.add(new Object[]{"timezone_hour(tz)", expectedArguments, row120, 0});
@@ -371,7 +372,7 @@ public class DateTimeFunctionsTest {
     inputs.add(new Object[]{"timezone_minute(tz, 1656685381000)", expectedArguments, row125, 0});
 
     // Convenience extraction functions
-    expectedArguments = List.of("millis");
+    expectedArguments = Collections.singletonList("millis");
     GenericRow row130 = new GenericRow();
     // Sat May 23 2020 22:23:13.123 UTC
     row130.putValue("millis", 1590272593123L);
@@ -750,43 +751,6 @@ public class DateTimeFunctionsTest {
   }
 
   @Test
-  public void testDateTimeConvertRecordExtractorDateTypes() {
-    // The RecordExtractor contract decodes date-related logical types into TIMESTAMP -> java.sql.Timestamp,
-    // DATE -> java.time.LocalDate, TIME -> java.time.LocalTime. These reach dateTimeConvert as the raw object
-    // and are coerced via PinotDataType the same way FunctionInvoker.convertTypes does: EPOCH / TIMESTAMP input
-    // is read as LONG, SIMPLE_DATE_FORMAT input is read as STRING. (The raw-mode Integer / Long forms are already
-    // covered by the numeric cases above.)
-
-    // TIMESTAMP -> epoch millis (Timestamp#getTime)
-    testDateTimeConvert(new Timestamp(1505898960000L), "1:MILLISECONDS:EPOCH", "1:MILLISECONDS:EPOCH",
-        "1:MILLISECONDS", 1505898960000L);
-    testDateTimeConvert(new Timestamp(1505898960000L), "TIMESTAMP", "1:DAYS:SIMPLE_DATE_FORMAT:yyyyMMdd", "1:DAYS",
-        "20170920");
-
-    // DATE -> days since epoch (LocalDate#toEpochDay)
-    testDateTimeConvert(LocalDate.of(2017, 9, 20), "1:DAYS:EPOCH", "1:MILLISECONDS:EPOCH", "1:DAYS", 1505865600000L);
-    testDateTimeConvert(LocalDate.of(2017, 9, 20), "1:DAYS:EPOCH", "1:DAYS:SIMPLE_DATE_FORMAT:yyyyMMdd", "1:DAYS",
-        "20170920");
-
-    // TIME -> millis since midnight (LocalTime#toNanoOfDay / 1_000_000)
-    testDateTimeConvert(LocalTime.of(2, 16, 0), "1:MILLISECONDS:EPOCH", "1:MILLISECONDS:EPOCH", "1:MILLISECONDS",
-        8160000L);
-  }
-
-  @Test
-  public void testDateTimeConvertNumericStringEpoch() {
-    // EPOCH input arriving as a numeric string is read as LONG via PinotDataType. Decimal and scientific-notation
-    // forms (e.g. a numeric column stringified upstream) must parse rather than throw; the fractional part is
-    // truncated toward zero.
-    testDateTimeConvert("1505898960000", "1:MILLISECONDS:EPOCH", "1:MILLISECONDS:EPOCH", "1:MILLISECONDS",
-        1505898960000L);
-    testDateTimeConvert("1505898960000.0", "1:MILLISECONDS:EPOCH", "1:MILLISECONDS:EPOCH", "1:MILLISECONDS",
-        1505898960000L);
-    testDateTimeConvert("1.50589896E12", "1:MILLISECONDS:EPOCH", "1:MILLISECONDS:EPOCH", "1:MILLISECONDS",
-        1505898960000L);
-  }
-
-  @Test
   private void testTimestampAdd() {
     long currentTimestamp = System.currentTimeMillis();
     long timestampHalfHourBack = currentTimestamp - (30 * 60 * 1000);
@@ -795,7 +759,7 @@ public class DateTimeFunctionsTest {
     GenericRow row = new GenericRow();
     row.putValue("timeCol", timestamp10DaysAgo);
 
-    List<String> arguments = List.of("timeCol");
+    List<String> arguments = Collections.singletonList("timeCol");
 
     testFunction("timestampAdd(DAY, 10, timeCol)", arguments, row, currentTimestamp);
 
@@ -832,7 +796,7 @@ public class DateTimeFunctionsTest {
       String outputGranularityStr, Object expectedResult) {
     GenericRow row = new GenericRow();
     row.putValue("timeCol", timeValue);
-    List<String> arguments = List.of("timeCol");
+    List<String> arguments = Collections.singletonList("timeCol");
     testDateFunction(String.format("dateTimeConvert(timeCol, '%s', '%s', '%s')", inputFormatStr, outputFormatStr,
         outputGranularityStr), arguments, row, expectedResult == null ? null : expectedResult);
   }
@@ -841,7 +805,7 @@ public class DateTimeFunctionsTest {
       String outputGranularityStr, String bucketingTz, Object expectedResult) {
     GenericRow row = new GenericRow();
     row.putValue("timeCol", timeValue);
-    List<String> arguments = List.of("timeCol");
+    List<String> arguments = Collections.singletonList("timeCol");
     testDateFunction(String.format("dateTimeConvert(timeCol, '%s', '%s', '%s', '%s')", inputFormatStr, outputFormatStr,
         outputGranularityStr, bucketingTz), arguments, row, expectedResult == null ? null : expectedResult);
   }
@@ -876,7 +840,7 @@ public class DateTimeFunctionsTest {
   @Test
   public void testSleepFunction() {
     long startTime = System.currentTimeMillis();
-    testFunction("sleep(50)", List.of(), new GenericRow(), result -> {
+    testFunction("sleep(50)", Collections.emptyList(), new GenericRow(), result -> {
       assertTrue((long) result >= 50);
     });
     long endTime = System.currentTimeMillis();

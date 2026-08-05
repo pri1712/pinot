@@ -36,9 +36,6 @@ public class PinotFSFactoryTest {
     PinotFSFactory.init(new PinotConfiguration());
     NoClosePinotFS pinotFS = (NoClosePinotFS) PinotFSFactory.create("file");
     Assert.assertTrue(pinotFS._delegate instanceof LocalPinotFS);
-    Assert.assertTrue(PinotFSFactory.isSchemeRegisteredWith("file", LocalPinotFS.class));
-    Assert.assertFalse(PinotFSFactory.isSchemeRegisteredWith("file", TestPinotFS.class));
-    Assert.assertFalse(PinotFSFactory.isSchemeRegisteredWith("missing", LocalPinotFS.class));
   }
 
   @Test

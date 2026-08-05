@@ -29,7 +29,9 @@ import static org.testng.Assert.assertNull;
 import static org.testng.Assert.assertTrue;
 
 
-/// Tests for [VectorQueryExecutionContext] and its execution mode selection logic.
+/**
+ * Tests for {@link VectorQueryExecutionContext} and its execution mode selection logic.
+ */
 public class VectorQueryExecutionContextTest {
 
   // --- Execution mode selection tests ---

@@ -22,16 +22,24 @@ import com.fasterxml.jackson.databind.JsonNode;
 import java.io.IOException;
 
 
-/// Factory for [RecordEnricher].
+/**
+ * Factory for {@link RecordEnricher}.
+ */
 public interface RecordEnricherFactory {
 
-  /// Returns the type of the enricher.
+  /**
+   * Returns the type of the enricher.
+   */
   String getEnricherType();
 
-  /// Creates a new instance of the enricher.
+  /**
+   * Creates a new instance of the enricher.
+   */
   RecordEnricher createEnricher(JsonNode enricherProps)
       throws IOException;
 
-  /// Validates the enrichment properties.
+  /**
+   * Validates the enrichment properties.
+   */
   void validateEnrichmentConfig(JsonNode enricherProps, RecordEnricherValidationConfig validationConfig);
 }

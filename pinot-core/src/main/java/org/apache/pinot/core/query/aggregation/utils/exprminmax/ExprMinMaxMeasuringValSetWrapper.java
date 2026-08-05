@@ -23,8 +23,10 @@ import org.apache.pinot.common.utils.DataSchema.ColumnDataType;
 import org.apache.pinot.core.common.BlockValSet;
 
 
-/// Wrapper class for measuring columns in exprmin/max aggregation function.
-/// Meanly used to do comparison without boxing primitive types.
+/**
+ * Wrapper class for measuring columns in exprmin/max aggregation function.
+ * Meanly used to do comparison without boxing primitive types.
+ */
 @SuppressWarnings({"rawtypes", "unchecked"})
 public class ExprMinMaxMeasuringValSetWrapper extends ExprMinMaxWrapperValSet {
 

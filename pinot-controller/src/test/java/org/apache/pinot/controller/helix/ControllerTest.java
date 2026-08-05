@@ -24,6 +24,7 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -132,12 +133,15 @@ public class ControllerTest {
   // Default ControllerTest instance settings
   public static final int DEFAULT_MIN_NUM_REPLICAS = 2;
   public static final int DEFAULT_NUM_BROKER_INSTANCES = 3;
+  // NOTE: To add HLC realtime table, number of Server instances must be multiple of replicas
   public static final int DEFAULT_NUM_SERVER_INSTANCES = 4;
   public static final int DEFAULT_NUM_MINION_INSTANCES = 2;
 
   public static final long TIMEOUT_MS = 10_000L;
 
-  /// default static instance used to access all wrapped static instances.
+  /**
+   * default static instance used to access all wrapped static instances.
+   */
   public static final ControllerTest DEFAULT_INSTANCE = new ControllerTest();
 
   protected static HttpClient _httpClient;
@@ -171,9 +175,11 @@ public class ControllerTest {
   protected TableRebalanceManager _tableRebalanceManager;
   protected TableSizeReader _tableSizeReader;
 
-  /// Acquire the [ControllerTest] default instance that can be shared across different test cases.
-  ///
-  /// @return the default instance.
+  /**
+   * Acquire the {@link ControllerTest} default instance that can be shared across different test cases.
+   *
+   * @return the default instance.
+   */
   public static ControllerTest getInstance() {
     return DEFAULT_INSTANCE;
   }
@@ -197,11 +203,13 @@ public class ControllerTest {
     return _clusterName;
   }
 
-  /// HttpClient is lazy evaluated, static object, only instantiate when first use.
-  ///
-  /// This is because `ControllerTest` has HTTP utils that depends on the TLSUtils to install the security
-  /// context first before the HttpClient can be initialized. However, because we have static usages of the HTTPClient,
-  /// it is not possible to create normal member variable, thus the workaround.
+  /**
+   * HttpClient is lazy evaluated, static object, only instantiate when first use.
+   *
+   * <p>This is because {@code ControllerTest} has HTTP utils that depends on the TLSUtils to install the security
+   * context first before the HttpClient can be initialized. However, because we have static usages of the HTTPClient,
+   * it is not possible to create normal member variable, thus the workaround.
+   */
   public static HttpClient getHttpClient() {
     if (_httpClient == null) {
       _httpClient = HttpClient.getInstance();
@@ -209,17 +217,21 @@ public class ControllerTest {
     return _httpClient;
   }
 
-  /// Retrieves the headers to be used for the [PinotAdminClient].
-  ///
-  /// This method returns an empty map, indicating that no custom headers
-  /// are set by default for the [PinotAdminClient].
-  ///
-  /// @return A map of headers (key-value pairs) to be used for the [PinotAdminClient].
-  protected Map<String, String> getAdminClientHeaders() {
-    return Map.of();
+  /**
+   * Retrieves the headers to be used for the `ControllerRequestClient`.
+   *
+   * <p>This method returns an empty map, indicating that no custom headers
+   * are set by default for the `ControllerRequestClient`.
+   *
+   * @return A map of headers (key-value pairs) to be used for the `ControllerRequestClient`.
+   */
+  protected Map<String, String> getControllerRequestClientHeaders() {
+    return Collections.emptyMap();
   }
 
-  /// Optionally provide an SSL context for controller admin transport and HTTP utilities.
+  /**
+   * Optionally provide an SSL context for controller admin transport and HTTP utilities.
+   */
   @Nullable
   protected SSLContext getControllerTransportSslContext() {
     return null;
@@ -274,11 +286,15 @@ public class ControllerTest {
     return properties;
   }
 
-  /// Can be overridden to add more properties.
+  /**
+   * Can be overridden to add more properties.
+   */
   protected void overrideControllerConf(Map<String, Object> properties) {
   }
 
-  /// Can be overridden to use a different implementation.
+  /**
+   * Can be overridden to use a different implementation.
+   */
   public BaseControllerStarter createControllerStarter() {
     return new ControllerStarter();
   }
@@ -375,7 +391,9 @@ public class ControllerTest {
     }
   }
 
-  /// Adds fake broker instances until total number of broker instances equals maxCount.
+  /**
+   * Adds fake broker instances until total number of broker instances equals maxCount.
+   */
   public void addFakeBrokerInstanceToAutoJoinHelixCluster(String instanceId, boolean isSingleTenant)
       throws Exception {
     HelixManager helixManager =
@@ -526,7 +544,7 @@ public class ControllerTest {
     _fakeInstanceHelixManagers.add(helixManager);
   }
 
-  /// Add fake server instances until total number of server instances reaches maxCount
+  /** Add fake server instances until total number of server instances reaches maxCount */
   public void addMoreFakeServerInstancesToAutoJoinHelixCluster(int maxCount, boolean isSingleTenant)
       throws Exception {
     // get current instance count
@@ -741,7 +759,7 @@ public class ControllerTest {
       if (sslContext != null) {
         org.apache.pinot.common.utils.tls.TlsUtils.setSslContext(sslContext);
       }
-      _pinotAdminClient = new PinotAdminClient(controllerAddress, properties, getAdminClientHeaders(),
+      _pinotAdminClient = new PinotAdminClient(controllerAddress, properties, getControllerRequestClientHeaders(),
           sslContext);
       return _pinotAdminClient;
     } catch (PinotClientException e) {
@@ -749,7 +767,9 @@ public class ControllerTest {
     }
   }
 
-  /// Exposes the admin client for callers that cannot access protected helpers.
+  /**
+   * Exposes the admin client for callers that cannot access protected helpers.
+   */
   public PinotAdminClient getAdminClient()
       throws IOException {
     return getOrCreateAdminClient();
@@ -770,7 +790,7 @@ public class ControllerTest {
 
   public static Schema createDummySchemaWithPrimaryKey(String tableName) {
     Schema schema = createDummySchema(tableName);
-    schema.setPrimaryKeyColumns(List.of("dimA"));
+    schema.setPrimaryKeyColumns(Collections.singletonList("dimA"));
     return schema;
   }
 
@@ -779,7 +799,9 @@ public class ControllerTest {
     addSchema(createDummySchema(tableName));
   }
 
-  /// Add a schema to the controller.
+  /**
+   * Add a schema to the controller.
+   */
   public void addSchema(Schema schema)
       throws IOException {
     try {
@@ -1206,7 +1228,9 @@ public class ControllerTest {
     }
   }
 
-  /// Trigger a task on a table and wait for completion
+  /**
+   * Trigger a task on a table and wait for completion
+   */
   protected String triggerMinionTask(String taskType, String tableNameWithType) {
     PinotTaskManager taskManager = _controllerStarter.getTaskManager();
 
@@ -1327,10 +1351,12 @@ public class ControllerTest {
     return IOUtils.toString(new URL(urlString).openStream(), StandardCharsets.UTF_8);
   }
 
-  /// Sends a GET request to the specified URL and returns the status code along with the stringified response.
-  /// @param urlString the URL to send the GET request
-  /// @param headers the headers to include in the GET request
-  /// @return a Pair containing the status code and the stringified response
+  /**
+   * Sends a GET request to the specified URL and returns the status code along with the stringified response.
+   * @param urlString the URL to send the GET request
+   * @param headers the headers to include in the GET request
+   * @return a Pair containing the status code and the stringified response
+   */
   public static Pair<Integer, String> sendGetRequestWithStatusCode(String urlString, Map<String, String> headers)
       throws IOException {
     try {
@@ -1349,7 +1375,7 @@ public class ControllerTest {
 
   public static String sendPostRequest(String urlString, String payload)
       throws IOException {
-    return sendPostRequest(urlString, payload, Map.of());
+    return sendPostRequest(urlString, payload, Collections.emptyMap());
   }
 
   public static String sendPostRequest(String urlString, String payload, Map<String, String> headers)
@@ -1363,16 +1389,18 @@ public class ControllerTest {
     }
   }
 
-  /// Sends a POST request to the specified URL with the given payload and returns the status code along with the
-  /// stringified response.
-  /// @param urlString the URL to send the POST request to
-  /// @param payload the payload to send in the POST request
-  /// @return a Pair containing the status code and the stringified response
+  /**
+   * Sends a POST request to the specified URL with the given payload and returns the status code along with the
+   * stringified response.
+   * @param urlString the URL to send the POST request to
+   * @param payload the payload to send in the POST request
+   * @return a Pair containing the status code and the stringified response
+   */
   public static Pair<Integer, String> postRequestWithStatusCode(String urlString, String payload)
       throws IOException {
     try {
       SimpleHttpResponse resp =
-          getHttpClient().sendJsonPostRequest(new URL(urlString).toURI(), payload, Map.of());
+          getHttpClient().sendJsonPostRequest(new URL(urlString).toURI(), payload, Collections.emptyMap());
       return Pair.of(resp.getStatusCode(), constructResponse(resp));
     } catch (URISyntaxException e) {
       throw new IOException(e);
@@ -1399,7 +1427,7 @@ public class ControllerTest {
 
   public static String sendPutRequest(String urlString, String payload)
       throws IOException {
-    return sendPutRequest(urlString, payload, Map.of());
+    return sendPutRequest(urlString, payload, Collections.emptyMap());
   }
 
   public static String sendPutRequest(String urlString, String payload, Map<String, String> headers)
@@ -1415,7 +1443,7 @@ public class ControllerTest {
 
   public static String sendDeleteRequest(String urlString)
       throws IOException {
-    return sendDeleteRequest(urlString, Map.of());
+    return sendDeleteRequest(urlString, Collections.emptyMap());
   }
 
   public static String sendDeleteRequest(String urlString, Map<String, String> headers)
@@ -1435,7 +1463,7 @@ public class ControllerTest {
 
   public static SimpleHttpResponse sendMultipartPostRequest(String url, String body)
       throws IOException {
-    return sendMultipartPostRequest(url, body, Map.of());
+    return sendMultipartPostRequest(url, body, Collections.emptyMap());
   }
 
   public static SimpleHttpResponse sendMultipartPostRequest(String url, String body, Map<String, String> headers)
@@ -1453,7 +1481,9 @@ public class ControllerTest {
     return getHttpClient().sendMultipartPutRequest(url, body, headers);
   }
 
-  /// @return Number of instances used by all the broker tenants
+  /**
+   * @return Number of instances used by all the broker tenants
+   */
   public int getTaggedBrokerCount() {
     int count = 0;
     Set<String> brokerTenants = _helixResourceManager.getAllBrokerTenantNames();
@@ -1464,7 +1494,9 @@ public class ControllerTest {
     return count;
   }
 
-  /// @return Number of instances used by all the server tenants
+  /**
+   * @return Number of instances used by all the server tenants
+   */
   public int getTaggedServerCount() {
     int count = 0;
     Set<String> serverTenants = _helixResourceManager.getAllServerTenantNames();
@@ -1512,7 +1544,9 @@ public class ControllerTest {
     return _controllerConfig;
   }
 
-  /// Do not override this method as the configuration is shared across all default TestNG group.
+  /**
+   * Do not override this method as the configuration is shared across all default TestNG group.
+   */
   public final Map<String, Object> getSharedControllerConfiguration() {
     Map<String, Object> properties = getDefaultControllerConfiguration();
 
@@ -1529,7 +1563,9 @@ public class ControllerTest {
     return properties;
   }
 
-  /// Initialize shared state for the TestNG default test group.
+  /**
+   * Initialize shared state for the TestNG default test group.
+   */
   public void startSharedTestSetup()
       throws Exception {
     startZk();
@@ -1540,7 +1576,9 @@ public class ControllerTest {
     addFakeMinionInstancesToAutoJoinHelixCluster(DEFAULT_NUM_MINION_INSTANCES);
   }
 
-  /// Cleanup shared state used in the TestNG default test group.
+  /**
+   * Cleanup shared state used in the TestNG default test group.
+   */
   public void stopSharedTestSetup() {
     cleanup();
 
@@ -1549,7 +1587,9 @@ public class ControllerTest {
     stopZk();
   }
 
-  /// Checks if the number of online instances for a given resource matches the expected num of instances or not.
+  /**
+   * Checks if the number of online instances for a given resource matches the expected num of instances or not.
+   */
   public void checkNumOnlineInstancesFromExternalView(String resourceName, int expectedNumOnlineInstances)
       throws InterruptedException {
     long endTime = System.currentTimeMillis() + TIMEOUT_MS;
@@ -1565,7 +1605,9 @@ public class ControllerTest {
     fail("Failed to reach " + expectedNumOnlineInstances + " online instances for resource: " + resourceName);
   }
 
-  /// Make sure shared state is setup and valid before each test case class is run.
+  /**
+   * Make sure shared state is setup and valid before each test case class is run.
+   */
   public void setupSharedStateAndValidate()
       throws Exception {
     if (_zookeeperInstance == null || _helixResourceManager == null) {
@@ -1599,11 +1641,11 @@ public class ControllerTest {
 
     // In a single tenant cluster, only the default tenant should exist
     assertEquals(_helixResourceManager.getAllBrokerTenantNames(),
-        Set.of(TagNameUtils.DEFAULT_TENANT_NAME));
+        Collections.singleton(TagNameUtils.DEFAULT_TENANT_NAME));
     assertEquals(_helixResourceManager.getAllInstancesForBrokerTenant(TagNameUtils.DEFAULT_TENANT_NAME).size(),
         DEFAULT_NUM_BROKER_INSTANCES);
     assertEquals(_helixResourceManager.getAllServerTenantNames(),
-        Set.of(TagNameUtils.DEFAULT_TENANT_NAME));
+        Collections.singleton(TagNameUtils.DEFAULT_TENANT_NAME));
     assertEquals(_helixResourceManager.getAllInstancesForServerTenant(TagNameUtils.DEFAULT_TENANT_NAME).size(),
         DEFAULT_NUM_SERVER_INSTANCES);
 
@@ -1621,8 +1663,10 @@ public class ControllerTest {
     };
   }
 
-  /// Clean shared state after a test case class has completed running. Additional cleanup may be needed depending upon
-  /// test functionality.
+  /**
+   * Clean shared state after a test case class has completed running. Additional cleanup may be needed depending upon
+   * test functionality.
+   */
   public void cleanup() {
     // Delete logical tables
     List<String> logicalTables = _helixResourceManager.getAllLogicalTableNames();

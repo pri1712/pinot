@@ -19,7 +19,7 @@
 package org.apache.pinot.segment.local.segment.creator.impl.stats;
 
 import java.math.BigDecimal;
-import java.util.Map;
+import java.util.Collections;
 import java.util.Set;
 import org.apache.pinot.segment.spi.creator.StatsCollectorConfig;
 import org.apache.pinot.segment.spi.partition.PartitionFunction;
@@ -40,9 +40,11 @@ import org.testng.annotations.Test;
 import static org.testng.Assert.*;
 
 
-/// Comprehensive tests for AbstractColumnStatisticsCollector implementations.
-/// Tests all data types with both primitive and Object collect methods,
-/// single and multi-value scenarios, edge cases, and partition functionality.
+/**
+ * Comprehensive tests for AbstractColumnStatisticsCollector implementations.
+ * Tests all data types with both primitive and Object collect methods,
+ * single and multi-value scenarios, edge cases, and partition functionality.
+ */
 public class AbstractColumnStatisticsCollectorTest {
   private static final String COLUMN_NAME = "testColumn";
   private static final String TABLE_NAME = "testTable";
@@ -50,14 +52,16 @@ public class AbstractColumnStatisticsCollectorTest {
 
   // Test helper methods
 
-  /// Creates a StatsCollectorConfig with optional partitioning.
+  /**
+   * Creates a StatsCollectorConfig with optional partitioning.
+   */
   private StatsCollectorConfig createStatsCollectorConfig(DataType dataType, boolean isSingleValue,
       boolean withPartitioning) {
     TableConfigBuilder builder = new TableConfigBuilder(TableType.OFFLINE).setTableName(TABLE_NAME);
 
     if (withPartitioning) {
       builder.setSegmentPartitionConfig(new SegmentPartitionConfig(
-          Map.of(COLUMN_NAME, new ColumnPartitionConfig("Murmur", NUM_PARTITIONS))));
+          Collections.singletonMap(COLUMN_NAME, new ColumnPartitionConfig("Murmur", NUM_PARTITIONS))));
     }
 
     TableConfig tableConfig = builder.build();
@@ -68,7 +72,9 @@ public class AbstractColumnStatisticsCollectorTest {
         withPartitioning ? tableConfig.getIndexingConfig().getSegmentPartitionConfig() : null);
   }
 
-  /// Factory method to create the appropriate collector for a given data type.
+  /**
+   * Factory method to create the appropriate collector for a given data type.
+   */
   private AbstractColumnStatisticsCollector createCollector(DataType dataType, boolean isSingleValue,
       boolean withPartitioning) {
     StatsCollectorConfig config = createStatsCollectorConfig(dataType, isSingleValue, withPartitioning);
@@ -94,8 +100,10 @@ public class AbstractColumnStatisticsCollectorTest {
     }
   }
 
-  /// Helper method to assert basic statistics after collection.
-  /// Assertions follow ColumnStatistics API definition order.
+  /**
+   * Helper method to assert basic statistics after collection.
+   * Assertions follow ColumnStatistics API definition order.
+   */
   private void assertBasicStats(AbstractColumnStatisticsCollector collector, Object expectedMin, Object expectedMax,
       int expectedCardinality, boolean expectedSorted, int expectedTotalEntries) {
     if (expectedMin != null && expectedMax != null) {

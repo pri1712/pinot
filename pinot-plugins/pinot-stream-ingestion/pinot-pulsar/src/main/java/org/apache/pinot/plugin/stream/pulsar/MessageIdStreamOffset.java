@@ -23,7 +23,9 @@ import org.apache.pinot.spi.stream.StreamPartitionMsgOffset;
 import org.apache.pulsar.client.api.MessageId;
 
 
-/// [StreamPartitionMsgOffset] implementation for Pulsar [MessageId]
+/**
+ * {@link StreamPartitionMsgOffset} implementation for Pulsar {@link MessageId}
+ */
 public class MessageIdStreamOffset implements StreamPartitionMsgOffset {
   private final MessageId _messageId;
 

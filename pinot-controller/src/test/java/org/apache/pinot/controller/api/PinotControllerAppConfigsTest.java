@@ -30,7 +30,9 @@ import org.testng.annotations.Test;
 import static org.testng.Assert.assertEquals;
 
 
-/// Test for [org.apache.pinot.controller.api.resources.PinotControllerAppConfigs] class.
+/**
+ * Test for {@link org.apache.pinot.controller.api.resources.PinotControllerAppConfigs} class.
+ */
 public class PinotControllerAppConfigsTest {
   private static final ControllerTest TEST_INSTANCE = ControllerTest.getInstance();
 
@@ -40,8 +42,10 @@ public class PinotControllerAppConfigsTest {
     TEST_INSTANCE.setupSharedStateAndValidate();
   }
 
-  /// Asserts that app configurations returned by the controller endpoint
-  /// are as expected.
+  /**
+   * Asserts that app configurations returned by the controller endpoint
+   * are as expected.
+   */
   @Test
   public void testControllerAppConfigs()
       throws Exception {

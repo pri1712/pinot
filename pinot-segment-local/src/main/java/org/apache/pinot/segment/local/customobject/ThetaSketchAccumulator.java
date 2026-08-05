@@ -19,21 +19,23 @@
 package org.apache.pinot.segment.local.customobject;
 
 import java.util.Comparator;
-import org.apache.datasketches.theta.ThetaSetOperationBuilder;
-import org.apache.datasketches.theta.ThetaSketch;
-import org.apache.datasketches.theta.ThetaUnion;
+import org.apache.datasketches.theta.SetOperationBuilder;
+import org.apache.datasketches.theta.Sketch;
+import org.apache.datasketches.theta.Union;
 
 
-/// Intermediate state used by `DistinctCountThetaSketchAggregationFunction` which gives
-/// the end user more control over how sketches are merged for performance.
-/// In particular, the Theta Sketch Union "early-stop" optimisation can be used - ordered sketches require no further
-/// processing beyond the minimum Theta value.
-/// The union operation initialises an empty "gadget" bookkeeping sketch that is updated with hashed entries
-/// that fall below the minimum Theta value for all input sketches ("Broder Rule").  When the initial Theta value is
-/// set to the minimum immediately, further gains can be realised.
-public class ThetaSketchAccumulator extends CustomObjectAccumulator<ThetaSketch> {
-  private ThetaSetOperationBuilder _setOperationBuilder = new ThetaSetOperationBuilder();
-  private ThetaUnion _union;
+/**
+ * Intermediate state used by {@code DistinctCountThetaSketchAggregationFunction} which gives
+ * the end user more control over how sketches are merged for performance.
+ * In particular, the Theta Sketch Union "early-stop" optimisation can be used - ordered sketches require no further
+ * processing beyond the minimum Theta value.
+ * The union operation initialises an empty "gadget" bookkeeping sketch that is updated with hashed entries
+ * that fall below the minimum Theta value for all input sketches ("Broder Rule").  When the initial Theta value is
+ * set to the minimum immediately, further gains can be realised.
+ */
+public class ThetaSketchAccumulator extends CustomObjectAccumulator<Sketch> {
+  private SetOperationBuilder _setOperationBuilder = new SetOperationBuilder();
+  private Union _union;
 
   public ThetaSketchAccumulator() {
   }
@@ -42,21 +44,21 @@ public class ThetaSketchAccumulator extends CustomObjectAccumulator<ThetaSketch>
   // happens on serialization. Therefore, when deserialized, the values may be null and will
   // require re-initialisation. Since the primary use case is at query time for the Broker
   // and Server, these properties are already in memory and are re-set.
-  public ThetaSketchAccumulator(ThetaSetOperationBuilder setOperationBuilder, int threshold) {
+  public ThetaSketchAccumulator(SetOperationBuilder setOperationBuilder, int threshold) {
     super(threshold);
     _setOperationBuilder = setOperationBuilder;
   }
 
-  public void setSetOperationBuilder(ThetaSetOperationBuilder setOperationBuilder) {
+  public void setSetOperationBuilder(SetOperationBuilder setOperationBuilder) {
     _setOperationBuilder = setOperationBuilder;
   }
 
   @Override
-  public ThetaSketch getResult() {
+  public Sketch getResult() {
     return unionAll();
   }
 
-  private ThetaSketch unionAll() {
+  private Sketch unionAll() {
     if (_union == null) {
       _union = _setOperationBuilder.buildUnion();
     }
@@ -73,7 +75,7 @@ public class ThetaSketchAccumulator extends CustomObjectAccumulator<ThetaSketch>
     }
 
     // Performance optimization: ensure that the minimum Theta is used for "early stop".
-    // The "early stop" optimization is implemented in the Apache Datasketches ThetaUnion operation for
+    // The "early stop" optimization is implemented in the Apache Datasketches Union operation for
     // ordered and compact Theta sketches. Internally, a compact and ordered Theta sketch can be
     // compared to a sorted array of K items.  When performing a union, only those items from
     // the input sketch less than Theta need to be processed.  The loop terminates as soon as a hash
@@ -81,8 +83,8 @@ public class ThetaSketchAccumulator extends CustomObjectAccumulator<ThetaSketch>
     // The following "sort" improves on this further by selecting the minimal Theta value up-front,
     // which results in fewer redundant entries being retained and subsequently discarded during the
     // union operation.
-    _accumulator.sort(Comparator.comparingDouble(ThetaSketch::getTheta));
-    for (ThetaSketch accumulatedSketch : _accumulator) {
+    _accumulator.sort(Comparator.comparingDouble(Sketch::getTheta));
+    for (Sketch accumulatedSketch : _accumulator) {
       _union.union(accumulatedSketch);
     }
     _accumulator.clear();

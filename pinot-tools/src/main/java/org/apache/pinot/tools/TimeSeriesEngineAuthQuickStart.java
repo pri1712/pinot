@@ -18,6 +18,7 @@
  */
 package org.apache.pinot.tools;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -28,15 +29,17 @@ import org.apache.pinot.spi.plugin.PluginManager;
 import org.apache.pinot.tools.utils.AuthUtils;
 
 
-/// Quick start for Time Series Engine with authentication.
-///
-/// To test this quick start, you can run the following command in pinot-tools/src/main/resources/scripts/timeseries/
-/// python3 run_ts_query.py --auth
+/**
+ * Quick start for Time Series Engine with authentication.
+ *
+ * To test this quick start, you can run the following command in pinot-tools/src/main/resources/scripts/timeseries/
+ * python3 run_ts_query.py --auth
+ */
 public class TimeSeriesEngineAuthQuickStart extends TimeSeriesEngineQuickStart {
 
   @Override
   public List<String> types() {
-    return List.of("TIME_SERIES_AUTH");
+    return Collections.singletonList("TIME_SERIES_AUTH");
   }
 
   @Override

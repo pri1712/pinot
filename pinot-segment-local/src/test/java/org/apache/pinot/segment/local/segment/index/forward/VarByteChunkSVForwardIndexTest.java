@@ -43,7 +43,9 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.testng.Assert.fail;
 
 
-/// Unit test for [VarByteChunkSVForwardIndexReader] and [VarByteChunkForwardIndexWriter] classes.
+/**
+ * Unit test for {@link VarByteChunkSVForwardIndexReader} and {@link VarByteChunkForwardIndexWriter} classes.
+ */
 public class VarByteChunkSVForwardIndexTest implements PinotBuffersAfterMethodCheckRule {
   private static final int NUM_ENTRIES = 5003;
   private static final int NUM_DOCS_PER_CHUNK = 1009;
@@ -80,15 +82,17 @@ public class VarByteChunkSVForwardIndexTest implements PinotBuffersAfterMethodCh
     test(ChunkCompressionType.GZIP);
   }
 
-  /// This test writes [#NUM_ENTRIES] using [VarByteChunkForwardIndexWriter]. It then reads
-  /// the strings & bytes using [VarByteChunkSVForwardIndexReader], and asserts that what was written is the
-  /// same as
-  /// what was read in.
-  ///
-  /// Number of docs and docs per chunk are chosen to generate complete as well partial chunks.
-  ///
-  /// @param compressionType Compression type
-  /// @throws Exception
+  /**
+   * This test writes {@link #NUM_ENTRIES} using {@link VarByteChunkForwardIndexWriter}. It then reads
+   * the strings & bytes using {@link VarByteChunkSVForwardIndexReader}, and asserts that what was written is the
+   * same as
+   * what was read in.
+   *
+   * Number of docs and docs per chunk are chosen to generate complete as well partial chunks.
+   *
+   * @param compressionType Compression type
+   * @throws Exception
+   */
   public void test(ChunkCompressionType compressionType)
       throws Exception {
     String[] expected = new String[NUM_ENTRIES];
@@ -136,7 +140,9 @@ public class VarByteChunkSVForwardIndexTest implements PinotBuffersAfterMethodCh
     FileUtils.deleteQuietly(outFileEightByte);
   }
 
-  /// This test ensures that the reader can read in an data file from version 1.
+  /**
+   * This test ensures that the reader can read in an data file from version 1.
+   */
   @Test
   public void testBackwardCompatibilityV1()
       throws Exception {
@@ -144,7 +150,9 @@ public class VarByteChunkSVForwardIndexTest implements PinotBuffersAfterMethodCh
     testBackwardCompatibilityHelper("data/varByteStrings.v1", expected, 1009);
   }
 
-  /// This test ensures that the reader can read in an data file from version 2.
+  /**
+   * This test ensures that the reader can read in an data file from version 2.
+   */
   @Test
   public void testBackwardCompatibilityV2()
       throws Exception {
@@ -269,38 +277,6 @@ public class VarByteChunkSVForwardIndexTest implements PinotBuffersAfterMethodCh
       }
 
       FileUtils.deleteQuietly(outFile);
-    }
-  }
-
-  @Test
-  public void testSingleValueVarByteRawIndexCreatorTrackingEnabled()
-      throws IOException {
-    File file = Files.createTempFile(getClass().getSimpleName(), "svVarTrackEnabled").toFile();
-    file.deleteOnExit();
-    try (SingleValueVarByteRawIndexCreator creator = new SingleValueVarByteRawIndexCreator(
-        file.getParentFile(), ChunkCompressionType.LZ4, file.getName(), 100, DataType.STRING, 20)) {
-      creator.enableRawForwardIndexUncompressedValueSizeTracking();
-      for (int i = 0; i < 100; i++) {
-        creator.putString("value_" + i);
-      }
-      Assert.assertTrue(creator.getRawForwardIndexUncompressedValueSizeInBytes() > 0,
-          "SV var-byte creator should track > 0 uncompressed size when enabled");
-    }
-  }
-
-  @Test
-  public void testSingleValueVarByteRawIndexCreatorTrackingDisabled()
-      throws IOException {
-    File file = Files.createTempFile(getClass().getSimpleName(), "svVarTrackDisabled").toFile();
-    file.deleteOnExit();
-    try (SingleValueVarByteRawIndexCreator creator = new SingleValueVarByteRawIndexCreator(
-        file.getParentFile(), ChunkCompressionType.LZ4, file.getName(), 100, DataType.STRING, 20)) {
-      // tracking disabled by default
-      for (int i = 0; i < 100; i++) {
-        creator.putString("value_" + i);
-      }
-      Assert.assertEquals(creator.getRawForwardIndexUncompressedValueSizeInBytes(), -1L,
-          "SV var-byte creator should return unavailable when tracking is disabled");
     }
   }
 

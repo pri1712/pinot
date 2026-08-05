@@ -22,6 +22,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.common.collect.Lists;
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -57,7 +58,6 @@ import org.apache.pinot.spi.config.table.ingestion.ParallelSegmentConsumptionPol
 import org.apache.pinot.spi.config.table.ingestion.StreamIngestionConfig;
 import org.apache.pinot.spi.config.table.ingestion.TransformConfig;
 import org.apache.pinot.spi.utils.CommonConstants;
-import org.apache.pinot.spi.utils.Enablement;
 import org.apache.pinot.spi.utils.JsonUtils;
 import org.apache.pinot.spi.utils.builder.TableConfigBuilder;
 import org.testng.annotations.Test;
@@ -148,7 +148,7 @@ public class TableConfigSerDeUtilsTest {
       // With SegmentAssignmentStrategyConfig
       ReplicaGroupStrategyConfig replicaGroupStrategyConfig = new ReplicaGroupStrategyConfig("memberId", 5);
       TableConfig tableConfig = tableConfigBuilder.setSegmentAssignmentConfigMap(
-              Map.of(InstancePartitionsType.OFFLINE.toString(),
+              Collections.singletonMap(InstancePartitionsType.OFFLINE.toString(),
                   new SegmentAssignmentConfig("ReplicaGroupSegmentAssignmentStrategy")))
           .setReplicaGroupStrategyConfig(replicaGroupStrategyConfig)
           .build();
@@ -200,7 +200,7 @@ public class TableConfigSerDeUtilsTest {
     {
       // With query config
       QueryConfig queryConfig =
-          new QueryConfig(1000L, true, true, Map.of("func(a)", "b"), null, null);
+          new QueryConfig(1000L, true, true, Collections.singletonMap("func(a)", "b"), null, null);
       TableConfig tableConfig = tableConfigBuilder.setQueryConfig(queryConfig).build();
 
       checkQueryConfig(tableConfig);
@@ -221,7 +221,7 @@ public class TableConfigSerDeUtilsTest {
               new InstanceConstraintConfig(Arrays.asList("constraint1", "constraint2")),
               new InstanceReplicaGroupPartitionConfig(true, 0, 3, 5, 0, 0, false, null), null, false);
       TableConfig tableConfig = tableConfigBuilder.setInstanceAssignmentConfigMap(
-          Map.of(InstancePartitionsType.OFFLINE.toString(), instanceAssignmentConfig)).build();
+          Collections.singletonMap(InstancePartitionsType.OFFLINE.toString(), instanceAssignmentConfig)).build();
 
       checkInstanceAssignmentConfig(tableConfig);
 
@@ -241,8 +241,8 @@ public class TableConfigSerDeUtilsTest {
       properties.put("foobar", "potato");
       List<FieldConfig> fieldConfigList = Arrays.asList(new FieldConfig("column1", FieldConfig.EncodingType.DICTIONARY,
               Lists.newArrayList(FieldConfig.IndexType.INVERTED, FieldConfig.IndexType.RANGE), null, properties),
-          new FieldConfig("column2", null, List.of(), null, null),
-          new FieldConfig("column3", FieldConfig.EncodingType.RAW, List.of(),
+          new FieldConfig("column2", null, Collections.emptyList(), null, null),
+          new FieldConfig("column3", FieldConfig.EncodingType.RAW, Collections.emptyList(),
               FieldConfig.CompressionCodec.SNAPPY, null));
       TableConfig tableConfig = tableConfigBuilder.setFieldConfigList(fieldConfigList).build();
 
@@ -301,19 +301,18 @@ public class TableConfigSerDeUtilsTest {
       // With ingestion config
       IngestionConfig ingestionConfig = new IngestionConfig();
       ingestionConfig.setBatchIngestionConfig(
-          new BatchIngestionConfig(List.of(Map.of("batchType", "s3")), "APPEND",
+          new BatchIngestionConfig(Collections.singletonList(Collections.singletonMap("batchType", "s3")), "APPEND",
               "HOURLY"));
       StreamIngestionConfig streamIngestionConfig =
-          new StreamIngestionConfig(List.of(Map.of("streamType", "kafka")));
+          new StreamIngestionConfig(Collections.singletonList(Collections.singletonMap("streamType", "kafka")));
       streamIngestionConfig.setParallelSegmentConsumptionPolicy(
           ParallelSegmentConsumptionPolicy.ALLOW_DURING_BUILD_ONLY);
-      streamIngestionConfig.setOomProtection(Enablement.ENABLE);
       ingestionConfig.setStreamIngestionConfig(streamIngestionConfig);
       ingestionConfig.setFilterConfig(new FilterConfig("filterFunc(foo)"));
       ingestionConfig.setTransformConfigs(
           Arrays.asList(new TransformConfig("bar", "func(moo)"), new TransformConfig("zoo", "myfunc()")));
       ingestionConfig.setComplexTypeConfig(new ComplexTypeConfig(Arrays.asList("c1", "c2"), ".",
-          ComplexTypeConfig.CollectionNotUnnestedToJson.NON_PRIMITIVE, Map.of()));
+          ComplexTypeConfig.CollectionNotUnnestedToJson.NON_PRIMITIVE, Collections.emptyMap()));
       ingestionConfig.setAggregationConfigs(
           Arrays.asList(new AggregationConfig("SUM__bar", "SUM(bar)"), new AggregationConfig("MIN_foo", "MIN(foo)")));
 
@@ -474,7 +473,7 @@ public class TableConfigSerDeUtilsTest {
     assertNotNull(queryConfig);
     assertEquals(queryConfig.getTimeoutMs(), Long.valueOf(1000L));
     assertEquals(queryConfig.getDisableGroovy(), Boolean.TRUE);
-    assertEquals(queryConfig.getExpressionOverrideMap(), Map.of("func(a)", "b"));
+    assertEquals(queryConfig.getExpressionOverrideMap(), Collections.singletonMap("func(a)", "b"));
   }
 
   private void checkIngestionConfig(TableConfig tableConfig) {
@@ -500,7 +499,6 @@ public class TableConfigSerDeUtilsTest {
     assertEquals(ingestionConfig.getStreamIngestionConfig().getStreamConfigMaps().size(), 1);
     assertEquals(ingestionConfig.getStreamIngestionConfig().getParallelSegmentConsumptionPolicy(),
         ParallelSegmentConsumptionPolicy.ALLOW_DURING_BUILD_ONLY);
-    assertEquals(ingestionConfig.getStreamIngestionConfig().getOomProtection(), Enablement.ENABLE);
   }
 
   private void checkTierConfigList(TableConfig tableConfig) {

@@ -20,6 +20,7 @@ package org.apache.pinot.query.planner;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import org.apache.calcite.plan.RelOptUtil;
 import org.apache.calcite.rel.RelNode;
 import org.apache.calcite.rel.RelWriter;
 import org.apache.calcite.rel.externalize.RelDotWriter;
@@ -33,7 +34,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 
-/// Utilities used by planner.
+/**
+ * Utilities used by planner.
+ */
 public class PlannerUtils {
   private static final Logger LOGGER = LoggerFactory.getLogger(PlannerUtils.class);
 
@@ -49,8 +52,10 @@ public class PlannerUtils {
     return planFragmentId == 1;
   }
 
-  /// Like [org.apache.calcite.plan.RelOptUtil#dumpPlan(String, RelNode, SqlExplainFormat, SqlExplainLevel)]
-  /// but uses a different json writer.
+  /**
+   * Like {@link RelOptUtil#dumpPlan(String, RelNode, SqlExplainFormat, SqlExplainLevel)} but uses a different json
+   * writer.
+   */
   public static String explainPlan(RelNode relRoot, SqlExplainFormat format, SqlExplainLevel explainLevel) {
     StringWriter sw = new StringWriter();
     PrintWriter pw = new PrintWriter(sw);

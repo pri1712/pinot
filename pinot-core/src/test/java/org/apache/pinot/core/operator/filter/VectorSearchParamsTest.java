@@ -18,6 +18,7 @@
  */
 package org.apache.pinot.core.operator.filter;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import org.apache.pinot.segment.spi.index.creator.VectorBackendType;
@@ -26,7 +27,9 @@ import org.testng.Assert;
 import org.testng.annotations.Test;
 
 
-/// Tests for [VectorSearchParams] construction and query option parsing.
+/**
+ * Tests for {@link VectorSearchParams} construction and query option parsing.
+ */
 public class VectorSearchParamsTest {
 
   @Test
@@ -51,7 +54,7 @@ public class VectorSearchParamsTest {
 
   @Test
   public void testFromEmptyQueryOptions() {
-    VectorSearchParams params = VectorSearchParams.fromQueryOptions(Map.of());
+    VectorSearchParams params = VectorSearchParams.fromQueryOptions(Collections.emptyMap());
     Assert.assertSame(params, VectorSearchParams.DEFAULT);
   }
 

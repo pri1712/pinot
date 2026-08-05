@@ -29,7 +29,6 @@ import java.util.Set;
 import org.apache.commons.io.FileUtils;
 import org.apache.pinot.segment.local.segment.index.readers.vector.IvfFlatVectorIndexReader;
 import org.apache.pinot.segment.local.segment.index.readers.vector.IvfOnDiskVectorIndexReader;
-import org.apache.pinot.segment.local.segment.index.vector.IvfCombinedBuffers;
 import org.apache.pinot.segment.local.segment.index.vector.IvfFlatVectorIndexCreator;
 import org.apache.pinot.segment.spi.index.creator.VectorIndexConfig;
 import org.apache.pinot.segment.spi.index.creator.VectorQuantizerType;
@@ -37,11 +36,13 @@ import org.roaringbitmap.buffer.ImmutableRoaringBitmap;
 import org.roaringbitmap.buffer.MutableRoaringBitmap;
 
 
-/// Pinot-specific query workload benchmark for filtered ANN and radius execution.
-///
-/// Unlike broad ANN frontiers, this suite focuses on the query shapes Pinot actually has to
-/// execute correctly: exact filtered top-K, exact radius, filter-aware ANN on immutable IVF
-/// backends, and approximate-radius candidate generation with exact refinement.
+/**
+ * Pinot-specific query workload benchmark for filtered ANN and radius execution.
+ *
+ * <p>Unlike broad ANN frontiers, this suite focuses on the query shapes Pinot actually has to
+ * execute correctly: exact filtered top-K, exact radius, filter-aware ANN on immutable IVF
+ * backends, and approximate-radius candidate generation with exact refinement.</p>
+ */
 public final class BenchmarkVectorFilterWorkloads {
   private static final String COLUMN_NAME = "embedding";
   private static final long SEED = 20260411L;
@@ -140,12 +141,10 @@ public final class BenchmarkVectorFilterWorkloads {
           createIvfConfig("IVF_FLAT", DIMENSION, NLIST, distanceFunction, FILTER_QUANTIZER);
       buildIvfFlatIndex(indexDir, corpus, creatorConfig);
 
-      VectorIndexConfig onDiskConfig =
-          createIvfConfig("IVF_ON_DISK", DIMENSION, NLIST, distanceFunction, FILTER_QUANTIZER);
-      try (IvfFlatVectorIndexReader ivfFlatReader = new IvfFlatVectorIndexReader(COLUMN_NAME,
-          IvfCombinedBuffers.mapCombined(indexDir, COLUMN_NAME, creatorConfig, "bench-vector"), creatorConfig);
-          IvfOnDiskVectorIndexReader ivfOnDiskReader = new IvfOnDiskVectorIndexReader(COLUMN_NAME,
-              IvfCombinedBuffers.mapCombined(indexDir, COLUMN_NAME, onDiskConfig, "bench-vector"), onDiskConfig)) {
+      try (IvfFlatVectorIndexReader ivfFlatReader = new IvfFlatVectorIndexReader(COLUMN_NAME, indexDir, creatorConfig);
+          IvfOnDiskVectorIndexReader ivfOnDiskReader =
+              new IvfOnDiskVectorIndexReader(COLUMN_NAME, indexDir,
+                  createIvfConfig("IVF_ON_DISK", DIMENSION, NLIST, distanceFunction, FILTER_QUANTIZER))) {
         ivfFlatReader.setNprobe(NPROBE);
         ivfOnDiskReader.setNprobe(NPROBE);
 
@@ -300,8 +299,7 @@ public final class BenchmarkVectorFilterWorkloads {
           createIvfConfig("IVF_FLAT", DIMENSION, NLIST, distanceFunction, FILTER_QUANTIZER);
       buildIvfFlatIndex(indexDir, corpus, creatorConfig);
       if ("IVF_FLAT".equals(backend)) {
-        try (IvfFlatVectorIndexReader reader = new IvfFlatVectorIndexReader(COLUMN_NAME,
-            IvfCombinedBuffers.mapCombined(indexDir, COLUMN_NAME, creatorConfig, "bench-vector"), creatorConfig)) {
+        try (IvfFlatVectorIndexReader reader = new IvfFlatVectorIndexReader(COLUMN_NAME, indexDir, creatorConfig)) {
           reader.setNprobe(NPROBE);
           printRadiusResults(out, backend, distanceFunction, corpus, queries,
               (query, ignoredThreshold) -> reader.getDocIds(query, RADIUS_MAX_CANDIDATES),
@@ -310,8 +308,7 @@ public final class BenchmarkVectorFilterWorkloads {
       } else {
         VectorIndexConfig readerConfig =
             createIvfConfig("IVF_ON_DISK", DIMENSION, NLIST, distanceFunction, FILTER_QUANTIZER);
-        try (IvfOnDiskVectorIndexReader reader = new IvfOnDiskVectorIndexReader(COLUMN_NAME,
-            IvfCombinedBuffers.mapCombined(indexDir, COLUMN_NAME, readerConfig, "bench-vector"), readerConfig)) {
+        try (IvfOnDiskVectorIndexReader reader = new IvfOnDiskVectorIndexReader(COLUMN_NAME, indexDir, readerConfig)) {
           reader.setNprobe(NPROBE);
           printRadiusResults(out, backend, distanceFunction, corpus, queries,
               (query, ignoredThreshold) -> reader.getDocIds(query, RADIUS_MAX_CANDIDATES),

@@ -19,6 +19,7 @@
 package org.apache.pinot.common.utils;
 
 import java.net.URI;
+import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Random;
@@ -85,10 +86,10 @@ public class URIUtilsTest {
 
   @Test
   public void testBuildURI() {
-    URI uri = URIUtils.buildURI("http", "foo", "bar", Map.of());
+    URI uri = URIUtils.buildURI("http", "foo", "bar", Collections.emptyMap());
     Assert.assertEquals(uri.toString(), "http://foo/bar");
 
-    uri = URIUtils.buildURI("http", "foo:8080", "bar/moo", Map.of());
+    uri = URIUtils.buildURI("http", "foo:8080", "bar/moo", Collections.emptyMap());
     Assert.assertEquals(uri.toString(), "http://foo:8080/bar/moo");
     Assert.assertEquals(uri.getHost(), "foo");
     Assert.assertEquals(uri.getPort(), 8080);
@@ -102,7 +103,7 @@ public class URIUtilsTest {
         .encode("{\"format\":\"JSON\",\"timeout\":1000}"));
 
     // test that path gets encoded
-    uri = URIUtils.buildURI("http", "foo", "bar%moo{}", Map.of());
+    uri = URIUtils.buildURI("http", "foo", "bar%moo{}", Collections.emptyMap());
     Assert.assertEquals(uri.toString(), "http://foo/" + URIUtils.encode("bar%moo{}"));
   }
 }

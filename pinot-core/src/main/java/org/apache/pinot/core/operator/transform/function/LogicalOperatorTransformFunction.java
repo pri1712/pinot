@@ -30,8 +30,10 @@ import org.apache.pinot.spi.data.FieldSpec;
 import org.roaringbitmap.RoaringBitmap;
 
 
-/// `LogicalOperatorTransformFunction` abstracts common functions for logical operators (AND, OR).
-/// The results are BOOLEAN type.
+/**
+ * <code>LogicalOperatorTransformFunction</code> abstracts common functions for logical operators (AND, OR).
+ * The results are BOOLEAN type.
+ */
 public abstract class LogicalOperatorTransformFunction extends BaseTransformFunction {
 
   @Override

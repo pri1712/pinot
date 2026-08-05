@@ -21,6 +21,7 @@ package org.apache.pinot.common.utils.config;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import org.apache.helix.zookeeper.datamodel.ZNRecord;
 import org.apache.pinot.spi.config.workload.EnforcementProfile;
@@ -274,7 +275,7 @@ public class QueryWorkloadConfigUtilsTest {
     data.add(new Object[]{null, Arrays.asList("nodeConfigs cannot be null or empty")});
 
     // Empty nodeConfigs
-    data.add(new Object[]{List.of(), Arrays.asList("nodeConfigs cannot be null or empty")});
+    data.add(new Object[]{Collections.emptyList(), Arrays.asList("nodeConfigs cannot be null or empty")});
 
     // NodeConfigs with null element
     List<NodeConfig> nodeConfigsWithNull = new ArrayList<>();
@@ -282,7 +283,7 @@ public class QueryWorkloadConfigUtilsTest {
     data.add(new Object[]{nodeConfigsWithNull, Arrays.asList("nodeConfigs[0] cannot be null")});
 
     // Valid nodeConfigs
-    data.add(new Object[]{Arrays.asList(createValidServerNodeConfig()), List.of()});
+    data.add(new Object[]{Arrays.asList(createValidServerNodeConfig()), Collections.emptyList()});
 
     return data.toArray(new Object[0][]);
   }
@@ -309,8 +310,8 @@ public class QueryWorkloadConfigUtilsTest {
         {new EnforcementProfile(100, -1), Arrays.asList("enforcementProfile.memoryCostBytes has to positive")},
         {new EnforcementProfile(-1, -1), Arrays.asList("enforcementProfile.cpuCostNs has to positive",
             "enforcementProfile.memoryCostBytes has to positive")},
-        {new EnforcementProfile(0, 0), List.of()}, // Zero values are allowed
-        {new EnforcementProfile(100, 100), List.of()}
+        {new EnforcementProfile(0, 0), Collections.emptyList()}, // Zero values are allowed
+        {new EnforcementProfile(100, 100), Collections.emptyList()}
     };
   }
 
@@ -341,7 +342,7 @@ public class QueryWorkloadConfigUtilsTest {
     data.add(new Object[]{schemeWithNullType, Arrays.asList("propagationScheme.type cannot be null")});
 
     // Valid propagation scheme
-    data.add(new Object[]{createValidPropagationScheme(), List.of()});
+    data.add(new Object[]{createValidPropagationScheme(), Collections.emptyList()});
 
     return data.toArray(new Object[0][]);
   }
@@ -422,7 +423,7 @@ public class QueryWorkloadConfigUtilsTest {
         Arrays.asList("must have either all or none of the propagationEntities define costs")});
 
     // Valid propagationEntities
-    data.add(new Object[]{Arrays.asList(createValidPropagationEntity()), List.of()});
+    data.add(new Object[]{Arrays.asList(createValidPropagationEntity()), Collections.emptyList()});
 
     return data.toArray(new Object[0][]);
   }

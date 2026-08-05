@@ -25,7 +25,9 @@ import static org.testng.Assert.assertThrows;
 import static org.testng.Assert.assertTrue;
 
 
-/// Tests for non-polymorphic arithmetic scalar functions in [ArithmeticFunctions].
+/**
+ * Tests for non-polymorphic arithmetic scalar functions in {@link ArithmeticFunctions}.
+ */
 public class ArithmeticFunctionsTest {
 
   private static final double DELTA = 1e-10;

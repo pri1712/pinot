@@ -19,6 +19,7 @@
 package org.apache.pinot.core.operator.dociditerators;
 
 import java.math.BigDecimal;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.OptionalInt;
@@ -47,8 +48,10 @@ import org.roaringbitmap.buffer.ImmutableRoaringBitmap;
 import org.roaringbitmap.buffer.MutableRoaringBitmap;
 
 
-/// The `ExpressionScanDocIdIterator` is the scan-based iterator for ExpressionFilterDocIdSet that can handle
-/// filters on the expressions. It leverages the projection operator to batch processing the records block by block.
+/**
+ * The {@code ExpressionScanDocIdIterator} is the scan-based iterator for ExpressionFilterDocIdSet that can handle
+ * filters on the expressions. It leverages the projection operator to batch processing the records block by block.
+ */
 public final class ExpressionScanDocIdIterator implements ScanBasedDocIdIterator {
   private final TransformFunction _transformFunction;
   private final PredicateEvaluator _predicateEvaluator;
@@ -417,7 +420,9 @@ public final class ExpressionScanDocIdIterator implements ScanBasedDocIdIterator
     return _numEntriesScanned;
   }
 
-  /// NOTE: This operator contains only one block.
+  /**
+   * NOTE: This operator contains only one block.
+   */
   private class RangeDocIdSetOperator extends BaseDocIdSetOperator {
     static final String EXPLAIN_NAME = "DOC_ID_SET_RANGE";
 
@@ -445,7 +450,7 @@ public final class ExpressionScanDocIdIterator implements ScanBasedDocIdIterator
 
     @Override
     public List<Operator> getChildOperators() {
-      return List.of();
+      return Collections.emptyList();
     }
 
     @Override

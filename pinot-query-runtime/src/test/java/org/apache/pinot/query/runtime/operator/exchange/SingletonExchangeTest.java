@@ -18,6 +18,7 @@
  */
 package org.apache.pinot.query.runtime.operator.exchange;
 
+import java.util.Collections;
 import java.util.List;
 import org.apache.pinot.common.utils.DataSchema;
 import org.apache.pinot.query.mailbox.GrpcSendingMailbox;
@@ -51,7 +52,7 @@ public class SingletonExchangeTest {
   @BeforeMethod
   public void setUp() {
     _mocks = MockitoAnnotations.openMocks(this);
-    _block = new RowHeapDataBlock(List.of(), DataSchema.EXPLAIN_RESULT_SCHEMA);
+    _block = new RowHeapDataBlock(Collections.emptyList(), DataSchema.EXPLAIN_RESULT_SCHEMA);
   }
 
   @AfterMethod

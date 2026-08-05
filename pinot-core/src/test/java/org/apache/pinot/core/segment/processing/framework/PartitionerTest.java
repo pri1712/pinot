@@ -36,7 +36,9 @@ import static org.testng.Assert.assertTrue;
 import static org.testng.Assert.fail;
 
 
-/// Tests for [Partitioner]
+/**
+ * Tests for {@link Partitioner}
+ */
 public class PartitionerTest {
 
   @Test

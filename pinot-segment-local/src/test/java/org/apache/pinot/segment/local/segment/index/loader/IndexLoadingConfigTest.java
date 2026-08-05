@@ -21,6 +21,7 @@ package org.apache.pinot.segment.local.segment.index.loader;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import org.apache.pinot.segment.spi.index.FieldIndexConfigs;
@@ -73,9 +74,9 @@ public class IndexLoadingConfigTest {
     //@formatter:on
     StarTreeIndexConfig stIdxCfg = JsonUtils.stringToObject(stIdxCfgStr, StarTreeIndexConfig.class);
     TableConfig tableConfig = new TableConfigBuilder(TableType.OFFLINE).setTableName(TABLE_NAME)
-        .setInvertedIndexColumns(List.of("col1"))
-        .setStarTreeIndexConfigs(List.of(stIdxCfg))
-        .setFieldConfigList(List.of(col2Cfg)).build();
+        .setInvertedIndexColumns(Collections.singletonList("col1"))
+        .setStarTreeIndexConfigs(Collections.singletonList(stIdxCfg))
+        .setFieldConfigList(Collections.singletonList(col2Cfg)).build();
     IndexLoadingConfig ilc = new IndexLoadingConfig(idmCfg, tableConfig, schema);
     // Check index configs for default tier
     assertEquals(ilc.getStarTreeIndexConfigs().size(), 1);
@@ -138,7 +139,7 @@ public class IndexLoadingConfigTest {
     //@formatter:on
     StarTreeIndexConfig stIdxCfg = JsonUtils.stringToObject(stIdxCfgStr, StarTreeIndexConfig.class);
     TableConfig tableConfig = new TableConfigBuilder(TableType.OFFLINE).setTableName(TABLE_NAME)
-        .setStarTreeIndexConfigs(List.of(stIdxCfg))
+        .setStarTreeIndexConfigs(Collections.singletonList(stIdxCfg))
         .setTierOverwrites(JsonUtils.stringToJsonNode("{\"coldTier\": {\"starTreeIndexConfigs\": []}}"))
         .setFieldConfigList(Arrays.asList(col1Cfg, col2Cfg)).build();
     IndexLoadingConfig ilc = new IndexLoadingConfig(idmCfg, tableConfig, schema);

@@ -21,6 +21,7 @@ package org.apache.pinot.core.operator.filter;
 import com.google.common.base.CaseFormat;
 import com.google.common.base.Preconditions;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import org.apache.pinot.core.common.BlockDocIdSet;
 import org.apache.pinot.core.common.Operator;
@@ -64,7 +65,7 @@ public class SortedIndexBasedFilterOperator extends BaseColumnFilterOperator {
       int startDocId = _sortedIndexReader.getDocIds(rangePredicateEvaluator.getStartDictId()).getLeft();
       // NOTE: End dictionary id is exclusive in OfflineDictionaryBasedRangePredicateEvaluator.
       int endDocId = _sortedIndexReader.getDocIds(rangePredicateEvaluator.getEndDictId() - 1).getRight();
-      return new SortedDocIdSet(List.of(new IntPair(startDocId, endDocId)));
+      return new SortedDocIdSet(Collections.singletonList(new IntPair(startDocId, endDocId)));
     } else {
       boolean exclusive = _predicateEvaluator.isExclusive();
       int[] dictIds =
@@ -87,7 +88,7 @@ public class SortedIndexBasedFilterOperator extends BaseColumnFilterOperator {
           }
           return new SortedDocIdSet(docIdRanges);
         } else {
-          return new SortedDocIdSet(List.of(docIdRange));
+          return new SortedDocIdSet(Collections.singletonList(docIdRange));
         }
       } else {
         // Merge adjacent docIdRanges (dictIds are already sorted)
@@ -219,7 +220,7 @@ public class SortedIndexBasedFilterOperator extends BaseColumnFilterOperator {
 
   @Override
   public List<Operator> getChildOperators() {
-    return List.of();
+    return Collections.emptyList();
   }
 
   @Override

@@ -26,6 +26,7 @@ import com.sun.net.httpserver.HttpHandler;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -143,7 +144,7 @@ public class PinotSegmentsMetadataTest {
   private Map<String, List<String>> getServerToSegments(List<String> servers) {
     Map<String, List<String>> serverToSegmentsMap = new HashMap<>();
     for (String server : servers) {
-      serverToSegmentsMap.put(server, List.of(_serverMap.get(server)._segment));
+      serverToSegmentsMap.put(server, Collections.singletonList(_serverMap.get(server)._segment));
     }
     return serverToSegmentsMap;
   }

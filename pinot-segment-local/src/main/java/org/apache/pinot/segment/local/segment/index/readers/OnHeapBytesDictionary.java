@@ -31,12 +31,14 @@ import org.apache.pinot.spi.utils.BytesUtils;
 import org.apache.pinot.spi.utils.FALFInterner;
 
 
-/// Implementation of BYTES dictionary that cache all values on-heap.
-///
-/// This is useful for BYTES columns that:
-///
-/// - Has low cardinality BYTES dictionary where memory footprint on-heap is acceptably small
-/// - Is heavily queried
+/**
+ * Implementation of BYTES dictionary that cache all values on-heap.
+ * <p>This is useful for BYTES columns that:
+ * <ul>
+ *   <li>Has low cardinality BYTES dictionary where memory footprint on-heap is acceptably small</li>
+ *   <li>Is heavily queried</li>
+ * </ul>
+ */
 public class OnHeapBytesDictionary extends BaseImmutableDictionary {
   private final Object2IntOpenHashMap<ByteArray> _valToDictId;
   private final ByteArray[] _dictIdToVal;

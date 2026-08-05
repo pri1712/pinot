@@ -28,8 +28,10 @@ import org.apache.pinot.query.runtime.blocks.BlockSplitter;
 import org.apache.pinot.query.runtime.blocks.MseBlock;
 
 
-/// Randomly distributes blocks across a set of input servers (NOTE: this
-/// is not round-robin, but rather truly random block distribution).
+/**
+ * Randomly distributes blocks across a set of input servers (NOTE: this
+ * is not round-robin, but rather truly random block distribution).
+ */
 class RandomExchange extends BlockExchange {
   private static final Random RANDOM = new Random();
 

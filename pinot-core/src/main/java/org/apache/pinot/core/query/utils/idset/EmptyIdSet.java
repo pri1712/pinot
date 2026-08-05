@@ -18,7 +18,9 @@
  */
 package org.apache.pinot.core.query.utils.idset;
 
-/// The `EmptyIdSet` represents an empty IdSet.
+/**
+ * The {@code EmptyIdSet} represents an empty IdSet.
+ */
 public class EmptyIdSet implements IdSet {
   private EmptyIdSet() {
   }

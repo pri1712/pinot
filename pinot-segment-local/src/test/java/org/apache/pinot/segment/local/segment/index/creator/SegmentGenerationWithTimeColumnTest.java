@@ -118,7 +118,9 @@ public class SegmentGenerationWithTimeColumnTest implements PinotBuffersAfterMet
     Assert.assertEquals(metadata.getEndTime(), sdfToMillisWithTimeZone(_maxTime + timeZoneSuffix));
   }
 
-  /// Tests using DateTimeFieldSpec as time column
+  /**
+   * Tests using DateTimeFieldSpec as time column
+   */
   @Test
   public void testSimpleDateSegmentGenerationNewNoTimeZone()
       throws Exception {
@@ -177,7 +179,9 @@ public class SegmentGenerationWithTimeColumnTest implements PinotBuffersAfterMet
     testEpochDateSegmentGeneration();
   }
 
-  /// Tests using DateTimeFieldSpec as time column
+  /**
+   * Tests using DateTimeFieldSpec as time column
+   */
   @Test
   public void testEpochDateSegmentGenerationNew()
       throws Exception {
@@ -195,7 +199,9 @@ public class SegmentGenerationWithTimeColumnTest implements PinotBuffersAfterMet
     buildSegment(_tableConfig, schema, false, true, "");
   }
 
-  /// Tests using DateTimeFieldSpec as time column
+  /**
+   * Tests using DateTimeFieldSpec as time column
+   */
   @Test(expectedExceptions = IllegalStateException.class)
   public void testSegmentGenerationWithInvalidTimeNew()
       throws Exception {

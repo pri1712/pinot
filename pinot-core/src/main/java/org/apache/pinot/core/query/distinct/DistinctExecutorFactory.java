@@ -42,12 +42,16 @@ import org.apache.pinot.segment.spi.index.reader.Dictionary;
 import org.apache.pinot.spi.data.FieldSpec.DataType;
 
 
-/// Factory for [DistinctExecutor].
+/**
+ * Factory for {@link DistinctExecutor}.
+ */
 public class DistinctExecutorFactory {
   private DistinctExecutorFactory() {
   }
 
-  /// Returns the [DistinctExecutor] for the given distinct query.
+  /**
+   * Returns the {@link DistinctExecutor} for the given distinct query.
+   */
   public static DistinctExecutor getDistinctExecutor(BaseProjectOperator<?> projectOperator,
       QueryContext queryContext) {
     List<ExpressionContext> expressions = queryContext.getSelectExpressions();
@@ -68,10 +72,8 @@ public class DistinctExecutorFactory {
       } else {
         orderByExpression = null;
       }
-      // Use the dict-id-based executor only when the forward index is dict-encoded (RAW + dictionaryIndex columns
-      // expose a Dictionary but their forward index throws on readDictIds — gate on isDictionaryEncoded()).
+      Dictionary dictionary = columnContext.getDictionary();
       // Note: Use raw value based when ordering is needed and dictionary is not sorted (consuming segments).
-      Dictionary dictionary = columnContext.isDictionaryEncoded() ? columnContext.getDictionary() : null;
       if (dictionary != null && (orderByExpression == null || dictionary.isSorted())) {
         // Dictionary based
         return new DictionaryBasedSingleColumnDistinctExecutor(expression, dictionary, dataType, limit,
@@ -113,10 +115,9 @@ public class DistinctExecutorFactory {
         columnNames[i] = expression.toString();
         columnDataTypes[i] = ColumnDataType.fromDataTypeSV(columnContext.getDataType());
         if (dictionaryBased) {
-          // RAW + dictionaryIndex columns expose a Dictionary but the forward index throws on readDictIds; gate
-          // the dict-id-based multi-column executor on the explicit forward-index encoding flag.
-          if (columnContext.isDictionaryEncoded()) {
-            dictionaries.add(columnContext.getDictionary());
+          Dictionary dictionary = columnContext.getDictionary();
+          if (dictionary != null) {
+            dictionaries.add(dictionary);
           } else {
             dictionaryBased = false;
           }

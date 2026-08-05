@@ -55,7 +55,6 @@ import org.testng.annotations.Test;
 
 import static org.testng.Assert.assertEquals;
 
-
 public class PartialUpsertTableRebalanceIntegrationTest extends BaseClusterIntegrationTest {
   private static final int NUM_SERVERS = 1;
   private static final String PRIMARY_KEY_COL = "clientId";
@@ -282,8 +281,9 @@ public class PartialUpsertTableRebalanceIntegrationTest extends BaseClusterInteg
 
     int maxSequenceNumber = 0;
     for (Map.Entry<String, Map<String, String>> entry : segmentAssignment.entrySet()) {
-      LLCSegmentName llcSegmentName = LLCSegmentName.of(entry.getKey());
-      if (llcSegmentName != null) {
+      String segmentName = entry.getKey();
+      if (LLCSegmentName.isLowLevelConsumerSegmentName(segmentName)) {
+        LLCSegmentName llcSegmentName = new LLCSegmentName(segmentName);
         maxSequenceNumber = Math.max(maxSequenceNumber, llcSegmentName.getSequenceNumber());
       }
     }
@@ -298,8 +298,8 @@ public class PartialUpsertTableRebalanceIntegrationTest extends BaseClusterInteg
       assertEquals(instanceStateMap.size(), 1);
       Map.Entry<String, String> instanceIdAndState = instanceStateMap.entrySet().iterator().next();
       String state = instanceIdAndState.getValue();
-      LLCSegmentName llcSegmentName = LLCSegmentName.of(segmentName);
-      if (llcSegmentName != null) {
+      if (LLCSegmentName.isLowLevelConsumerSegmentName(segmentName)) {
+        LLCSegmentName llcSegmentName = new LLCSegmentName(segmentName);
         if (llcSegmentName.getSequenceNumber() < maxSequenceNumber) {
           assertEquals(state, CommonConstants.Helix.StateModel.SegmentStateModel.ONLINE);
         } else {

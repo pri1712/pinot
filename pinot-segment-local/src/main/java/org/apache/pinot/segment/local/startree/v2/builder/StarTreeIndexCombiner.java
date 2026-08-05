@@ -38,7 +38,9 @@ import static org.apache.pinot.segment.local.startree.v2.store.StarTreeIndexMapU
 import static org.apache.pinot.segment.local.startree.v2.store.StarTreeIndexMapUtils.STAR_TREE_INDEX_KEY;
 
 
-/// The `StarTreeIndexCombiner` class combines multiple star-tree indexes into a single index file.
+/**
+ * The {@code StarTreeIndexCombiner} class combines multiple star-tree indexes into a single index file.
+ */
 public class StarTreeIndexCombiner implements Closeable {
   private final FileChannel _fileChannel;
 
@@ -48,7 +50,9 @@ public class StarTreeIndexCombiner implements Closeable {
     _fileChannel = new RandomAccessFile(indexFile, "rw").getChannel();
   }
 
-  /// Combines the index files inside the given directory into the single index file, then cleans the directory.
+  /**
+   * Combines the index files inside the given directory into the single index file, then cleans the directory.
+   */
   public List<Pair<IndexKey, IndexValue>> combine(StarTreeV2BuilderConfig builderConfig, File starTreeIndexDir)
       throws IOException {
     List<Pair<IndexKey, IndexValue>> indexMap = new ArrayList<>();

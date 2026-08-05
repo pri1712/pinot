@@ -22,6 +22,7 @@ import java.io.File;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import org.apache.commons.io.FileUtils;
 import org.apache.pinot.core.segment.processing.timehandler.TimeHandler;
@@ -50,7 +51,9 @@ import static org.testng.Assert.*;
 import static org.testng.Assert.assertFalse;
 
 
-/// End-to-end tests for SegmentProcessorFramework using RecordReader-based processing.
+/**
+ * End-to-end tests for SegmentProcessorFramework using RecordReader-based processing.
+ */
 public class SegmentProcessorFrameworkTest extends BaseSegmentProcessorFrameworkTest {
 
   @Override
@@ -63,13 +66,15 @@ public class SegmentProcessorFrameworkTest extends BaseSegmentProcessorFramework
       recordReaderConfigs.add(new RecordReaderFileConfig(reader));
     }
     SegmentProcessorFramework framework =
-        new SegmentProcessorFramework(config, workingDir, recordReaderConfigs, List.of(), null);
+        new SegmentProcessorFramework(config, workingDir, recordReaderConfigs, Collections.emptyList(), null);
     return framework.process();
   }
 
-  /// Test lazy initialization of record readers. Here we create
-  /// RecoderReaderFileConfig and the actual reader is initialized during the
-  /// map phase.
+  /**
+   * Test lazy initialization of record readers. Here we create
+   * RecoderReaderFileConfig and the actual reader is initialized during the
+   * map phase.
+   */
   @Test
   public void testRecordReaderFileConfigInit() throws Exception {
     File workingDir = new File(TEMP_DIR, "segmentOutput");
@@ -94,7 +99,7 @@ public class SegmentProcessorFrameworkTest extends BaseSegmentProcessorFramework
     SegmentProcessorConfig config =
         new SegmentProcessorConfig.Builder().setTableConfig(tableConfig).setSchema(schema).build();
     SegmentProcessorFramework framework = new SegmentProcessorFramework(config, workingDir,
-        List.of(recordReaderFileConfig), List.of(), null);
+        List.of(recordReaderFileConfig), Collections.emptyList(), null);
     List<File> outputSegments = framework.process();
     assertEquals(outputSegments.size(), 1);
     ImmutableSegment segment = ImmutableSegmentLoader.load(outputSegments.get(0), ReadMode.mmap);
@@ -225,7 +230,7 @@ public class SegmentProcessorFrameworkTest extends BaseSegmentProcessorFramework
 
     SegmentProcessorFramework frameworkWithRecordReaderFileConfig =
         new SegmentProcessorFramework(config, workingDir, List.of(recordReaderFileConfig),
-            List.of(), null);
+            Collections.emptyList(), null);
     outputSegments = frameworkWithRecordReaderFileConfig.process();
 
     // Verify the number of segments created and the total docs.
@@ -248,7 +253,7 @@ public class SegmentProcessorFrameworkTest extends BaseSegmentProcessorFramework
     recordReaderFileConfig = new RecordReaderFileConfig(recordReader);
     SegmentProcessorFramework frameworkWithDelegateRecordReader =
         new SegmentProcessorFramework(config, workingDir, List.of(recordReaderFileConfig),
-            List.of(), null);
+            Collections.emptyList(), null);
     outputSegments = frameworkWithDelegateRecordReader.process();
 
     // Verify the number of segments created and the total docs.
@@ -274,7 +279,7 @@ public class SegmentProcessorFrameworkTest extends BaseSegmentProcessorFramework
 
     frameworkWithRecordReaderFileConfig =
         new SegmentProcessorFramework(config, workingDir, List.of(recordReaderFileConfig),
-            List.of(), null);
+            Collections.emptyList(), null);
     outputSegments = frameworkWithRecordReaderFileConfig.process();
 
     // Verify that each segment has only one row.
@@ -297,7 +302,7 @@ public class SegmentProcessorFrameworkTest extends BaseSegmentProcessorFramework
     recordReaderFileConfig = new RecordReaderFileConfig(recordReader);
     frameworkWithDelegateRecordReader =
         new SegmentProcessorFramework(config, workingDir, List.of(recordReaderFileConfig),
-            List.of(), null);
+            Collections.emptyList(), null);
     outputSegments = frameworkWithDelegateRecordReader.process();
 
     // Verify that each segment has only one row.

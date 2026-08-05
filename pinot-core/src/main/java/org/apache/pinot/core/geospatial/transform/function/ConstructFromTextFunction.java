@@ -33,7 +33,9 @@ import org.locationtech.jts.io.ParseException;
 import org.locationtech.jts.io.WKTReader;
 
 
-/// An abstract class for implementing the geo constructor functions from text.
+/**
+ * An abstract class for implementing the geo constructor functions from text.
+ */
 abstract class ConstructFromTextFunction extends BaseTransformFunction {
   protected TransformFunction _transformFunction;
   protected WKTReader _reader;

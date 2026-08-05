@@ -22,7 +22,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.channels.Channels;
 import java.nio.channels.WritableByteChannel;
-import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import org.apache.arrow.memory.RootAllocator;
 import org.apache.arrow.vector.IntVector;
@@ -62,7 +61,7 @@ public class ArrowTestDataUtils {
 
         for (int i = 0; i < numRows; i++) {
           idVector.set(i, i + 1);
-          nameVector.set(i, ("name_" + (i + 1)).getBytes(StandardCharsets.UTF_8));
+          nameVector.set(i, ("name_" + (i + 1)).getBytes());
         }
 
         idVector.setValueCount(numRows);
@@ -107,7 +106,7 @@ public class ArrowTestDataUtils {
           for (int row = 0; row < rowsPerBatch; row++) {
             idVector.set(row, totalRowId++);
             batchVector.set(row, batch);
-            valueVector.set(row, ("batch_" + batch + "_row_" + row).getBytes(StandardCharsets.UTF_8));
+            valueVector.set(row, ("batch_" + batch + "_row_" + row).getBytes());
           }
 
           idVector.setValueCount(rowsPerBatch);

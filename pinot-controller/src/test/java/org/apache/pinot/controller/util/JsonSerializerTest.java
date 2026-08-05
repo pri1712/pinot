@@ -37,7 +37,9 @@ import static org.testng.Assert.assertNotNull;
 import static org.testng.Assert.assertTrue;
 
 
-/// Test class to check for json responses during serialization and deserialization
+/**
+ * Test class to check for json responses during serialization and deserialization
+ */
 public class JsonSerializerTest {
   @Test
   public void testTableReloadResponseSerialization()

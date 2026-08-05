@@ -21,12 +21,16 @@ package org.apache.pinot.core.query.scheduler;
 import org.apache.pinot.spi.env.PinotConfiguration;
 
 
-/// Factory class to create [SchedulerGroup]
+/**
+ * Factory class to create {@link SchedulerGroup}
+ */
 public interface SchedulerGroupFactory {
 
-  /// Factory method to create [SchedulerGroup] for given name
-  /// @param config scheduler configuration
-  /// @param groupName Scheduler group name
-  /// @return instance of SchedulerGroup
+  /**
+   * Factory method to create {@link SchedulerGroup} for given name
+   * @param config scheduler configuration
+   * @param groupName Scheduler group name
+   * @return instance of SchedulerGroup
+   */
   SchedulerGroup create(PinotConfiguration config, String groupName);
 }

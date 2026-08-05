@@ -24,7 +24,9 @@ import org.apache.pinot.common.metrics.MetricsInspector;
 import org.apache.pinot.spi.metrics.PinotMetricsRegistry;
 
 
-/// Runs the shared [AbstractMetricsTest] against the real [DropwizardMetricsRegistry].
+/**
+ * Runs the shared {@link AbstractMetricsTest} against the real {@link DropwizardMetricsRegistry}.
+ */
 public class DropwizardAbstractMetricsTest extends AbstractMetricsTest {
 
   @Override

@@ -28,17 +28,21 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 
-/// Class to help to read, write segment lineage metadata
+/**
+ * Class to help to read, write segment lineage metadata
+ */
 public class SegmentLineageAccessHelper {
   private static final Logger LOGGER = LoggerFactory.getLogger(SegmentLineageAccessHelper.class);
   private SegmentLineageAccessHelper() {
   }
 
-  /// Read the segment lineage ZNRecord from the property store
-  ///
-  /// @param propertyStore a property store
-  /// @param tableNameWithType a table name with type
-  /// @return a ZNRecord of segment merge lineage, return null if znode does not exist
+  /**
+   * Read the segment lineage ZNRecord from the property store
+   *
+   * @param propertyStore a property store
+   * @param tableNameWithType a table name with type
+   * @return a ZNRecord of segment merge lineage, return null if znode does not exist
+   */
   public static ZNRecord getSegmentLineageZNRecord(ZkHelixPropertyStore<ZNRecord> propertyStore,
       String tableNameWithType) {
     String path = ZKMetadataProvider.constructPropertyStorePathForSegmentLineage(tableNameWithType);
@@ -50,11 +54,13 @@ public class SegmentLineageAccessHelper {
     return segmentLineageZNRecord;
   }
 
-  /// Read the segment lineage from the property store
-  ///
-  /// @param propertyStore  a property store
-  /// @param tableNameWithType a table name with type
-  /// @return a segment lineage, return null if znode does not exist
+  /**
+   * Read the segment lineage from the property store
+   *
+   * @param propertyStore  a property store
+   * @param tableNameWithType a table name with type
+   * @return a segment lineage, return null if znode does not exist
+   */
   public static SegmentLineage getSegmentLineage(ZkHelixPropertyStore<ZNRecord> propertyStore,
       String tableNameWithType) {
     ZNRecord znRecord = getSegmentLineageZNRecord(propertyStore, tableNameWithType);
@@ -65,12 +71,14 @@ public class SegmentLineageAccessHelper {
     return segmentMergeLineage;
   }
 
-  /// Write the segment lineage to the property store
-  ///
-  /// @param propertyStore a property store
-  /// @param segmentLineage a segment lineage
-  /// @param expectedVersion expected version of ZNRecord. -1 for indicating to match any version.
-  /// @return true if update is successful. false otherwise.
+  /**
+   * Write the segment lineage to the property store
+   *
+   * @param propertyStore a property store
+   * @param segmentLineage a segment lineage
+   * @param expectedVersion expected version of ZNRecord. -1 for indicating to match any version.
+   * @return true if update is successful. false otherwise.
+   */
   public static boolean writeSegmentLineage(ZkHelixPropertyStore<ZNRecord> propertyStore, SegmentLineage segmentLineage,
       int expectedVersion) {
     String tableNameWithType = segmentLineage.getTableNameWithType();
@@ -85,11 +93,13 @@ public class SegmentLineageAccessHelper {
     }
   }
 
-  /// Delete the segment lineage from the property store
-  ///
-  /// @param propertyStore a property store
-  /// @param tableNameWithType a table name with type
-  /// @return true if delete is successful. false otherwise.
+  /**
+   * Delete the segment lineage from the property store
+   *
+   * @param propertyStore a property store
+   * @param tableNameWithType a table name with type
+   * @return true if delete is successful. false otherwise.
+   */
   public static boolean deleteSegmentLineage(ZkHelixPropertyStore<ZNRecord> propertyStore, String tableNameWithType) {
     String path = ZKMetadataProvider.constructPropertyStorePathForSegmentLineage(tableNameWithType);
     return propertyStore.remove(path, AccessOption.PERSISTENT);

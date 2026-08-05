@@ -42,8 +42,10 @@ import org.testng.annotations.Test;
 import static org.testng.Assert.assertEquals;
 
 
-/// Test `org.apache.pinot.plugin.inputformat.thrift.data.ThriftRecordReader` for a given sample thrift
-/// data.
+/**
+ * Test {@code org.apache.pinot.plugin.inputformat.thrift.data.ThriftRecordReader} for a given sample thrift
+ * data.
+ */
 public class ThriftRecordReaderTest extends AbstractRecordReaderTest {
   private static final String THRIFT_DATA = "_test_sample_thrift_data.thrift";
 

@@ -22,6 +22,7 @@ import java.io.IOException;
 import java.net.URI;
 import java.time.Instant;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.function.Predicate;
 import org.apache.pinot.spi.filesystem.FileMetadata;
@@ -42,8 +43,10 @@ import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertTrue;
 
 
-/// Unit tests for S3PinotFS.listFilesWithMetadata(URI, boolean, Predicate, int)
-/// — the paginated listing with early termination.
+/**
+ * Unit tests for S3PinotFS.listFilesWithMetadata(URI, boolean, Predicate, int)
+ * — the paginated listing with early termination.
+ */
 public class S3PinotFSPaginatedListTest {
 
   private static final Instant NOW = Instant.now();
@@ -235,7 +238,7 @@ public class S3PinotFSPaginatedListTest {
   @Test
   public void testEmptyBucket() throws IOException {
     when(_mockS3Client.listObjectsV2(any(ListObjectsV2Request.class)))
-        .thenReturn(page(List.of(), false, null));
+        .thenReturn(page(Collections.emptyList(), false, null));
 
     final List<FileMetadata> result = _s3PinotFS.listFilesWithMetadata(
         URI.create("s3://bucket/data/"), true, ACCEPT_ALL, 10);
@@ -340,7 +343,7 @@ public class S3PinotFSPaginatedListTest {
   @Test
   public void testPrefixSentToS3() throws IOException {
     when(_mockS3Client.listObjectsV2(any(ListObjectsV2Request.class)))
-        .thenReturn(page(List.of(), false, null));
+        .thenReturn(page(Collections.emptyList(), false, null));
 
     _s3PinotFS.listFilesWithMetadata(
         URI.create("s3://bucket/data/2026/01/"), true, ACCEPT_ALL, 10);

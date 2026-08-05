@@ -19,6 +19,7 @@
 package org.apache.pinot.server.conf;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import org.apache.pinot.spi.env.PinotConfiguration;
 import org.apache.pinot.spi.utils.CommonConstants;
@@ -27,7 +28,9 @@ import org.apache.pinot.spi.utils.CommonConstants.Helix;
 import static org.apache.pinot.spi.utils.CommonConstants.Server.*;
 
 
-/// The config used for Server.
+/**
+ * The config used for Server.
+ */
 public class ServerConf {
 
   private final PinotConfiguration _serverConf;
@@ -123,10 +126,12 @@ public class ServerConf {
     return _serverConf.subset(CommonConstants.PINOT_QUERY_SCHEDULER_PREFIX);
   }
 
-  /// Returns a list of transform function names as defined in the config
-  /// @return List of transform functions
+  /**
+   * Returns a list of transform function names as defined in the config
+   * @return List of transform functions
+   */
   public List<String> getTransformFunctions() {
-    return _serverConf.getProperty(CONFIG_OF_TRANSFORM_FUNCTIONS, List.of());
+    return _serverConf.getProperty(CONFIG_OF_TRANSFORM_FUNCTIONS, Collections.emptyList());
   }
 
   public boolean emitTableLevelMetrics() {
@@ -134,7 +139,7 @@ public class ServerConf {
   }
 
   public Collection<String> getAllowedTablesForEmittingMetrics() {
-    return _serverConf.getProperty(CONFIG_OF_ALLOWED_TABLES_FOR_EMITTING_METRICS, List.of());
+    return _serverConf.getProperty(CONFIG_OF_ALLOWED_TABLES_FOR_EMITTING_METRICS, Collections.emptyList());
   }
 
   public String getMetricsPrefix() {

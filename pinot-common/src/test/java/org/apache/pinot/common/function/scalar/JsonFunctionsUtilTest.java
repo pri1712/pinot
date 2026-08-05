@@ -22,7 +22,9 @@ import org.testng.annotations.Test;
 
 import static org.testng.Assert.assertEquals;
 
-/// Tests for utility methods in JsonFunctions class
+/**
+ * Tests for utility methods in JsonFunctions class
+ */
 public class JsonFunctionsUtilTest {
 
   @Test

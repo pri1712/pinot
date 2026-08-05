@@ -30,7 +30,9 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeMethod;
 
 
-/// Not an actual test but a base class that can be extended by tests in order to have some basic data
+/**
+ * Not an actual test but a base class that can be extended by tests in order to have some basic data
+ */
 public class PinotDataBufferTestBase {
 
   protected static final Random RANDOM = new Random();

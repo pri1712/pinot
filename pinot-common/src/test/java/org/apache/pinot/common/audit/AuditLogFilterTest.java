@@ -42,7 +42,9 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
 
-/// Unit tests for [AuditLogFilter] focusing on response auditing feature.
+/**
+ * Unit tests for {@link AuditLogFilter} focusing on response auditing feature.
+ */
 public class AuditLogFilterTest {
 
   @Mock

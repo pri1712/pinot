@@ -23,7 +23,9 @@ import java.nio.ByteBuffer;
 import org.roaringbitmap.RoaringBitmap;
 
 
-/// The `RoaringBitmapIdSet` is an IdSet backed by the [RoaringBitmap], and can be used to store INT ids.
+/**
+ * The {@code RoaringBitmapIdSet} is an IdSet backed by the {@link RoaringBitmap}, and can be used to store INT ids.
+ */
 public class RoaringBitmapIdSet implements IdSet {
   private final RoaringBitmap _bitmap;
 
@@ -69,9 +71,10 @@ public class RoaringBitmapIdSet implements IdSet {
     return bytes;
   }
 
-  /// Deserializes the RoaringBitmapIdSet from a ByteBuffer.
-  ///
-  /// NOTE: The ByteBuffer does not include the IdSet.Type byte.
+  /**
+   * Deserializes the RoaringBitmapIdSet from a ByteBuffer.
+   * <p>NOTE: The ByteBuffer does not include the IdSet.Type byte.
+   */
   static RoaringBitmapIdSet fromByteBuffer(ByteBuffer byteBuffer)
       throws IOException {
     RoaringBitmap roaringBitmap = new RoaringBitmap();

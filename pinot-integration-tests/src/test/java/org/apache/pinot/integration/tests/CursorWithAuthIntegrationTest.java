@@ -83,7 +83,7 @@ public class CursorWithAuthIntegrationTest extends CursorIntegrationTest {
   }
 
   @Override
-  protected Map<String, String> getAdminClientHeaders() {
+  protected Map<String, String> getControllerRequestClientHeaders() {
     return AUTH_HEADER;
   }
 

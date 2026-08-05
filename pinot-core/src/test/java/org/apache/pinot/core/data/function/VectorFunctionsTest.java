@@ -28,7 +28,9 @@ import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 
-/// Tests the vector scalar functions
+/**
+ * Tests the vector scalar functions
+ */
 public class VectorFunctionsTest {
 
   private void testFunction(String functionExpression, List<String> expectedArguments, GenericRow row,

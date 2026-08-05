@@ -21,6 +21,7 @@ package org.apache.pinot.queries;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import org.apache.commons.io.FileUtils;
@@ -496,9 +497,9 @@ public class NullHandlingEnabledQueriesTest extends BaseQueriesTest {
     return new Object[][]{
         {FieldSpec.DataType.STRING, "a"}, {
         FieldSpec.DataType.BIG_DECIMAL, 1
-      }, {
+    }, {
         FieldSpec.DataType.BYTES, "a string".getBytes()
-      }
+    }
     };
   }
 
@@ -563,7 +564,7 @@ public class NullHandlingEnabledQueriesTest extends BaseQueriesTest {
     insertRow(null);
     insertRow(1);
     TableConfig tableConfig = new TableConfigBuilder(TableType.OFFLINE).setTableName(RAW_TABLE_NAME)
-        .setNoDictionaryColumns(List.of(COLUMN1)).build();
+        .setNoDictionaryColumns(Collections.singletonList(COLUMN1)).build();
     Schema schema = new Schema.SchemaBuilder().addSingleValueDimension(COLUMN1, dataType).build();
     setUpSegments(tableConfig, schema);
     String query = String.format("SELECT DISTINCTCOUNT(%s) FROM testTable", COLUMN1);
@@ -601,7 +602,7 @@ public class NullHandlingEnabledQueriesTest extends BaseQueriesTest {
     insertRowWithTwoColumns(null, "key");
     insertRowWithTwoColumns(1, "key");
     TableConfig tableConfig = new TableConfigBuilder(TableType.OFFLINE).setTableName(RAW_TABLE_NAME)
-        .setNoDictionaryColumns(List.of(COLUMN1)).build();
+        .setNoDictionaryColumns(Collections.singletonList(COLUMN1)).build();
     Schema schema = new Schema.SchemaBuilder().addSingleValueDimension(COLUMN1, dataType)
         .addSingleValueDimension(COLUMN2, FieldSpec.DataType.STRING).build();
     setUpSegments(tableConfig, schema);
@@ -622,7 +623,7 @@ public class NullHandlingEnabledQueriesTest extends BaseQueriesTest {
     insertRowWithTwoColumns(1, new String[]{"key1", "key2"});
     insertRowWithTwoColumns(2, new String[]{"key2"});
     TableConfig tableConfig = new TableConfigBuilder(TableType.OFFLINE).setTableName(RAW_TABLE_NAME)
-        .setNoDictionaryColumns(List.of(COLUMN1)).build();
+        .setNoDictionaryColumns(Collections.singletonList(COLUMN1)).build();
     Schema schema = new Schema.SchemaBuilder().addSingleValueDimension(COLUMN1, dataType)
         .addMultiValueDimension(COLUMN2, FieldSpec.DataType.STRING).build();
     setUpSegments(tableConfig, schema);
@@ -664,7 +665,7 @@ public class NullHandlingEnabledQueriesTest extends BaseQueriesTest {
     return new Object[][]{
         {FieldSpec.DataType.STRING, "a"}, {
         FieldSpec.DataType.BYTES, "a string".getBytes()
-      }
+    }
     };
   }
 
@@ -905,7 +906,7 @@ public class NullHandlingEnabledQueriesTest extends BaseQueriesTest {
     insertRow(false);
     insertRow(true);
     TableConfig tableConfig = new TableConfigBuilder(TableType.OFFLINE).setTableName(RAW_TABLE_NAME)
-        .setInvertedIndexColumns(List.of(COLUMN1)).build();
+        .setInvertedIndexColumns(Collections.singletonList(COLUMN1)).build();
     Schema schema = new Schema.SchemaBuilder().addSingleValueDimension(COLUMN1, FieldSpec.DataType.BOOLEAN).build();
     setUpSegments(tableConfig, schema);
     String query =
@@ -1087,7 +1088,7 @@ public class NullHandlingEnabledQueriesTest extends BaseQueriesTest {
     insertRow(false);
     insertRow(true);
     TableConfig tableConfig = new TableConfigBuilder(TableType.OFFLINE).setTableName(RAW_TABLE_NAME)
-        .setInvertedIndexColumns(List.of(COLUMN1)).build();
+        .setInvertedIndexColumns(Collections.singletonList(COLUMN1)).build();
     Schema schema = new Schema.SchemaBuilder().addSingleValueDimension(COLUMN1, FieldSpec.DataType.BOOLEAN).build();
     setUpSegments(tableConfig, schema);
     String query = String.format("SELECT * FROM testTable WHERE NOT(%s = false)", COLUMN1);

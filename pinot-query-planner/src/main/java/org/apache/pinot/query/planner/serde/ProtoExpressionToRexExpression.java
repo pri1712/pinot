@@ -28,7 +28,9 @@ import org.apache.pinot.spi.utils.BigDecimalUtils;
 import org.apache.pinot.spi.utils.ByteArray;
 
 
-/// Converts Protobuf versions of RexExpression to appropriate RexExpression classes.
+/**
+ * Converts Protobuf versions of RexExpression to appropriate RexExpression classes.
+ */
 public class ProtoExpressionToRexExpression {
   private ProtoExpressionToRexExpression() {
   }
@@ -180,8 +182,6 @@ public class ProtoExpressionToRexExpression {
         return ColumnDataType.JSON;
       case BYTES:
         return ColumnDataType.BYTES;
-      case UUID:
-        return ColumnDataType.UUID;
       case INT_ARRAY:
         return ColumnDataType.INT_ARRAY;
       case LONG_ARRAY:
@@ -200,8 +200,6 @@ public class ProtoExpressionToRexExpression {
         return ColumnDataType.STRING_ARRAY;
       case BYTES_ARRAY:
         return ColumnDataType.BYTES_ARRAY;
-      case UUID_ARRAY:
-        return ColumnDataType.UUID_ARRAY;
       case MAP:
         return ColumnDataType.MAP;
       case OBJECT:

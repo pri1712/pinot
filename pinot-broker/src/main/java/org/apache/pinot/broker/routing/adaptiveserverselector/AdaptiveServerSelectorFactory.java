@@ -26,8 +26,10 @@ import org.apache.pinot.spi.utils.CommonConstants.Broker;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/// The `AdaptiveServerSelectorFactory` determines the adaptive server selection strategy to use. The choice is
-/// made based on broker instance configs.
+/**
+ * The {@code AdaptiveServerSelectorFactory} determines the adaptive server selection strategy to use. The choice is
+ * made based on broker instance configs.
+ */
 public class AdaptiveServerSelectorFactory {
   private static final Logger LOGGER = LoggerFactory.getLogger(AdaptiveServerSelectorFactory.class);
 

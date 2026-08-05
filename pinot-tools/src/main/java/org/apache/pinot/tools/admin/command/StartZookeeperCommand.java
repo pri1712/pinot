@@ -29,7 +29,11 @@ import org.slf4j.LoggerFactory;
 import picocli.CommandLine;
 
 
-/// Class for command to start ZooKeeper.
+/**
+ * Class for command to start ZooKeeper.
+ *
+ *
+ */
 @CommandLine.Command(name = "StartZookeeper", mixinStandardHelpOptions = true)
 public class StartZookeeperCommand extends AbstractBaseAdminCommand implements Command {
   private static final Logger LOGGER = LoggerFactory.getLogger(StartZookeeperCommand.class);

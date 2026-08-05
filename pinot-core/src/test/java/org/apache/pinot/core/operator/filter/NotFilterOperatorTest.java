@@ -19,6 +19,7 @@
 package org.apache.pinot.core.operator.filter;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import org.apache.pinot.core.common.BlockDocIdIterator;
@@ -62,6 +63,6 @@ public class NotFilterOperatorTest {
     NotFilterOperator notFilterOperator = new NotFilterOperator(EmptyFilterOperator.getInstance(), numDocs, true);
 
     Assert.assertEquals(TestUtils.getDocIds(notFilterOperator.getTrues()), List.of(0, 1, 2, 3, 4));
-    Assert.assertEquals(TestUtils.getDocIds(notFilterOperator.getFalses()), List.of());
+    Assert.assertEquals(TestUtils.getDocIds(notFilterOperator.getFalses()), Collections.emptyList());
   }
 }

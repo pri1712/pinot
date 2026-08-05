@@ -18,6 +18,7 @@
  */
 package org.apache.pinot.core.query.aggregation.function;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import org.apache.pinot.common.request.context.ExpressionContext;
@@ -72,7 +73,7 @@ public class StUnionAggregationFunctionTest {
 
     AggregationResultHolder aggregationResultHolder = aggregationFunction.createAggregationResultHolder();
     Map<ExpressionContext, BlockValSet> blockValSetMap =
-        Map.of(expression, new BytesBlockValSet(values));
+        Collections.singletonMap(expression, new BytesBlockValSet(values));
 
     aggregationFunction.aggregate(values.length, aggregationResultHolder, blockValSetMap);
 

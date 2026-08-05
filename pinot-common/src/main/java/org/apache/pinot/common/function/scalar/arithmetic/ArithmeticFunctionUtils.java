@@ -18,7 +18,6 @@
  */
 package org.apache.pinot.common.function.scalar.arithmetic;
 
-import com.google.common.annotations.VisibleForTesting;
 import java.util.List;
 import org.apache.calcite.rel.type.RelDataType;
 import org.apache.calcite.rel.type.RelDataTypeFactory;
@@ -30,9 +29,11 @@ import org.apache.calcite.sql.type.SqlTypeUtil;
 import org.apache.pinot.common.function.sql.PinotSqlFunction;
 
 
-/// Shared Calcite registration utilities for arithmetic scalar functions.
-///
-/// This helper is stateless and thread-safe.
+/**
+ * Shared Calcite registration utilities for arithmetic scalar functions.
+ *
+ * <p>This helper is stateless and thread-safe.
+ */
 final class ArithmeticFunctionUtils {
   private ArithmeticFunctionUtils() {
   }
@@ -79,22 +80,13 @@ final class ArithmeticFunctionUtils {
     return createTypeWithOperandNullability(opBinding, returnType);
   }
 
-  @VisibleForTesting
-  static SqlTypeName normalizeNumericType(RelDataType relDataType) {
+  private static SqlTypeName normalizeNumericType(RelDataType relDataType) {
     switch (relDataType.getSqlTypeName()) {
       case TINYINT:
       case SMALLINT:
       case INTEGER:
-      // Unsigned integer types (Calcite 1.41+, CALCITE-1466) are now reachable under BABEL. Normalize the supported
-      // ones to the narrowest signed integral type that holds their range (UTINYINT/USMALLINT fit in INTEGER; UINTEGER
-      // needs BIGINT) so arithmetic over an unsigned-cast operand stays integral instead of falling through to DOUBLE.
-      // UBIGINT is unsupported (rejected during plan conversion), so it is not handled here. isIntegral() below
-      // operates on this normalized output, so it needs no separate unsigned arms.
-      case UTINYINT:
-      case USMALLINT:
         return SqlTypeName.INTEGER;
       case BIGINT:
-      case UINTEGER:
         return SqlTypeName.BIGINT;
       case REAL:
       case FLOAT:

@@ -32,7 +32,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 
-/// Helper methods and constructs for date/time functions
+/**
+ * Helper methods and constructs for date/time functions
+ */
 public class DateTimeUtils {
   private DateTimeUtils() {
   }
@@ -144,12 +146,16 @@ public class DateTimeUtils {
     }
   }
 
-  /// The supported field types for the EXTRACT operator
+  /**
+   * The supported field types for the EXTRACT operator
+   */
   public enum ExtractFieldType {
     YEAR, QUARTER, MONTH, WEEK, DAY, DOY, DOW, HOUR, MINUTE, SECOND
   }
 
-  /// Helper method to implement the SQL `EXTRACT` operator.
+  /**
+   * Helper method to implement the SQL <code>EXTRACT</code> operator.
+   */
   public static int extract(ExtractFieldType extractFieldType, long timestamp) {
     switch (extractFieldType) {
       case YEAR:

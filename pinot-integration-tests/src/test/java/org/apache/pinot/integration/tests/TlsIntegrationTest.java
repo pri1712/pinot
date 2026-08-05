@@ -25,6 +25,7 @@ import java.io.UnsupportedEncodingException;
 import java.net.URL;
 import java.sql.ResultSet;
 import java.sql.Statement;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -280,7 +281,7 @@ public class TlsIntegrationTest extends BaseClusterIntegrationTest {
   }
 
   @Override
-  protected Map<String, String> getAdminClientHeaders() {
+  protected Map<String, String> getControllerRequestClientHeaders() {
     return AUTH_HEADER;
   }
 
@@ -289,7 +290,7 @@ public class TlsIntegrationTest extends BaseClusterIntegrationTest {
     Map<String, String> prop = new HashMap<>();
     prop.put("bucketTimePeriod", "30d");
 
-    return new TableTaskConfig(Map.of(MinionConstants.RealtimeToOfflineSegmentsTask.TASK_TYPE, prop));
+    return new TableTaskConfig(Collections.singletonMap(MinionConstants.RealtimeToOfflineSegmentsTask.TASK_TYPE, prop));
   }
 
   @Override

@@ -28,6 +28,7 @@ import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import javax.annotation.Nullable;
@@ -39,8 +40,11 @@ import org.apache.pinot.tools.AbstractBaseCommand;
 import org.apache.pinot.tools.utils.PinotConfigUtils;
 
 
-/// Super class for all the commands.
-/// Implements the common printUsage method.
+/**
+ * Super class for all the commands.
+ * Implements the common printUsage method.
+ *
+ */
 public class AbstractBaseAdminCommand extends AbstractBaseCommand {
   static final String DEFAULT_CONTROLLER_PORT = "9000";
   static final String URI_TABLES_PATH = "/tables/";
@@ -70,7 +74,7 @@ public class AbstractBaseAdminCommand extends AbstractBaseCommand {
 
   public static String sendRequest(String requestMethod, String urlString, String payload)
       throws IOException {
-    return sendRequest(requestMethod, urlString, payload, List.of());
+    return sendRequest(requestMethod, urlString, payload, Collections.emptyList());
   }
 
   public static String sendRequest(String requestMethod, String urlString, String payload, List<Header> headers)

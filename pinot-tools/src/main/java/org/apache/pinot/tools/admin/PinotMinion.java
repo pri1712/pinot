@@ -23,7 +23,9 @@ import java.util.Arrays;
 import java.util.List;
 
 
-/// Simple shim so that jps -l shows PinotMinion instead of PinotAdministrator
+/**
+ * Simple shim so that jps -l shows PinotMinion instead of PinotAdministrator
+ */
 public class PinotMinion {
   private PinotMinion() {
   }

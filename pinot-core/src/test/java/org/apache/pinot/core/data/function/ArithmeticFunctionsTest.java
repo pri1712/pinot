@@ -29,7 +29,9 @@ import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 
-/// Tests the arithmetic scalar transform functions
+/**
+ * Tests the arithmetic scalar transform functions
+ */
 public class ArithmeticFunctionsTest {
 
   private void testFunction(String functionExpression, List<String> expectedArguments, GenericRow row,

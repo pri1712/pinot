@@ -23,7 +23,9 @@ import org.testng.Assert;
 import org.testng.annotations.Test;
 
 
-/// Tests for {@link VectorSimilarityRadiusPredicate}.
+/**
+ * Tests for {@link VectorSimilarityRadiusPredicate}.
+ */
 public class VectorSimilarityRadiusPredicateTest {
 
   @Test

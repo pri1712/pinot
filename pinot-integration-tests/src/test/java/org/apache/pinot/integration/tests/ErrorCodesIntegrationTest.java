@@ -20,6 +20,7 @@ package org.apache.pinot.integration.tests;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import org.apache.commons.io.FileUtils;
 import org.apache.helix.model.HelixConfigScope;
@@ -102,13 +103,15 @@ public abstract class ErrorCodesIntegrationTest extends BaseClusterIntegrationTe
 
   public abstract boolean useMultiStageQueryEngine();
 
-  /// If true, tests will query the controller instead of the broker.
+  /**
+   * If true, tests will query the controller instead of the broker.
+   */
   public abstract boolean queryController();
 
   @Override
   protected List<FieldConfig> getFieldConfigs() {
-    return List.of(
-        new FieldConfig("DivAirports", FieldConfig.EncodingType.DICTIONARY, List.of(),
+    return Collections.singletonList(
+        new FieldConfig("DivAirports", FieldConfig.EncodingType.DICTIONARY, Collections.emptyList(),
             FieldConfig.CompressionCodec.MV_ENTRY_DICT, null));
   }
 

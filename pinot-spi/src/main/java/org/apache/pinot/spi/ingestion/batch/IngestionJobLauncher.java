@@ -152,7 +152,9 @@ public class IngestionJobLauncher {
     }
   }
 
-  /// Ingestion Job type Enum.
+  /**
+   * Ingestion Job type Enum.
+   */
   public enum PinotIngestionJobType {
     SegmentCreation,
     SegmentTarPush,

@@ -49,9 +49,11 @@ import org.apache.pinot.query.routing.MailboxInfo;
 import org.apache.pinot.query.routing.QueryServerInstance;
 
 
-/// A visitor that converts a `QueryPlan` into a human-readable string representation.
-///
-/// It is getting used for getting the physical plan of the query.
+/**
+ * A visitor that converts a {@code QueryPlan} into a human-readable string representation.
+ *
+ * <p>It is getting used for getting the physical plan of the query.</p>
+ */
 public class PhysicalExplainPlanVisitor implements PlanNodeVisitor<StringBuilder, PhysicalExplainPlanVisitor.Context> {
 
   private final DispatchableSubPlan _dispatchableSubPlan;
@@ -60,10 +62,12 @@ public class PhysicalExplainPlanVisitor implements PlanNodeVisitor<StringBuilder
     _dispatchableSubPlan = dispatchableSubPlan;
   }
 
-  /// Explains the query plan.
-  ///
-  /// @param dispatchableSubPlan the queryPlan to explain
-  /// @return a String representation of the query plan tree
+  /**
+   * Explains the query plan.
+   *
+   * @param dispatchableSubPlan the queryPlan to explain
+   * @return a String representation of the query plan tree
+   */
   public static String explain(DispatchableSubPlan dispatchableSubPlan) {
     if (dispatchableSubPlan.getQueryStageMap().isEmpty()) {
       return "EMPTY";
@@ -77,16 +81,18 @@ public class PhysicalExplainPlanVisitor implements PlanNodeVisitor<StringBuilder
         dispatchableSubPlan.getQueryStageMap().get(0).getPlanFragment().getFragmentRoot(), rootServer);
   }
 
-  /// Explains the query plan from a specific point in the subtree, taking `rootServer`
-  /// as the node that is executing this sub-tree. This is helpful for debugging what is happening
-  /// at a given point in time (for example, printing the tree that will be executed on a
-  /// local node right before it is executed).
-  ///
-  /// @param dispatchableSubPlan the entire query plan, including non-executed portions
-  /// @param node the node to begin traversal
-  /// @param rootServer the server instance that is executing this plan (should execute `node`)
-  ///
-  /// @return a query plan associated with
+  /**
+   * Explains the query plan from a specific point in the subtree, taking {@code rootServer}
+   * as the node that is executing this sub-tree. This is helpful for debugging what is happening
+   * at a given point in time (for example, printing the tree that will be executed on a
+   * local node right before it is executed).
+   *
+   * @param dispatchableSubPlan the entire query plan, including non-executed portions
+   * @param node the node to begin traversal
+   * @param rootServer the server instance that is executing this plan (should execute {@code node})
+   *
+   * @return a query plan associated with
+   */
   public static String explainFrom(DispatchableSubPlan dispatchableSubPlan, PlanNode node,
       QueryServerInstance rootServer) {
     final PhysicalExplainPlanVisitor visitor = new PhysicalExplainPlanVisitor(dispatchableSubPlan);
@@ -95,13 +101,15 @@ public class PhysicalExplainPlanVisitor implements PlanNodeVisitor<StringBuilder
         .toString();
   }
 
-  /// This wrapper prints out contextual info from [Context] before invoking [PlanNode#explain()].
-  /// The format of the contextual info is always:
-  ///   "`PREFIX`\[`FRAGMENT_ID`\]@`HOSTNAME`:`PORT`|\[`WORKER_ID`(s)\] `EXPLAIN`"
-  ///
-  /// @param node the [PlanNode] to be explained
-  /// @param context the [Context] to be wrapped in front ot plan node explain.
-  /// @return stringify format of the explained result wrapped with contextual info.
+  /**
+   * This wrapper prints out contextual info from {@link Context} before invoking {@link PlanNode#explain()}.
+   * The format of the contextual info is always:
+   *   "`PREFIX`[`FRAGMENT_ID`]@`HOSTNAME`:`PORT`|[`WORKER_ID`(s)] `EXPLAIN`"
+   *
+   * @param node the {@link PlanNode} to be explained
+   * @param context the {@link Context} to be wrapped in front ot plan node explain.
+   * @return stringify format of the explained result wrapped with contextual info.
+   */
   private StringBuilder appendInfo(PlanNode node, Context context) {
     int stageId = node.getStageId();
     context._builder
@@ -161,7 +169,6 @@ public class PhysicalExplainPlanVisitor implements PlanNodeVisitor<StringBuilder
     return context._builder;
   }
 
-  @Deprecated(forRemoval = true, since = "1.6.0")
   @Override
   public StringBuilder visitEnrichedJoin(EnrichedJoinNode node, Context context) {
     appendInfo(node, context).append('\n');
@@ -206,13 +213,15 @@ public class PhysicalExplainPlanVisitor implements PlanNodeVisitor<StringBuilder
     return node.getInputs().get(0).visit(this, context.next(false, context._host, context._workerId));
   }
 
-  /// Print out mailbox sending info.
-  ///
-  /// Noted that when print out mailbox sending info. the receiving side follows the contextual info format defined in
-  /// [PhysicalExplainPlanVisitor#appendInfo(PlanNode, Context)].
-  ///
-  /// e.g. the RECEIVERs are printed as:
-  ///   "{\[`FRAGMENT_ID`\]@`HOSTNAME`:`PORT`|\[`WORKER_ID`(s)\]}" and are comma-separated.
+  /**
+   * Print out mailbox sending info.
+   *
+   * Noted that when print out mailbox sending info. the receiving side follows the contextual info format defined in
+   * {@link PhysicalExplainPlanVisitor#appendInfo(PlanNode, Context)}.
+   *
+   * e.g. the RECEIVERs are printed as:
+   *   "{[`FRAGMENT_ID`]@`HOSTNAME`:`PORT`|[`WORKER_ID`(s)]}" and are comma-separated.
+   */
   private StringBuilder appendMailboxSend(MailboxSendNode node, Context context) {
     appendInfo(node, context);
 

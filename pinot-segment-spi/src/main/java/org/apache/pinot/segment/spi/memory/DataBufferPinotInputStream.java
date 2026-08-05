@@ -25,7 +25,9 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
 
-/// An adaptor that allows a [DataBuffer] to be read as a [PinotInputStream].
+/**
+ * An adaptor that allows a {@link DataBuffer} to be read as a {@link PinotInputStream}.
+ */
 public class DataBufferPinotInputStream extends PinotInputStream {
   private final DataBuffer _dataBuffer;
   private long _currentOffset;

@@ -42,9 +42,6 @@ public class GeneratorFactory {
     if (type == DataType.BYTES) {
       return new BytesGenerator(cardinality, entryLength);
     }
-    if (type == DataType.UUID) {
-      return new UuidGenerator(cardinality, numberOfValuesPerEntry);
-    }
     if (timeUnit != null) {
       return new TimeGenerator(cardinality, type, timeUnit);
     }

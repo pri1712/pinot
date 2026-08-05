@@ -19,7 +19,9 @@ package org.apache.pinot.spi.recordtransformer.enricher;
  * under the License.
  */
 
-/// Interface for cluster constrains, which can be used to validate the record enricher configs
+/**
+ * Interface for cluster constrains, which can be used to validate the record enricher configs
+ */
 public class RecordEnricherValidationConfig {
   private final boolean _groovyDisabled;
 

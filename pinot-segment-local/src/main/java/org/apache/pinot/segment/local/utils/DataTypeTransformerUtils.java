@@ -29,8 +29,10 @@ import javax.annotation.Nullable;
 import org.apache.pinot.spi.utils.PinotDataType;
 
 
-/// Utility class for data type transformation operations shared between
-/// DataTypeTransformer (record-level) and DataTypeColumnTransformer (column-level).
+/**
+ * Utility class for data type transformation operations shared between
+ * DataTypeTransformer (record-level) and DataTypeColumnTransformer (column-level).
+ */
 @SuppressWarnings("rawtypes")
 public class DataTypeTransformerUtils {
 
@@ -38,14 +40,16 @@ public class DataTypeTransformerUtils {
     // Utility class - prevent instantiation
   }
 
-  /// Transforms a value to the destination data type.
-  /// This method standardizes the value, determines the source type, converts to the destination type,
-  /// and converts to internal representation.
-  ///
-  /// @param column The column name (used for error messages)
-  /// @param value The value to transform
-  /// @param destDataType The destination PinotDataType
-  /// @return The transformed value, or null if the standardized value is null
+  /**
+   * Transforms a value to the destination data type.
+   * This method standardizes the value, determines the source type, converts to the destination type,
+   * and converts to internal representation.
+   *
+   * @param column The column name (used for error messages)
+   * @param value The value to transform
+   * @param destDataType The destination PinotDataType
+   * @return The transformed value, or null if the standardized value is null
+   */
   @Nullable
   public static Object transformValue(String column, @Nullable Object value, PinotDataType destDataType) {
     if (value == null) {
@@ -95,11 +99,14 @@ public class DataTypeTransformerUtils {
     return value;
   }
 
-  /// Standardize the value into supported types.
-  ///
-  /// - Empty Collection/Map/Object\[\] will be standardized to null
-  /// - Single-entry Collection/Map/Object\[\] will be standardized to single value (map key is ignored)
-  /// - Multi-entries Collection/Map/Object\[\] will be standardized to Object\[\] (map key is ignored)
+  /**
+   * Standardize the value into supported types.
+   * <ul>
+   *   <li>Empty Collection/Map/Object[] will be standardized to null</li>
+   *   <li>Single-entry Collection/Map/Object[] will be standardized to single value (map key is ignored)</li>
+   *   <li>Multi-entries Collection/Map/Object[] will be standardized to Object[] (map key is ignored)</li>
+   * </ul>
+   */
   @VisibleForTesting
   @Nullable
   public static Object standardize(String column, @Nullable Object value, boolean isSingleValue) {

@@ -24,7 +24,9 @@ import org.apache.pinot.core.segment.processing.framework.SegmentProcessorConfig
 import org.apache.pinot.core.segment.processing.genericrow.GenericRowFileManager;
 
 
-/// Factory for Reducer.
+/**
+ * Factory for Reducer.
+ */
 public class ReducerFactory {
   private ReducerFactory() {
   }

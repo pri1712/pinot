@@ -25,12 +25,14 @@ import java.io.UncheckedIOException;
 import java.math.BigDecimal;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import javax.annotation.Nullable;
 import org.apache.commons.io.output.UnsynchronizedByteArrayOutputStream;
 import org.apache.pinot.common.CustomObject;
+import org.apache.pinot.common.datatable.DataTableImplV4;
 import org.apache.pinot.common.datatable.DataTableUtils;
 import org.apache.pinot.common.utils.DataSchema;
 import org.apache.pinot.segment.spi.memory.DataBuffer;
@@ -44,40 +46,42 @@ import org.roaringbitmap.RoaringBitmap;
 import static java.nio.charset.StandardCharsets.UTF_8;
 
 
-/// Base data block mostly replicating implementation of [org.apache.pinot.common.datatable.DataTableImplV4].
-///
-/// +-----------------------------------------------+
-/// | 13 integers of header:                        |
-/// | VERSION                                       |
-/// | NUM_ROWS                                      |
-/// | NUM_COLUMNS                                   |
-/// | EXCEPTIONS SECTION START OFFSET               |
-/// | EXCEPTIONS SECTION LENGTH                     |
-/// | DICTIONARY_MAP SECTION START OFFSET           |
-/// | DICTIONARY_MAP SECTION LENGTH                 |
-/// | DATA_SCHEMA SECTION START OFFSET              |
-/// | DATA_SCHEMA SECTION LENGTH                    |
-/// | FIXED_SIZE_DATA SECTION START OFFSET          |
-/// | FIXED_SIZE_DATA SECTION LENGTH                |
-/// | VARIABLE_SIZE_DATA SECTION START OFFSET       |
-/// | VARIABLE_SIZE_DATA SECTION LENGTH             |
-/// +-----------------------------------------------+
-/// | EXCEPTIONS SECTION                            |
-/// +-----------------------------------------------+
-/// | DICTIONARY_MAP SECTION                        |
-/// +-----------------------------------------------+
-/// | DATA_SCHEMA SECTION                           |
-/// +-----------------------------------------------+
-/// | FIXED_SIZE_DATA SECTION                       |
-/// +-----------------------------------------------+
-/// | VARIABLE_SIZE_DATA SECTION                    |
-/// +-----------------------------------------------+
-/// | METADATA LENGTH                               |
-/// | METADATA SECTION                              |
-/// +-----------------------------------------------+
-///
-/// To support both row and columnar data format. the size of the data payload will be exactly the same. the only
-/// difference is the data layout in FIXED_SIZE_DATA and VARIABLE_SIZE_DATA section, see each impl for details.
+/**
+ * Base data block mostly replicating implementation of {@link DataTableImplV4}.
+ *
+ * +-----------------------------------------------+
+ * | 13 integers of header:                        |
+ * | VERSION                                       |
+ * | NUM_ROWS                                      |
+ * | NUM_COLUMNS                                   |
+ * | EXCEPTIONS SECTION START OFFSET               |
+ * | EXCEPTIONS SECTION LENGTH                     |
+ * | DICTIONARY_MAP SECTION START OFFSET           |
+ * | DICTIONARY_MAP SECTION LENGTH                 |
+ * | DATA_SCHEMA SECTION START OFFSET              |
+ * | DATA_SCHEMA SECTION LENGTH                    |
+ * | FIXED_SIZE_DATA SECTION START OFFSET          |
+ * | FIXED_SIZE_DATA SECTION LENGTH                |
+ * | VARIABLE_SIZE_DATA SECTION START OFFSET       |
+ * | VARIABLE_SIZE_DATA SECTION LENGTH             |
+ * +-----------------------------------------------+
+ * | EXCEPTIONS SECTION                            |
+ * +-----------------------------------------------+
+ * | DICTIONARY_MAP SECTION                        |
+ * +-----------------------------------------------+
+ * | DATA_SCHEMA SECTION                           |
+ * +-----------------------------------------------+
+ * | FIXED_SIZE_DATA SECTION                       |
+ * +-----------------------------------------------+
+ * | VARIABLE_SIZE_DATA SECTION                    |
+ * +-----------------------------------------------+
+ * | METADATA LENGTH                               |
+ * | METADATA SECTION                              |
+ * +-----------------------------------------------+
+ *
+ * To support both row and columnar data format. the size of the data payload will be exactly the same. the only
+ * difference is the data layout in FIXED_SIZE_DATA and VARIABLE_SIZE_DATA section, see each impl for details.
+ */
 @SuppressWarnings("DuplicatedCode")
 public abstract class BaseDataBlock implements DataBlock {
   protected static final int HEADER_SIZE = Integer.BYTES * 13;
@@ -96,12 +100,14 @@ public abstract class BaseDataBlock implements DataBlock {
   @Nullable
   private List<ByteBuffer> _serialized;
 
-  /// construct a base data block.
-  /// @param numRows num of rows in the block
-  /// @param dataSchema schema of the data in the block
-  /// @param stringDictionary dictionary encoding map
-  /// @param fixedSizeDataBytes byte\[\] for fix-sized columns.
-  /// @param variableSizeDataBytes byte\[\] for variable length columns (arrays).
+  /**
+   * construct a base data block.
+   * @param numRows num of rows in the block
+   * @param dataSchema schema of the data in the block
+   * @param stringDictionary dictionary encoding map
+   * @param fixedSizeDataBytes byte[] for fix-sized columns.
+   * @param variableSizeDataBytes byte[] for variable length columns (arrays).
+   */
   public BaseDataBlock(int numRows, @Nullable DataSchema dataSchema, String[] stringDictionary,
       byte[] fixedSizeDataBytes, byte[] variableSizeDataBytes) {
     _numRows = numRows;
@@ -128,15 +134,17 @@ public abstract class BaseDataBlock implements DataBlock {
     _errCodeToExceptionMap = new HashMap<>();
   }
 
-  /// return the offset in `_fixedSizeDataBytes` of the row/column ID.
-  /// @param rowId row ID
-  /// @param colId column ID
-  /// @return the offset in the fixed size buffer for the row/columnID.
+  /**
+   * return the offset in {@code _fixedSizeDataBytes} of the row/column ID.
+   * @param rowId row ID
+   * @param colId column ID
+   * @return the offset in the fixed size buffer for the row/columnID.
+   */
   protected abstract int getOffsetInFixedBuffer(int rowId, int colId);
 
   @Override
   public Map<String, String> getMetadata() {
-    return Map.of();
+    return Collections.emptyMap();
   }
 
   @Nullable
@@ -387,7 +395,9 @@ public abstract class BaseDataBlock implements DataBlock {
   // Ser/De and exception handling
   // --------------------------------------------------------------------------
 
-  /// Helper method to serialize dictionary map.
+  /**
+   * Helper method to serialize dictionary map.
+   */
   protected byte[] serializeStringDictionary()
       throws IOException {
     if (_stringDictionary.length == 0) {
@@ -406,7 +416,9 @@ public abstract class BaseDataBlock implements DataBlock {
     return byteArrayOutputStream.toByteArray();
   }
 
-  /// Helper method to deserialize dictionary map.
+  /**
+   * Helper method to deserialize dictionary map.
+   */
   protected String[] deserializeStringDictionary(ByteBuffer buffer)
       throws IOException {
     int dictionarySize = buffer.getInt();
@@ -473,6 +485,6 @@ public abstract class BaseDataBlock implements DataBlock {
   @Nullable
   @Override
   public List<DataBuffer> getStatsByStage() {
-    return List.of();
+    return Collections.emptyList();
   }
 }

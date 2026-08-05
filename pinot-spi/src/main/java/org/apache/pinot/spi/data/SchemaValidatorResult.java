@@ -18,7 +18,9 @@
  */
 package org.apache.pinot.spi.data;
 
-/// The result class to provide the detailed mismatch information.
+/**
+ * The result class to provide the detailed mismatch information.
+ */
 public class SchemaValidatorResult {
   private long _mismatchCount;
   private StringBuilder _mismatchReason;

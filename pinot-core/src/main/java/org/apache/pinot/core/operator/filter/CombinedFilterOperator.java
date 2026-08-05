@@ -27,8 +27,10 @@ import org.apache.pinot.core.operator.docidsets.EmptyDocIdSet;
 import org.apache.pinot.spi.trace.Tracing;
 
 
-/// A combined filter operator consisting of one main filter operator and one sub filter operator. The result block is
-/// the AND result of the main and sub filter.
+/**
+ * A combined filter operator consisting of one main filter operator and one sub filter operator. The result block is
+ * the AND result of the main and sub filter.
+ */
 public class CombinedFilterOperator extends BaseFilterOperator {
   private static final String EXPLAIN_NAME = "FILTER_COMBINED";
 

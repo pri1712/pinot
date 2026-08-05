@@ -23,12 +23,16 @@ import org.apache.pinot.core.common.Operator;
 import org.apache.pinot.spi.annotations.InterfaceAudience;
 
 
-/// The `PlanNode` is a single execution plan node inside the [Plan] tree.
+/**
+ * The <code>PlanNode</code> is a single execution plan node inside the {@link Plan} tree.
+ */
 @InterfaceAudience.Private
 public interface PlanNode {
 
-  /// Get the execution operator associated with the plan node.
-  ///
-  /// @return execution operator.
+  /**
+   * Get the execution operator associated with the plan node.
+   *
+   * @return execution operator.
+   */
   Operator<? extends Block> run();
 }

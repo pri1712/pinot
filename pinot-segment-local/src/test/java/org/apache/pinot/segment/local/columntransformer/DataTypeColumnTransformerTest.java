@@ -19,14 +19,12 @@
 package org.apache.pinot.segment.local.columntransformer;
 
 import java.math.BigDecimal;
-import javax.annotation.Nullable;
 import org.apache.pinot.spi.config.table.TableConfig;
 import org.apache.pinot.spi.config.table.TableType;
 import org.apache.pinot.spi.config.table.ingestion.IngestionConfig;
 import org.apache.pinot.spi.data.FieldSpec;
 import org.apache.pinot.spi.data.Schema;
 import org.apache.pinot.spi.data.readers.ColumnReader;
-import org.apache.pinot.spi.utils.PinotDataType;
 import org.apache.pinot.spi.utils.builder.TableConfigBuilder;
 import org.mockito.Mockito;
 import org.testng.annotations.Test;
@@ -35,18 +33,80 @@ import static org.mockito.Mockito.when;
 import static org.testng.Assert.*;
 
 
-/// Comprehensive tests for DataTypeColumnTransformer.
-/// Tests data type conversions, isNoOp optimization, and error handling.
+/**
+ * Comprehensive tests for DataTypeColumnTransformer.
+ * Tests data type conversions, isNoOp optimization, and error handling.
+ */
 public class DataTypeColumnTransformerTest {
   private static final String COLUMN_NAME = "testColumn";
 
-  /// Mocks a [ColumnReader] whose [ColumnReader#getValueType()] returns the given type (`null` for a
-  /// column with no directly-readable type, e.g. JSON / BOOLEAN).
-  private static ColumnReader mockReader(@Nullable PinotDataType valueType) {
-    ColumnReader reader = Mockito.mock(ColumnReader.class);
-    when(reader.getColumnName()).thenReturn(COLUMN_NAME);
-    when(reader.getValueType()).thenReturn(valueType);
-    return reader;
+  private static class MockColumnReaderBuilder {
+    private boolean _isSingleValue = true;
+    private boolean _isInt;
+    private boolean _isLong;
+    private boolean _isFloat;
+    private boolean _isDouble;
+    private boolean _isBigDecimal;
+    private boolean _isString;
+    private boolean _isBytes;
+
+    MockColumnReaderBuilder multiValue() {
+      _isSingleValue = false;
+      return this;
+    }
+
+    MockColumnReaderBuilder asInt() {
+      _isInt = true;
+      return this;
+    }
+
+    MockColumnReaderBuilder asLong() {
+      _isLong = true;
+      return this;
+    }
+
+    MockColumnReaderBuilder asFloat() {
+      _isFloat = true;
+      return this;
+    }
+
+    MockColumnReaderBuilder asDouble() {
+      _isDouble = true;
+      return this;
+    }
+
+    MockColumnReaderBuilder asBigDecimal() {
+      _isBigDecimal = true;
+      return this;
+    }
+
+    MockColumnReaderBuilder asString() {
+      _isString = true;
+      return this;
+    }
+
+    MockColumnReaderBuilder asBytes() {
+      _isBytes = true;
+      return this;
+    }
+
+    ColumnReader build() {
+      ColumnReader reader = Mockito.mock(ColumnReader.class);
+      when(reader.getColumnName()).thenReturn(COLUMN_NAME);
+      when(reader.isSingleValue()).thenReturn(_isSingleValue);
+      when(reader.isInt()).thenReturn(_isInt);
+      when(reader.isLong()).thenReturn(_isLong);
+      when(reader.isFloat()).thenReturn(_isFloat);
+      when(reader.isDouble()).thenReturn(_isDouble);
+      when(reader.isBigDecimal()).thenReturn(_isBigDecimal);
+      when(reader.isString()).thenReturn(_isString);
+      when(reader.isBytes()).thenReturn(_isBytes);
+      return reader;
+    }
+  }
+
+  private static MockColumnReaderBuilder mockColumnReader() {
+    return new MockColumnReaderBuilder();
   }
 
   // isNoOp - SV matching types (in order: INT, LONG, FLOAT, DOUBLE, BIG_DECIMAL, STRING, BYTES)
@@ -58,7 +118,7 @@ public class DataTypeColumnTransformerTest {
         .build();
     FieldSpec fieldSpec = schema.getFieldSpecFor(COLUMN_NAME);
     TableConfig tableConfig = new TableConfigBuilder(TableType.OFFLINE).setTableName("testTable").build();
-    ColumnReader reader = mockReader(PinotDataType.INT);
+    ColumnReader reader = mockColumnReader().asInt().build();
     DataTypeColumnTransformer transformer = new DataTypeColumnTransformer(tableConfig, fieldSpec, reader);
 
     assertTrue(transformer.isNoOp(), "Should be no-op when source and dest are both INT");
@@ -71,7 +131,7 @@ public class DataTypeColumnTransformerTest {
         .build();
     FieldSpec fieldSpec = schema.getFieldSpecFor(COLUMN_NAME);
     TableConfig tableConfig = new TableConfigBuilder(TableType.OFFLINE).setTableName("testTable").build();
-    ColumnReader reader = mockReader(PinotDataType.LONG);
+    ColumnReader reader = mockColumnReader().asLong().build();
     DataTypeColumnTransformer transformer = new DataTypeColumnTransformer(tableConfig, fieldSpec, reader);
 
     assertTrue(transformer.isNoOp(), "Should be no-op when source and dest are both LONG");
@@ -84,7 +144,7 @@ public class DataTypeColumnTransformerTest {
         .build();
     FieldSpec fieldSpec = schema.getFieldSpecFor(COLUMN_NAME);
     TableConfig tableConfig = new TableConfigBuilder(TableType.OFFLINE).setTableName("testTable").build();
-    ColumnReader reader = mockReader(PinotDataType.FLOAT);
+    ColumnReader reader = mockColumnReader().asFloat().build();
     DataTypeColumnTransformer transformer = new DataTypeColumnTransformer(tableConfig, fieldSpec, reader);
 
     assertTrue(transformer.isNoOp(), "Should be no-op when source and dest are both FLOAT");
@@ -97,7 +157,7 @@ public class DataTypeColumnTransformerTest {
         .build();
     FieldSpec fieldSpec = schema.getFieldSpecFor(COLUMN_NAME);
     TableConfig tableConfig = new TableConfigBuilder(TableType.OFFLINE).setTableName("testTable").build();
-    ColumnReader reader = mockReader(PinotDataType.DOUBLE);
+    ColumnReader reader = mockColumnReader().asDouble().build();
     DataTypeColumnTransformer transformer = new DataTypeColumnTransformer(tableConfig, fieldSpec, reader);
 
     assertTrue(transformer.isNoOp(), "Should be no-op when source and dest are both DOUBLE");
@@ -110,7 +170,7 @@ public class DataTypeColumnTransformerTest {
         .build();
     FieldSpec fieldSpec = schema.getFieldSpecFor(COLUMN_NAME);
     TableConfig tableConfig = new TableConfigBuilder(TableType.OFFLINE).setTableName("testTable").build();
-    ColumnReader reader = mockReader(PinotDataType.BIG_DECIMAL);
+    ColumnReader reader = mockColumnReader().asBigDecimal().build();
     DataTypeColumnTransformer transformer = new DataTypeColumnTransformer(tableConfig, fieldSpec, reader);
 
     assertTrue(transformer.isNoOp(), "Should be no-op when source and dest are both BIG_DECIMAL");
@@ -123,7 +183,7 @@ public class DataTypeColumnTransformerTest {
         .build();
     FieldSpec fieldSpec = schema.getFieldSpecFor(COLUMN_NAME);
     TableConfig tableConfig = new TableConfigBuilder(TableType.OFFLINE).setTableName("testTable").build();
-    ColumnReader reader = mockReader(PinotDataType.STRING);
+    ColumnReader reader = mockColumnReader().asString().build();
     DataTypeColumnTransformer transformer = new DataTypeColumnTransformer(tableConfig, fieldSpec, reader);
 
     assertTrue(transformer.isNoOp(), "Should be no-op when source and dest are both STRING");
@@ -136,7 +196,7 @@ public class DataTypeColumnTransformerTest {
         .build();
     FieldSpec fieldSpec = schema.getFieldSpecFor(COLUMN_NAME);
     TableConfig tableConfig = new TableConfigBuilder(TableType.OFFLINE).setTableName("testTable").build();
-    ColumnReader reader = mockReader(PinotDataType.BYTES);
+    ColumnReader reader = mockColumnReader().asBytes().build();
     DataTypeColumnTransformer transformer = new DataTypeColumnTransformer(tableConfig, fieldSpec, reader);
 
     assertTrue(transformer.isNoOp(), "Should be no-op when source and dest are both BYTES");
@@ -151,7 +211,7 @@ public class DataTypeColumnTransformerTest {
         .build();
     FieldSpec fieldSpec = schema.getFieldSpecFor(COLUMN_NAME);
     TableConfig tableConfig = new TableConfigBuilder(TableType.OFFLINE).setTableName("testTable").build();
-    ColumnReader reader = mockReader(PinotDataType.INT_ARRAY);
+    ColumnReader reader = mockColumnReader().multiValue().asInt().build();
     DataTypeColumnTransformer transformer = new DataTypeColumnTransformer(tableConfig, fieldSpec, reader);
 
     assertTrue(transformer.isNoOp(), "Should be no-op when source and dest are both INT[]");
@@ -164,36 +224,10 @@ public class DataTypeColumnTransformerTest {
         .build();
     FieldSpec fieldSpec = schema.getFieldSpecFor(COLUMN_NAME);
     TableConfig tableConfig = new TableConfigBuilder(TableType.OFFLINE).setTableName("testTable").build();
-    ColumnReader reader = mockReader(PinotDataType.LONG_ARRAY);
+    ColumnReader reader = mockColumnReader().multiValue().asLong().build();
     DataTypeColumnTransformer transformer = new DataTypeColumnTransformer(tableConfig, fieldSpec, reader);
 
     assertTrue(transformer.isNoOp(), "Should be no-op when source and dest are both LONG[]");
-  }
-
-  @Test
-  public void testIsNoOpForMatchingFloatMVTypes() {
-    Schema schema = new Schema.SchemaBuilder()
-        .addMultiValueDimension(COLUMN_NAME, FieldSpec.DataType.FLOAT)
-        .build();
-    FieldSpec fieldSpec = schema.getFieldSpecFor(COLUMN_NAME);
-    TableConfig tableConfig = new TableConfigBuilder(TableType.OFFLINE).setTableName("testTable").build();
-    ColumnReader reader = mockReader(PinotDataType.FLOAT_ARRAY);
-    DataTypeColumnTransformer transformer = new DataTypeColumnTransformer(tableConfig, fieldSpec, reader);
-
-    assertTrue(transformer.isNoOp(), "Should be no-op when source and dest are both FLOAT[]");
-  }
-
-  @Test
-  public void testIsNoOpForMatchingDoubleMVTypes() {
-    Schema schema = new Schema.SchemaBuilder()
-        .addMultiValueDimension(COLUMN_NAME, FieldSpec.DataType.DOUBLE)
-        .build();
-    FieldSpec fieldSpec = schema.getFieldSpecFor(COLUMN_NAME);
-    TableConfig tableConfig = new TableConfigBuilder(TableType.OFFLINE).setTableName("testTable").build();
-    ColumnReader reader = mockReader(PinotDataType.DOUBLE_ARRAY);
-    DataTypeColumnTransformer transformer = new DataTypeColumnTransformer(tableConfig, fieldSpec, reader);
-
-    assertTrue(transformer.isNoOp(), "Should be no-op when source and dest are both DOUBLE[]");
   }
 
   @Test
@@ -203,7 +237,7 @@ public class DataTypeColumnTransformerTest {
         .build();
     FieldSpec fieldSpec = schema.getFieldSpecFor(COLUMN_NAME);
     TableConfig tableConfig = new TableConfigBuilder(TableType.OFFLINE).setTableName("testTable").build();
-    ColumnReader reader = mockReader(PinotDataType.STRING_ARRAY);
+    ColumnReader reader = mockColumnReader().multiValue().asString().build();
     DataTypeColumnTransformer transformer = new DataTypeColumnTransformer(tableConfig, fieldSpec, reader);
 
     assertTrue(transformer.isNoOp(), "Should be no-op when source and dest are both STRING[]");
@@ -216,7 +250,7 @@ public class DataTypeColumnTransformerTest {
         .build();
     FieldSpec fieldSpec = schema.getFieldSpecFor(COLUMN_NAME);
     TableConfig tableConfig = new TableConfigBuilder(TableType.OFFLINE).setTableName("testTable").build();
-    ColumnReader reader = mockReader(PinotDataType.BYTES_ARRAY);
+    ColumnReader reader = mockColumnReader().multiValue().asBytes().build();
     DataTypeColumnTransformer transformer = new DataTypeColumnTransformer(tableConfig, fieldSpec, reader);
 
     assertTrue(transformer.isNoOp(), "Should be no-op when source and dest are both BYTES[]");
@@ -231,7 +265,7 @@ public class DataTypeColumnTransformerTest {
         .build();
     FieldSpec fieldSpec = schema.getFieldSpecFor(COLUMN_NAME);
     TableConfig tableConfig = new TableConfigBuilder(TableType.OFFLINE).setTableName("testTable").build();
-    ColumnReader reader = mockReader(PinotDataType.INT);
+    ColumnReader reader = mockColumnReader().asInt().build();
     DataTypeColumnTransformer transformer = new DataTypeColumnTransformer(tableConfig, fieldSpec, reader);
 
     assertFalse(transformer.isNoOp(), "Should not be no-op when converting INT to LONG");
@@ -244,7 +278,7 @@ public class DataTypeColumnTransformerTest {
         .build();
     FieldSpec fieldSpec = schema.getFieldSpecFor(COLUMN_NAME);
     TableConfig tableConfig = new TableConfigBuilder(TableType.OFFLINE).setTableName("testTable").build();
-    ColumnReader reader = mockReader(PinotDataType.BYTES);
+    ColumnReader reader = mockColumnReader().asBytes().build();
     DataTypeColumnTransformer transformer = new DataTypeColumnTransformer(tableConfig, fieldSpec, reader);
 
     assertFalse(transformer.isNoOp(), "Should not be no-op when source is BYTES but dest is STRING");
@@ -257,7 +291,7 @@ public class DataTypeColumnTransformerTest {
         .build();
     FieldSpec fieldSpec = schema.getFieldSpecFor(COLUMN_NAME);
     TableConfig tableConfig = new TableConfigBuilder(TableType.OFFLINE).setTableName("testTable").build();
-    ColumnReader reader = mockReader(PinotDataType.BYTES_ARRAY);
+    ColumnReader reader = mockColumnReader().multiValue().asBytes().build();
     DataTypeColumnTransformer transformer = new DataTypeColumnTransformer(tableConfig, fieldSpec, reader);
 
     assertFalse(transformer.isNoOp(), "Should not be no-op when source is BYTES[] but dest is STRING[]");
@@ -271,7 +305,7 @@ public class DataTypeColumnTransformerTest {
         .build();
     FieldSpec fieldSpec = schema.getFieldSpecFor(COLUMN_NAME);
     TableConfig tableConfig = new TableConfigBuilder(TableType.OFFLINE).setTableName("testTable").build();
-    ColumnReader reader = mockReader(null);
+    ColumnReader reader = mockColumnReader().build();
     DataTypeColumnTransformer transformer = new DataTypeColumnTransformer(tableConfig, fieldSpec, reader);
 
     assertFalse(transformer.isNoOp());
@@ -286,7 +320,7 @@ public class DataTypeColumnTransformerTest {
         .build();
     FieldSpec fieldSpec = schema.getFieldSpecFor(COLUMN_NAME);
     TableConfig tableConfig = new TableConfigBuilder(TableType.OFFLINE).setTableName("testTable").build();
-    ColumnReader reader = mockReader(PinotDataType.INT);
+    ColumnReader reader = mockColumnReader().asInt().build();
     DataTypeColumnTransformer transformer = new DataTypeColumnTransformer(tableConfig, fieldSpec, reader);
 
     Object result = transformer.transform(null);
@@ -300,7 +334,7 @@ public class DataTypeColumnTransformerTest {
         .build();
     FieldSpec fieldSpec = schema.getFieldSpecFor(COLUMN_NAME);
     TableConfig tableConfig = new TableConfigBuilder(TableType.OFFLINE).setTableName("testTable").build();
-    ColumnReader reader = mockReader(PinotDataType.STRING);
+    ColumnReader reader = mockColumnReader().asString().build();
     DataTypeColumnTransformer transformer = new DataTypeColumnTransformer(tableConfig, fieldSpec, reader);
 
     Object result = transformer.transform("42");
@@ -314,7 +348,7 @@ public class DataTypeColumnTransformerTest {
         .build();
     FieldSpec fieldSpec = schema.getFieldSpecFor(COLUMN_NAME);
     TableConfig tableConfig = new TableConfigBuilder(TableType.OFFLINE).setTableName("testTable").build();
-    ColumnReader reader = mockReader(PinotDataType.STRING);
+    ColumnReader reader = mockColumnReader().asString().build();
     DataTypeColumnTransformer transformer = new DataTypeColumnTransformer(tableConfig, fieldSpec, reader);
 
     Object result = transformer.transform("1234567890");
@@ -328,7 +362,7 @@ public class DataTypeColumnTransformerTest {
         .build();
     FieldSpec fieldSpec = schema.getFieldSpecFor(COLUMN_NAME);
     TableConfig tableConfig = new TableConfigBuilder(TableType.OFFLINE).setTableName("testTable").build();
-    ColumnReader reader = mockReader(PinotDataType.STRING);
+    ColumnReader reader = mockColumnReader().asString().build();
     DataTypeColumnTransformer transformer = new DataTypeColumnTransformer(tableConfig, fieldSpec, reader);
 
     Object result = transformer.transform("3.14");
@@ -342,7 +376,7 @@ public class DataTypeColumnTransformerTest {
         .build();
     FieldSpec fieldSpec = schema.getFieldSpecFor(COLUMN_NAME);
     TableConfig tableConfig = new TableConfigBuilder(TableType.OFFLINE).setTableName("testTable").build();
-    ColumnReader reader = mockReader(PinotDataType.STRING);
+    ColumnReader reader = mockColumnReader().asString().build();
     DataTypeColumnTransformer transformer = new DataTypeColumnTransformer(tableConfig, fieldSpec, reader);
 
     Object result = transformer.transform("3.14159");
@@ -356,7 +390,7 @@ public class DataTypeColumnTransformerTest {
         .build();
     FieldSpec fieldSpec = schema.getFieldSpecFor(COLUMN_NAME);
     TableConfig tableConfig = new TableConfigBuilder(TableType.OFFLINE).setTableName("testTable").build();
-    ColumnReader reader = mockReader(PinotDataType.STRING);
+    ColumnReader reader = mockColumnReader().asString().build();
     DataTypeColumnTransformer transformer = new DataTypeColumnTransformer(tableConfig, fieldSpec, reader);
 
     Object result = transformer.transform("123.456");
@@ -371,7 +405,7 @@ public class DataTypeColumnTransformerTest {
         .build();
     FieldSpec fieldSpec = schema.getFieldSpecFor(COLUMN_NAME);
     TableConfig tableConfig = new TableConfigBuilder(TableType.OFFLINE).setTableName("testTable").build();
-    ColumnReader reader = mockReader(PinotDataType.STRING);
+    ColumnReader reader = mockColumnReader().asString().build();
     DataTypeColumnTransformer transformer = new DataTypeColumnTransformer(tableConfig, fieldSpec, reader);
 
     Object result = transformer.transform("true");
@@ -388,7 +422,7 @@ public class DataTypeColumnTransformerTest {
         .build();
     FieldSpec fieldSpec = schema.getFieldSpecFor(COLUMN_NAME);
     TableConfig tableConfig = new TableConfigBuilder(TableType.OFFLINE).setTableName("testTable").build();
-    ColumnReader reader = mockReader(PinotDataType.INT);
+    ColumnReader reader = mockColumnReader().asInt().build();
     DataTypeColumnTransformer transformer = new DataTypeColumnTransformer(tableConfig, fieldSpec, reader);
 
     Object result = transformer.transform(42);
@@ -402,7 +436,7 @@ public class DataTypeColumnTransformerTest {
         .build();
     FieldSpec fieldSpec = schema.getFieldSpecFor(COLUMN_NAME);
     TableConfig tableConfig = new TableConfigBuilder(TableType.OFFLINE).setTableName("testTable").build();
-    ColumnReader reader = mockReader(PinotDataType.INT);
+    ColumnReader reader = mockColumnReader().asInt().build();
     DataTypeColumnTransformer transformer = new DataTypeColumnTransformer(tableConfig, fieldSpec, reader);
 
     Object result = transformer.transform(42);
@@ -416,7 +450,7 @@ public class DataTypeColumnTransformerTest {
         .build();
     FieldSpec fieldSpec = schema.getFieldSpecFor(COLUMN_NAME);
     TableConfig tableConfig = new TableConfigBuilder(TableType.OFFLINE).setTableName("testTable").build();
-    ColumnReader reader = mockReader(PinotDataType.LONG);
+    ColumnReader reader = mockColumnReader().asLong().build();
     DataTypeColumnTransformer transformer = new DataTypeColumnTransformer(tableConfig, fieldSpec, reader);
 
     long timestampValue = 1609459200000L; // 2021-01-01 00:00:00 UTC
@@ -431,7 +465,7 @@ public class DataTypeColumnTransformerTest {
         .build();
     FieldSpec fieldSpec = schema.getFieldSpecFor(COLUMN_NAME);
     TableConfig tableConfig = new TableConfigBuilder(TableType.OFFLINE).setTableName("testTable").build();
-    ColumnReader reader = mockReader(PinotDataType.FLOAT);
+    ColumnReader reader = mockColumnReader().asFloat().build();
     DataTypeColumnTransformer transformer = new DataTypeColumnTransformer(tableConfig, fieldSpec, reader);
 
     Object result = transformer.transform(3.14f);
@@ -446,7 +480,7 @@ public class DataTypeColumnTransformerTest {
         .build();
     FieldSpec fieldSpec = schema.getFieldSpecFor(COLUMN_NAME);
     TableConfig tableConfig = new TableConfigBuilder(TableType.OFFLINE).setTableName("testTable").build();
-    ColumnReader reader = mockReader(PinotDataType.DOUBLE);
+    ColumnReader reader = mockColumnReader().asDouble().build();
     DataTypeColumnTransformer transformer = new DataTypeColumnTransformer(tableConfig, fieldSpec, reader);
 
     Object result = transformer.transform(3.14159);
@@ -461,7 +495,7 @@ public class DataTypeColumnTransformerTest {
         .build();
     FieldSpec fieldSpec = schema.getFieldSpecFor(COLUMN_NAME);
     TableConfig tableConfig = new TableConfigBuilder(TableType.OFFLINE).setTableName("testTable").build();
-    ColumnReader reader = mockReader(null);
+    ColumnReader reader = mockColumnReader().build();
     DataTypeColumnTransformer transformer = new DataTypeColumnTransformer(tableConfig, fieldSpec, reader);
 
     Object result = transformer.transform(true);
@@ -475,7 +509,7 @@ public class DataTypeColumnTransformerTest {
         .build();
     FieldSpec fieldSpec = schema.getFieldSpecFor(COLUMN_NAME);
     TableConfig tableConfig = new TableConfigBuilder(TableType.OFFLINE).setTableName("testTable").build();
-    ColumnReader reader = mockReader(PinotDataType.BYTES);
+    ColumnReader reader = mockColumnReader().asBytes().build();
     DataTypeColumnTransformer transformer = new DataTypeColumnTransformer(tableConfig, fieldSpec, reader);
 
     byte[] bytes = "test".getBytes();
@@ -490,7 +524,7 @@ public class DataTypeColumnTransformerTest {
         .build();
     FieldSpec fieldSpec = schema.getFieldSpecFor(COLUMN_NAME);
     TableConfig tableConfig = new TableConfigBuilder(TableType.OFFLINE).setTableName("testTable").build();
-    ColumnReader reader = mockReader(PinotDataType.STRING_ARRAY);
+    ColumnReader reader = mockColumnReader().multiValue().asString().build();
     DataTypeColumnTransformer transformer = new DataTypeColumnTransformer(tableConfig, fieldSpec, reader);
 
     Object result = transformer.transform(new Object[]{"1", "2", "3"});
@@ -508,7 +542,7 @@ public class DataTypeColumnTransformerTest {
         .build();
     FieldSpec fieldSpec = schema.getFieldSpecFor(COLUMN_NAME);
     TableConfig tableConfig = new TableConfigBuilder(TableType.OFFLINE).setTableName("testTable").build();
-    ColumnReader reader = mockReader(PinotDataType.STRING);
+    ColumnReader reader = mockColumnReader().asString().build();
     DataTypeColumnTransformer transformer = new DataTypeColumnTransformer(tableConfig, fieldSpec, reader);
 
     // Empty arrays should be standardized to null
@@ -523,7 +557,7 @@ public class DataTypeColumnTransformerTest {
         .build();
     FieldSpec fieldSpec = schema.getFieldSpecFor(COLUMN_NAME);
     TableConfig tableConfig = new TableConfigBuilder(TableType.OFFLINE).setTableName("testTable").build();
-    ColumnReader reader = mockReader(PinotDataType.STRING);
+    ColumnReader reader = mockColumnReader().asString().build();
     DataTypeColumnTransformer transformer = new DataTypeColumnTransformer(tableConfig, fieldSpec, reader);
 
     // Single element arrays should be unwrapped
@@ -540,7 +574,7 @@ public class DataTypeColumnTransformerTest {
         .build();
     FieldSpec fieldSpec = schema.getFieldSpecFor(COLUMN_NAME);
     TableConfig tableConfig = new TableConfigBuilder(TableType.OFFLINE).setTableName("testTable").build();
-    ColumnReader reader = mockReader(PinotDataType.INT);
+    ColumnReader reader = mockColumnReader().asInt().build();
     DataTypeColumnTransformer transformer = new DataTypeColumnTransformer(tableConfig, fieldSpec, reader);
 
     Object result = transformer.transform(42);
@@ -554,7 +588,7 @@ public class DataTypeColumnTransformerTest {
         .build();
     FieldSpec fieldSpec = schema.getFieldSpecFor(COLUMN_NAME);
     TableConfig tableConfig = new TableConfigBuilder(TableType.OFFLINE).setTableName("testTable").build();
-    ColumnReader reader = mockReader(null);
+    ColumnReader reader = mockColumnReader().build();
     DataTypeColumnTransformer transformer = new DataTypeColumnTransformer(tableConfig, fieldSpec, reader);
 
     // Try to convert multi-value array to single-value
@@ -570,7 +604,7 @@ public class DataTypeColumnTransformerTest {
 
     // Default table config has continueOnError = false
     TableConfig tableConfig = new TableConfigBuilder(TableType.OFFLINE).setTableName("testTable").build();
-    ColumnReader reader = mockReader(PinotDataType.STRING);
+    ColumnReader reader = mockColumnReader().asString().build();
     DataTypeColumnTransformer transformer = new DataTypeColumnTransformer(tableConfig, fieldSpec, reader);
 
     // Try to convert invalid string to int
@@ -591,22 +625,11 @@ public class DataTypeColumnTransformerTest {
         .setTableName("testTable")
         .setIngestionConfig(ingestionConfig)
         .build();
-    ColumnReader reader = mockReader(PinotDataType.STRING);
+    ColumnReader reader = mockColumnReader().asString().build();
     DataTypeColumnTransformer transformer = new DataTypeColumnTransformer(tableConfig, fieldSpec, reader);
 
     // Try to convert invalid string to int - should return null
     Object result = transformer.transform("not_a_number");
     assertNull(result, "Invalid conversion should return null when continueOnError=true");
-  }
-
-  @Test
-  public void testExplicitDestDataTypeConstructor() {
-    TableConfig tableConfig = new TableConfigBuilder(TableType.OFFLINE).setTableName("testTable").build();
-    ColumnReader reader = mockReader(PinotDataType.STRING);
-    // The explicit target type drives the conversion, independent of any field spec.
-    DataTypeColumnTransformer transformer = new DataTypeColumnTransformer(tableConfig, PinotDataType.LONG, reader);
-
-    assertFalse(transformer.isNoOp(), "STRING source, LONG dest should not be a no-op");
-    assertEquals(transformer.transform("12345"), 12345L);
   }
 }

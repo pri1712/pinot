@@ -25,8 +25,10 @@ import org.apache.pinot.segment.spi.compression.ChunkCompressionType;
 import org.apache.pinot.segment.spi.compression.ChunkCompressor;
 
 
-/// Identical to `LZ4Compressor` but prefixes the chunk with the
-/// decompressed length.
+/**
+ * Identical to {@code LZ4Compressor} but prefixes the chunk with the
+ * decompressed length.
+ */
 class LZ4WithLengthCompressor implements ChunkCompressor {
 
   static final LZ4WithLengthCompressor INSTANCE = new LZ4WithLengthCompressor();

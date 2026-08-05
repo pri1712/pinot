@@ -18,12 +18,10 @@
  */
 package org.apache.pinot.common.function.scalar;
 
-import org.apache.pinot.spi.annotations.FunctionVolatility;
 import org.apache.pinot.spi.annotations.ScalarFunction;
 import org.apache.pinot.spi.query.QueryThreadContext;
 
 
-@ScalarFunction(enabled = false, volatility = FunctionVolatility.STABLE)
 public class InternalFunctions {
   private InternalFunctions() {
   }
@@ -35,7 +33,7 @@ public class InternalFunctions {
   /// input.
   ///
   /// This is mostly useful for test and internal usage
-  @ScalarFunction(volatility = FunctionVolatility.VOLATILE)
+  @ScalarFunction
   public static String cid(String input) {
     return QueryThreadContext.get().getExecutionContext().getCid();
   }
@@ -59,7 +57,7 @@ public class InternalFunctions {
   /// input.
   ///
   /// This is mostly useful for test and internal usage and should be close to now()
-  @ScalarFunction(volatility = FunctionVolatility.VOLATILE)
+  @ScalarFunction
   public static long startTime(String input) {
     return QueryThreadContext.get().getExecutionContext().getStartTimeMs();
   }
@@ -71,7 +69,7 @@ public class InternalFunctions {
   /// input.
   ///
   /// This is mostly useful for test and internal usage
-  @ScalarFunction(volatility = FunctionVolatility.VOLATILE)
+  @ScalarFunction
   public static long endTime(String input) {
     return QueryThreadContext.get().getExecutionContext().getActiveDeadlineMs();
   }
@@ -104,7 +102,7 @@ public class InternalFunctions {
   /// input.
   ///
   /// This is mostly useful for test and internal usage
-  @ScalarFunction(volatility = FunctionVolatility.VOLATILE)
+  @ScalarFunction
   public static int stageId(String input) {
     QueryThreadContext.MseWorkerInfo mseWorkerInfo = QueryThreadContext.get().getMseWorkerInfo();
     return mseWorkerInfo != null ? mseWorkerInfo.getStageId() : -1;
@@ -118,7 +116,7 @@ public class InternalFunctions {
   /// input.
   ///
   /// This is mostly useful for test and internal usage
-  @ScalarFunction(volatility = FunctionVolatility.VOLATILE)
+  @ScalarFunction
   public static int workerId(String input) {
     QueryThreadContext.MseWorkerInfo mseWorkerInfo = QueryThreadContext.get().getMseWorkerInfo();
     return mseWorkerInfo != null ? mseWorkerInfo.getWorkerId() : -1;

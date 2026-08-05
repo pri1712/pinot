@@ -26,11 +26,14 @@ import org.apache.pinot.common.utils.DataSchema;
 import org.apache.pinot.common.utils.DataSchema.ColumnDataType;
 import org.apache.pinot.core.common.BlockValSet;
 import org.apache.pinot.core.query.distinct.BaseSingleColumnDistinctExecutor;
+import org.apache.pinot.core.query.distinct.DistinctExecutor;
 import org.apache.pinot.core.query.distinct.table.BigDecimalDistinctTable;
 import org.apache.pinot.spi.data.FieldSpec.DataType;
 
 
-/// [org.apache.pinot.core.query.distinct.DistinctExecutor] for single raw BIG_DECIMAL column.
+/**
+ * {@link DistinctExecutor} for single raw BIG_DECIMAL column.
+ */
 public class BigDecimalDistinctExecutor
     extends BaseSingleColumnDistinctExecutor<BigDecimalDistinctTable, BigDecimal[], BigDecimal[][]> {
 

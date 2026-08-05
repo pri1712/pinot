@@ -18,8 +18,10 @@
  */
 package org.apache.pinot.minion.exception;
 
-/// The class `FatalException` defines the exception should be thrown when task encountered fatal error and
-/// should not retry.
+/**
+ * The class <code>FatalException</code> defines the exception should be thrown when task encountered fatal error and
+ * should not retry.
+ */
 public class FatalException extends RuntimeException {
 
   public FatalException(String message) {

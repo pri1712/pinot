@@ -43,7 +43,9 @@ public class DataTableBuilderFactory {
     return new DataTableBuilderV4(dataSchema);
   }
 
-  /// Returns an empty data table without data.
+  /**
+   * Returns an empty data table without data.
+   */
   public static DataTable getEmptyDataTable() {
     return new DataTableImplV4();
   }

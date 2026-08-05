@@ -40,12 +40,11 @@ public class WorkloadBudgetManagerTest {
     _config = new PinotConfiguration();
     _config.setProperty(Accounting.Keys.WORKLOAD_ENABLE_COST_COLLECTION, true);
     _config.setProperty(Accounting.Keys.WORKLOAD_ENFORCEMENT_WINDOW_MS, _enforcementWindowMs);
-    _config.setProperty(Accounting.Keys.WORKLOAD_ENABLE_COST_ENFORCEMENT, true);
   }
 
   @Test
   void testAddOrUpdateAndRetrieveBudget() {
-    WorkloadBudgetManager manager = new DefaultWorkloadBudgetManager(_config);
+    WorkloadBudgetManager manager = new WorkloadBudgetManager(_config);
     manager.addOrUpdateWorkload("test-workload", 1_000_000L, 1_000_000L);
 
     WorkloadBudgetManager.BudgetStats stats = manager.getBudgetStats("test-workload");
@@ -55,7 +54,7 @@ public class WorkloadBudgetManagerTest {
 
   @Test
   void testTryChargeWithoutBudget() {
-    WorkloadBudgetManager mgr = new DefaultWorkloadBudgetManager(_config);
+    WorkloadBudgetManager mgr = new WorkloadBudgetManager(_config);
     WorkloadBudgetManager.BudgetStats stats = mgr.tryCharge("unknown-workload", 100L, 100L);
     assertEquals(Long.MAX_VALUE, stats._cpuRemaining);
     assertEquals(Long.MAX_VALUE, stats._memoryRemaining);
@@ -63,7 +62,7 @@ public class WorkloadBudgetManagerTest {
 
   @Test
   void testBudgetResetAfterInterval() throws InterruptedException {
-    WorkloadBudgetManager mgr = new DefaultWorkloadBudgetManager(_config);
+    WorkloadBudgetManager mgr = new WorkloadBudgetManager(_config);
     mgr.addOrUpdateWorkload("reset-test", 1_000_000L, 1_000_000L);
     mgr.tryCharge("reset-test", 500_000L, 500_000L);
 
@@ -83,7 +82,7 @@ public class WorkloadBudgetManagerTest {
 
   @Test
   void testConcurrentTryChargeSingleWorkload() throws InterruptedException {
-    WorkloadBudgetManager manager = new DefaultWorkloadBudgetManager(_config);
+    WorkloadBudgetManager manager = new WorkloadBudgetManager(_config);
     String workload = "concurrent-test";
     long initialCpuBudget = 2_000_000L;
     long initialMemBudget = 2_000_000L;
@@ -121,7 +120,7 @@ public class WorkloadBudgetManagerTest {
 
   @Test
   void testCanAdmitQuery() {
-    WorkloadBudgetManager manager = new DefaultWorkloadBudgetManager(_config);
+    WorkloadBudgetManager manager = new WorkloadBudgetManager(_config);
     // Scenario 1: No budget configured -> should admit
     assertTrue(manager.canAdmitQuery("unconfigured-workload"),
         "Workload without budget should be admitted");

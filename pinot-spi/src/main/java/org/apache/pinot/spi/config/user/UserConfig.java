@@ -115,7 +115,9 @@ public class UserConfig extends BaseJsonConfig {
     return _permissions;
   }
 
-  /// @deprecated Use [#getPermissions()] instead. This method has a typo in its name.
+  /**
+   * @deprecated Use {@link #getPermissions()} instead. This method has a typo in its name.
+   */
   @JsonIgnore
   @Deprecated
   public List<AccessType> getPermissios() {

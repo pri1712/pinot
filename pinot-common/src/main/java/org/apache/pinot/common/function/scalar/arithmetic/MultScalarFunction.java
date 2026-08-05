@@ -32,13 +32,9 @@ public class MultScalarFunction extends BaseBinaryArithmeticScalarFunction {
 
   static {
     try {
-      FunctionInfo longMult =
+      TYPE_FUNCTION_INFO_MAP.put(ColumnDataType.LONG,
           new FunctionInfo(MultScalarFunction.class.getMethod("longMult", long.class, long.class),
-              MultScalarFunction.class, false);
-      // INT has no dedicated overload; widen it to LONG so whole-number arithmetic stays
-      // integral instead of falling back to DOUBLE.
-      TYPE_FUNCTION_INFO_MAP.put(ColumnDataType.INT, longMult);
-      TYPE_FUNCTION_INFO_MAP.put(ColumnDataType.LONG, longMult);
+              MultScalarFunction.class, false));
       TYPE_FUNCTION_INFO_MAP.put(ColumnDataType.DOUBLE,
           new FunctionInfo(MultScalarFunction.class.getMethod("doubleMult", double.class, double.class),
               MultScalarFunction.class, false));
@@ -51,7 +47,7 @@ public class MultScalarFunction extends BaseBinaryArithmeticScalarFunction {
   protected FunctionInfo functionInfoForType(ColumnDataType argumentType) {
     FunctionInfo functionInfo = TYPE_FUNCTION_INFO_MAP.get(argumentType);
 
-    // Fall back to double based arithmetic by default
+    // Fall back to double based comparison by default
     return functionInfo != null ? functionInfo : TYPE_FUNCTION_INFO_MAP.get(ColumnDataType.DOUBLE);
   }
 

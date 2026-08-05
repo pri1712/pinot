@@ -19,6 +19,7 @@
 package org.apache.pinot.integration.tests;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -35,6 +36,7 @@ import org.apache.pinot.controller.helix.core.minion.PinotTaskManager;
 import org.apache.pinot.controller.helix.core.minion.TaskSchedulingContext;
 import org.apache.pinot.controller.helix.core.minion.generator.PinotTaskGenerator;
 import org.apache.pinot.core.common.MinionConstants;
+import org.apache.pinot.minion.executor.PinotTaskExecutor;
 import org.apache.pinot.spi.config.table.TableTaskConfig;
 import org.apache.pinot.spi.config.table.TableType;
 import org.apache.pinot.spi.utils.builder.TableConfigBuilder;
@@ -47,8 +49,10 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.testng.Assert.*;
 
 
-/// Integration test that provides example of [PinotTaskGenerator] and
-/// [org.apache.pinot.minion.executor.PinotTaskExecutor] and tests simple minion functionality.
+/**
+ * Integration test that provides example of {@link PinotTaskGenerator} and {@link PinotTaskExecutor} and tests simple
+ * minion functionality.
+ */
 public class SimpleMinionClusterIntegrationTest extends ClusterTest {
   // Accessed by the plug-in classes
   public static final String TASK_TYPE = "TestTask";
@@ -92,7 +96,7 @@ public class SimpleMinionClusterIntegrationTest extends ClusterTest {
     addDummySchema(TABLE_NAME_1);
     addDummySchema(TABLE_NAME_2);
     addDummySchema(TABLE_NAME_3);
-    TableTaskConfig taskConfig = new TableTaskConfig(Map.of(TASK_TYPE, Map.of()));
+    TableTaskConfig taskConfig = new TableTaskConfig(Collections.singletonMap(TASK_TYPE, Collections.emptyMap()));
     addTableConfig(
         new TableConfigBuilder(TableType.OFFLINE).setTableName(TABLE_NAME_1).setTaskConfig(taskConfig).build());
     addTableConfig(

@@ -21,7 +21,7 @@ package org.apache.pinot.tools.admin.command;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.net.URI;
-import java.util.List;
+import java.util.Collections;
 import org.apache.pinot.common.utils.FileUploadDownloadClient;
 import org.apache.pinot.spi.data.Schema;
 import org.apache.pinot.spi.utils.NetUtils;
@@ -107,7 +107,7 @@ public class AddSchemaCommand extends AbstractDatabaseBaseAdminCommand {
           Integer.parseInt(_controllerPort));
       schemaURI = new URI(schemaURI + "?override=" + _override + "&force=" + _force);
       fileUploadDownloadClient.addSchema(schemaURI, schema.getSchemaName(), schemaFile, getHeaders(),
-          List.of());
+          Collections.emptyList());
     } catch (Exception e) {
       LOGGER.error("Got Exception to upload Pinot Schema: {}", schema.getSchemaName(), e);
       return false;

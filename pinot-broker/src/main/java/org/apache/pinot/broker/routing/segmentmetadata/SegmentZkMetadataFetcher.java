@@ -30,8 +30,10 @@ import org.apache.helix.zookeeper.datamodel.ZNRecord;
 import org.apache.pinot.common.metadata.ZKMetadataProvider;
 
 
-/// `SegmentZkMetadataFetcher` is used to cache [ZNRecord] stored in [ZkHelixPropertyStore] for
-/// segments.
+/**
+ * {@code SegmentZkMetadataFetcher} is used to cache {@link ZNRecord} stored in {@link ZkHelixPropertyStore} for
+ * segments.
+ */
 public class SegmentZkMetadataFetcher {
   private final String _tableNameWithType;
   private final ZkHelixPropertyStore<ZNRecord> _propertyStore;

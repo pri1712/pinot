@@ -73,7 +73,9 @@ public class DedupUtils {
     }
   }
 
-  /// Returns an iterator of [DedupRecordInfo] for all the documents from the segment.
+  /**
+   * Returns an iterator of {@link DedupRecordInfo} for all the documents from the segment.
+   */
   public static Iterator<DedupRecordInfo> getDedupRecordInfoIterator(DedupRecordInfoReader dedupRecordInfoReader,
       int numDocs) {
     return new Iterator<DedupRecordInfo>() {

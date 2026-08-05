@@ -37,7 +37,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 
-/// Maintains a mapping between table name and list of brokers
+/**
+ * Maintains a mapping between table name and list of brokers
+ */
 public class DynamicBrokerSelector implements BrokerSelector, IZkDataListener {
   private static final Logger LOGGER = LoggerFactory.getLogger(DynamicBrokerSelector.class);
 

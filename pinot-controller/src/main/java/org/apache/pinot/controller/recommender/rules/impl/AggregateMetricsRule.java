@@ -19,6 +19,7 @@
 
 package org.apache.pinot.controller.recommender.rules.impl;
 
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -34,10 +35,12 @@ import static org.apache.pinot.controller.recommender.rules.io.params.Recommende
 import static org.apache.pinot.controller.recommender.rules.io.params.RecommenderConstants.REALTIME;
 
 
-/// This rule checks the provided queries and suggests the value for 'AggregateMetrics' flag in table config.
-/// It looks at selection columns and if all of them are SUM function, the flag should be true, otherwise it's false.
-/// It also checks if all column names appearing in sum function are in fact metric columns.
-/// Keep in mind that the group-by columns that appear in selection are ok and don't need to be inside SUM functions.
+/**
+ * This rule checks the provided queries and suggests the value for 'AggregateMetrics' flag in table config.
+ * It looks at selection columns and if all of them are SUM function, the flag should be true, otherwise it's false.
+ * It also checks if all column names appearing in sum function are in fact metric columns.
+ * Keep in mind that the group-by columns that appear in selection are ok and don't need to be inside SUM functions.
+ */
 public class AggregateMetricsRule extends AbstractRule {
 
   public AggregateMetricsRule(InputManager input, ConfigManager output) {
@@ -78,7 +81,7 @@ public class AggregateMetricsRule extends AbstractRule {
   private Set<ExpressionContext> getGroupByExpressions(QueryContext queryContext) {
     List<ExpressionContext> groupByExprs = queryContext.getGroupByExpressions();
     if (groupByExprs == null) {
-      return Set.of();
+      return Collections.emptySet();
     }
     return new HashSet<>(groupByExprs);
   }

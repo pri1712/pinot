@@ -23,7 +23,9 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.LinkedHashMap;
 
 
-/// Configuration for the custom function enricher.
+/**
+ * Configuration for the custom function enricher.
+ */
 public class CustomFunctionEnricherConfig {
   private final LinkedHashMap<String, String> _fieldToFunctionMap;
 

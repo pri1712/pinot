@@ -77,7 +77,9 @@ public class TestThreadMXBean {
     Assert.assertTrue(ThreadResourceUsageProvider.getCurrentThreadAllocatedBytes() > 0);
   }
 
-  /// simple memory allocation
+  /**
+   * simple memory allocation
+   */
   @Test
   public void testThreadMXBeanSimpleMemAllocTracking() {
     if (ThreadResourceUsageProvider.isThreadMemoryMeasurementEnabled()) {
@@ -90,7 +92,9 @@ public class TestThreadMXBean {
     }
   }
 
-  /// multithread memory allocation test, do not remove
+  /**
+   * multithread memory allocation test, do not remove
+   */
   @SuppressWarnings("unused")
   public void testThreadMXBeanMultithreadMemAllocTracking() {
     if (ThreadResourceUsageProvider.isThreadMemoryMeasurementEnabled()) {
@@ -144,7 +148,9 @@ public class TestThreadMXBean {
     }
   }
 
-  /// multithreading deep memory allocation test, do not remove
+  /**
+   * multithreading deep memory allocation test, do not remove
+   */
   @SuppressWarnings("unused")
   public void testThreadMXBeanDeepMemAllocTracking() {
     if (ThreadResourceUsageProvider.isThreadMemoryMeasurementEnabled()) {
@@ -198,8 +204,10 @@ public class TestThreadMXBean {
     }
   }
 
-  /// test allocation and gc, getHeapMemoryUsage() tracks realtime usage, while getThreadAllocatedBytes() only tracks
-  /// allocated bytes, do not remove
+  /**
+   * test allocation and gc, getHeapMemoryUsage() tracks realtime usage, while getThreadAllocatedBytes() only tracks
+   * allocated bytes, do not remove
+   */
   @SuppressWarnings("unused")
   public void testThreadMXBeanMemAllocGCTracking() {
     LogManager.getLogger(TestThreadMXBean.class).setLevel(Level.INFO);

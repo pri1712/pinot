@@ -27,7 +27,9 @@ import org.roaringbitmap.RoaringBitmap;
 import org.roaringbitmap.RoaringBitmapWriter;
 
 
-/// Implementation of [DictionaryBasedInvertedIndexCreator] that uses on-heap memory.
+/**
+ * Implementation of {@link DictionaryBasedInvertedIndexCreator} that uses on-heap memory.
+ */
 @SuppressWarnings("unchecked")
 public final class OnHeapBitmapInvertedIndexCreator implements DictionaryBasedInvertedIndexCreator {
   private final File _invertedIndexFile;

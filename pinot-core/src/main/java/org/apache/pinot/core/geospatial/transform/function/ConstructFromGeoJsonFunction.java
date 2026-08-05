@@ -33,7 +33,9 @@ import org.locationtech.jts.io.ParseException;
 import org.locationtech.jts.io.geojson.GeoJsonReader;
 
 
-/// An abstract class for implementing the geo constructor functions from GEO JSON.
+/**
+ * An abstract class for implementing the geo constructor functions from GEO JSON.
+ */
 abstract class ConstructFromGeoJsonFunction extends BaseTransformFunction {
 
   protected TransformFunction _transformFunction;

@@ -25,6 +25,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -34,7 +35,6 @@ import java.util.Set;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Supplier;
 import javax.annotation.Nullable;
 import javax.net.ssl.SSLContext;
@@ -62,7 +62,6 @@ import org.apache.pinot.common.Utils;
 import org.apache.pinot.common.config.DefaultClusterConfigChangeHandler;
 import org.apache.pinot.common.config.TlsConfig;
 import org.apache.pinot.common.metadata.ZKMetadataProvider;
-import org.apache.pinot.common.metrics.MseMetrics;
 import org.apache.pinot.common.metrics.ServerGauge;
 import org.apache.pinot.common.metrics.ServerMeter;
 import org.apache.pinot.common.metrics.ServerMetrics;
@@ -73,7 +72,6 @@ import org.apache.pinot.common.utils.ServiceStartableUtils;
 import org.apache.pinot.common.utils.ServiceStatus;
 import org.apache.pinot.common.utils.ServiceStatus.Status;
 import org.apache.pinot.common.utils.TarCompressionUtils;
-import org.apache.pinot.common.utils.config.QueryWorkloadConfigUtils;
 import org.apache.pinot.common.utils.config.TagNameUtils;
 import org.apache.pinot.common.utils.fetcher.SegmentFetcherFactory;
 import org.apache.pinot.common.utils.helix.HelixHelper;
@@ -87,7 +85,6 @@ import org.apache.pinot.core.data.manager.InstanceDataManager;
 import org.apache.pinot.core.data.manager.realtime.RealtimeConsumptionRateManager;
 import org.apache.pinot.core.data.manager.realtime.ServerRateLimitConfigChangeListener;
 import org.apache.pinot.core.instance.context.ServerContext;
-import org.apache.pinot.core.query.killing.QueryKillingManager;
 import org.apache.pinot.core.query.scheduler.QuerySchedulerThreadPoolConfigChangeListener;
 import org.apache.pinot.core.query.scheduler.resources.ResourceManager;
 import org.apache.pinot.core.transport.ListenerConfig;
@@ -114,19 +111,20 @@ import org.apache.pinot.server.conf.ServerConf;
 import org.apache.pinot.server.realtime.ControllerLeaderLocator;
 import org.apache.pinot.server.realtime.ServerSegmentCompletionProtocolHandler;
 import org.apache.pinot.server.starter.ServerInstance;
-import org.apache.pinot.server.starter.ServerMetricsInitUtils;
 import org.apache.pinot.server.starter.ServerQueriesDisabledTracker;
 import org.apache.pinot.server.worker.WorkerQueryServer;
 import org.apache.pinot.spi.accounting.ThreadAccountant;
 import org.apache.pinot.spi.accounting.ThreadAccountantUtils;
 import org.apache.pinot.spi.accounting.ThreadResourceUsageProvider;
-import org.apache.pinot.spi.accounting.WorkloadBudgetManagerFactory;
+import org.apache.pinot.spi.accounting.WorkloadBudgetManager;
 import org.apache.pinot.spi.config.provider.PinotClusterConfigChangeListener;
 import org.apache.pinot.spi.crypt.PinotCrypterFactory;
 import org.apache.pinot.spi.env.PinotConfiguration;
 import org.apache.pinot.spi.environmentprovider.PinotEnvironmentProvider;
 import org.apache.pinot.spi.environmentprovider.PinotEnvironmentProviderFactory;
 import org.apache.pinot.spi.filesystem.PinotFSFactory;
+import org.apache.pinot.spi.metrics.PinotMetricUtils;
+import org.apache.pinot.spi.metrics.PinotMetricsRegistry;
 import org.apache.pinot.spi.plugin.PluginManager;
 import org.apache.pinot.spi.services.ServiceRole;
 import org.apache.pinot.spi.services.ServiceStartable;
@@ -146,15 +144,25 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 
-/// Starter for Pinot server.
-///
-/// When the server starts for the first time, it will automatically join the Helix cluster with the default tag.
-///
-/// - Optional start-up checks:
-///   - Service status check (ON by default)
-/// - Optional shut-down checks:
-///   - Query check (drains and finishes existing queries, ON by default)
-///   - Resource check (wait for all resources OFFLINE, OFF by default)
+/**
+ * Starter for Pinot server.
+ * <p>When the server starts for the first time, it will automatically join the Helix cluster with the default tag.
+ * <ul>
+ *   <li>
+ *     Optional start-up checks:
+ *     <ul>
+ *       <li>Service status check (ON by default)</li>
+ *     </ul>
+ *   </li>
+ *   <li>
+ *     Optional shut-down checks:
+ *     <ul>
+ *       <li>Query check (drains and finishes existing queries, ON by default)</li>
+ *       <li>Resource check (wait for all resources OFFLINE, OFF by default)</li>
+ *     </ul>
+ *   </li>
+ * </ul>
+ */
 public abstract class BaseServerStarter implements ServiceStartable {
   private static final Logger LOGGER = LoggerFactory.getLogger(BaseServerStarter.class);
 
@@ -179,7 +187,6 @@ public abstract class BaseServerStarter implements ServiceStartable {
   protected PinotEnvironmentProvider _pinotEnvironmentProvider;
   protected SegmentOperationsThrottlerSet _segmentOperationsThrottlerSet;
   protected ThreadAccountant _threadAccountant;
-  protected QueryKillingManager _queryKillingManager;
   protected DefaultClusterConfigChangeHandler _clusterConfigChangeHandler;
   protected volatile boolean _isServerReadyToServeQueries = false;
   protected ScheduledExecutorService _helixMessageCountScheduler;
@@ -212,7 +219,9 @@ public abstract class BaseServerStarter implements ServiceStartable {
 
     setupHelixSystemProperties();
     _listenerConfigs = ListenerConfigUtil.buildServerAdminConfigs(_serverConf);
-    _hostname = getServerHostname(_serverConf);
+    _hostname = _serverConf.getProperty(Helix.KEY_OF_SERVER_NETTY_HOST,
+        _serverConf.getProperty(Helix.SET_INSTANCE_ID_TO_HOSTNAME_KEY, false) ? NetUtils.getHostnameOrAddress()
+            : NetUtils.getHostAddress());
     // Override multi-stage query runner hostname if not set explicitly
     if (!_serverConf.containsKey(CommonConstants.MultiStageQueryRunner.KEY_OF_QUERY_RUNNER_HOSTNAME)) {
       _serverConf.setProperty(CommonConstants.MultiStageQueryRunner.KEY_OF_QUERY_RUNNER_HOSTNAME, _hostname);
@@ -296,7 +305,9 @@ public abstract class BaseServerStarter implements ServiceStartable {
     NettyInspector.logAllChecks();
   }
 
-  /// Override to provide custom transition thread pool manager
+  /**
+   * Override to provide custom transition thread pool manager
+   */
   protected void initTransitionThreadPoolManager() {
     _transitionThreadPoolManager = null;
   }
@@ -305,24 +316,17 @@ public abstract class BaseServerStarter implements ServiceStartable {
   protected void applyCustomConfigs(PinotConfiguration serverConf) {
   }
 
-  /// Override to customize the query operator factory provider used by the multi-stage engine.
+  /**
+   * Override to customize the query operator factory provider used by the multi-stage engine.
+   */
   protected QueryOperatorFactoryProvider createQueryOperatorFactoryProvider(PinotConfiguration serverConf) {
     return DefaultQueryOperatorFactoryProvider.INSTANCE;
   }
 
-  @VisibleForTesting
-  static String getServerHostname(PinotConfiguration serverConf)
-      throws IOException {
-    String configuredHost = serverConf.getProperty(Helix.KEY_OF_SERVER_NETTY_HOST);
-    if (configuredHost != null) {
-      return configuredHost;
-    }
-    return serverConf.getProperty(Helix.SET_INSTANCE_ID_TO_HOSTNAME_KEY, false) ? NetUtils.getHostnameOrAddress()
-        : NetUtils.getHostAddress();
-  }
-
-  /// Invoke pinot environment provider factory's init method to register the environment provider &
-  /// return the instantiated environment provider.
+  /**
+   *  Invoke pinot environment provider factory's init method to register the environment provider &
+   *  return the instantiated environment provider.
+   */
   @Nullable
   private PinotEnvironmentProvider initializePinotEnvironmentProvider() {
     PinotConfiguration environmentProviderConfigs =
@@ -346,8 +350,10 @@ public abstract class BaseServerStarter implements ServiceStartable {
     return PinotEnvironmentProviderFactory.getEnvironmentProvider(environmentProviderClassName.toLowerCase());
   }
 
-  /// Fetches the resources to monitor and registers the
-  /// [org.apache.pinot.common.utils.ServiceStatus.ServiceStatusCallback]s
+  /**
+   * Fetches the resources to monitor and registers the
+   * {@link org.apache.pinot.common.utils.ServiceStatus.ServiceStatusCallback}s
+   */
   private void registerServiceStatusHandler() {
     double minResourcePercentForStartup =
         _serverConf.getProperty(Server.CONFIG_OF_SERVER_MIN_RESOURCE_PERCENT_FOR_START,
@@ -392,9 +398,8 @@ public abstract class BaseServerStarter implements ServiceStartable {
       }
       if (checkRealtime && TableNameBuilder.isRealtimeTableResource(resourceName)) {
         for (String partitionName : idealState.getPartitionSet()) {
-          Map<String, String> instanceStateMap = idealState.getInstanceStateMap(partitionName);
-          if (instanceStateMap != null && StateModel.SegmentStateModel.CONSUMING.equals(
-              instanceStateMap.get(_instanceId))) {
+          if (StateModel.SegmentStateModel.CONSUMING.equals(
+              idealState.getInstanceStateMap(partitionName).get(_instanceId))) {
             consumingSegments.computeIfAbsent(resourceName, k -> new HashSet<>()).add(partitionName);
           }
         }
@@ -402,14 +407,12 @@ public abstract class BaseServerStarter implements ServiceStartable {
     }
 
     List<ServiceStatus.ServiceStatusCallback> serviceStatusCallbackListBuilder = new ArrayList<>();
-    serviceStatusCallbackListBuilder.add(new TimeToHealthyTrackingCallback(
+    serviceStatusCallbackListBuilder.add(
         new ServiceStatus.IdealStateAndCurrentStateMatchServiceStatusCallback(_helixManager, _helixClusterName,
-            _instanceId, resourcesToMonitor, minResourcePercentForStartup),
-        ServerGauge.STARTUP_CURRENT_STATE_MATCH_TIME_MS, _serverMetrics));
-    serviceStatusCallbackListBuilder.add(new TimeToHealthyTrackingCallback(
+            _instanceId, resourcesToMonitor, minResourcePercentForStartup));
+    serviceStatusCallbackListBuilder.add(
         new ServiceStatus.IdealStateAndExternalViewMatchServiceStatusCallback(_helixManager, _helixClusterName,
-            _instanceId, resourcesToMonitor, minResourcePercentForStartup),
-        ServerGauge.STARTUP_EXTERNAL_VIEW_MATCH_TIME_MS, _serverMetrics));
+            _instanceId, resourcesToMonitor, minResourcePercentForStartup));
     boolean foundConsuming = !consumingSegments.isEmpty();
     if (checkRealtime && foundConsuming) {
       // We specifically put the freshness based checker first to ensure it's the only one setup if both checkers
@@ -426,10 +429,9 @@ public abstract class BaseServerStarter implements ServiceStartable {
                 this::getConsumingSegments, realtimeMinFreshnessMs, idleTimeoutMs);
         Supplier<Integer> getNumConsumingSegmentsNotReachedMinFreshness =
             freshnessStatusChecker::getNumConsumingSegmentsNotReachedIngestionCriteria;
-        serviceStatusCallbackListBuilder.add(new TimeToHealthyTrackingCallback(
+        serviceStatusCallbackListBuilder.add(
             new ServiceStatus.RealtimeConsumptionCatchupServiceStatusCallback(_helixManager, _helixClusterName,
-                _instanceId, realtimeConsumptionCatchupWaitMs, getNumConsumingSegmentsNotReachedMinFreshness),
-            ServerGauge.STARTUP_REALTIME_CONSUMPTION_CATCHUP_TIME_MS, _serverMetrics));
+                _instanceId, realtimeConsumptionCatchupWaitMs, getNumConsumingSegmentsNotReachedMinFreshness));
       } else if (isOffsetBasedConsumptionStatusCheckerEnabled) {
         LOGGER.info("Setting up offset based status checker");
         OffsetBasedConsumptionStatusChecker consumptionStatusChecker =
@@ -437,14 +439,11 @@ public abstract class BaseServerStarter implements ServiceStartable {
                 this::getConsumingSegments);
         Supplier<Integer> getNumConsumingSegmentsNotReachedTheirLatestOffset =
             consumptionStatusChecker::getNumConsumingSegmentsNotReachedIngestionCriteria;
-        serviceStatusCallbackListBuilder.add(new TimeToHealthyTrackingCallback(
+        serviceStatusCallbackListBuilder.add(
             new ServiceStatus.RealtimeConsumptionCatchupServiceStatusCallback(_helixManager, _helixClusterName,
-                _instanceId, realtimeConsumptionCatchupWaitMs, getNumConsumingSegmentsNotReachedTheirLatestOffset),
-            ServerGauge.STARTUP_REALTIME_CONSUMPTION_CATCHUP_TIME_MS, _serverMetrics));
+                _instanceId, realtimeConsumptionCatchupWaitMs, getNumConsumingSegmentsNotReachedTheirLatestOffset));
       } else {
         LOGGER.info("Setting up static time based status checker");
-        // Not wrapped with a time-to-healthy gauge: this checker turns GOOD purely on wall-clock elapsed time, so the
-        // resulting metric would just echo realtimeConsumptionCatchupWaitMs and not reflect actual catchup latency.
         serviceStatusCallbackListBuilder.add(
             new ServiceStatus.RealtimeConsumptionCatchupServiceStatusCallback(_helixManager, _helixClusterName,
                 _instanceId, realtimeConsumptionCatchupWaitMs, null));
@@ -463,9 +462,8 @@ public abstract class BaseServerStarter implements ServiceStartable {
     }
     Set<String> consumingSegments = new HashSet<>();
     for (String partitionName : idealState.getPartitionSet()) {
-      Map<String, String> instanceStateMap = idealState.getInstanceStateMap(partitionName);
-      if (instanceStateMap != null && StateModel.SegmentStateModel.CONSUMING.equals(
-          instanceStateMap.get(_instanceId))) {
+      if (StateModel.SegmentStateModel.CONSUMING.equals(
+          idealState.getInstanceStateMap(partitionName).get(_instanceId))) {
         consumingSegments.add(partitionName);
       }
     }
@@ -483,7 +481,7 @@ public abstract class BaseServerStarter implements ServiceStartable {
       if (ZKMetadataProvider.getClusterTenantIsolationEnabled(_helixManager.getHelixPropertyStore())) {
         return Arrays.asList(TagNameUtils.getOfflineTagForTenant(null), TagNameUtils.getRealtimeTagForTenant(null));
       } else {
-        return List.of(Helix.UNTAGGED_SERVER_INSTANCE);
+        return Collections.singletonList(Helix.UNTAGGED_SERVER_INSTANCE);
       }
     });
 
@@ -528,7 +526,7 @@ public abstract class BaseServerStarter implements ServiceStartable {
       // Retrieve failure domain information and add to the environment properties map
       String failureDomain = _pinotEnvironmentProvider.getFailureDomain();
       Map<String, String> environmentProperties =
-          Map.of(CommonConstants.INSTANCE_FAILURE_DOMAIN, failureDomain);
+          Collections.singletonMap(CommonConstants.INSTANCE_FAILURE_DOMAIN, failureDomain);
       if (!environmentProperties.equals(znRecord.getMapField(CommonConstants.ENVIRONMENT_IDENTIFIER))) {
         LOGGER.info("Updating instance: {} with environment properties: {}", _instanceId, environmentProperties);
         znRecord.setMapField(CommonConstants.ENVIRONMENT_IDENTIFIER, environmentProperties);
@@ -597,9 +595,11 @@ public abstract class BaseServerStarter implements ServiceStartable {
         _serverConf.getProperty(Helix.CONFIG_OF_SERVER_FLAPPING_TIME_WINDOW_MS, Helix.DEFAULT_FLAPPING_TIME_WINDOW_MS));
   }
 
-  /// When the server starts, check if the service status turns GOOD.
-  ///
-  /// @param endTimeMs Timeout for the check
+  /**
+   * When the server starts, check if the service status turns GOOD.
+   *
+   * @param endTimeMs Timeout for the check
+   */
   private void startupServiceStatusCheck(long endTimeMs) {
     LOGGER.info("Starting startup service status check");
     long startTimeMs = System.currentTimeMillis();
@@ -657,9 +657,13 @@ public abstract class BaseServerStarter implements ServiceStartable {
 
     LOGGER.info("Initializing server metrics");
     ServerConf serverConf = new ServerConf(_serverConf);
-    _serverMetrics = ServerMetricsInitUtils.initServerMetrics(serverConf);
+    PinotMetricsRegistry metricsRegistry = PinotMetricUtils.getPinotMetricsRegistry(serverConf.getMetricsConfig());
+    _serverMetrics =
+        new ServerMetrics(serverConf.getMetricsPrefix(), metricsRegistry, serverConf.emitTableLevelMetrics(),
+            serverConf.getAllowedTablesForEmittingMetrics());
+    _serverMetrics.initializeGlobalMeters();
     _serverMetrics.setValueOfGlobalGauge(ServerGauge.VERSION, PinotVersion.VERSION_METRIC_NAME, 1);
-    MseMetrics.registerFromConfig(_serverConf, _serverMetrics.getMetricsRegistry());
+    ServerMetrics.register(_serverMetrics);
 
     LOGGER.info("Initializing reload job status cache");
     _reloadJobStatusCache = new ServerReloadJobStatusCache(_instanceId);
@@ -750,13 +754,9 @@ public abstract class BaseServerStarter implements ServiceStartable {
     // because it might be used by the accountant.
     PinotConfiguration accountingConfig = ThreadAccountantUtils.extractAccountingConfig(_serverConf,
         org.apache.pinot.spi.config.instance.InstanceType.SERVER);
-    WorkloadBudgetManagerFactory.register(accountingConfig);
+    WorkloadBudgetManager.set(createWorkloadBudgetManager(accountingConfig));
     _threadAccountant = ThreadAccountantUtils.createAccountant(accountingConfig, _instanceId,
         org.apache.pinot.spi.config.instance.InstanceType.SERVER);
-
-    // Initialize scan-based query killing
-    PinotConfiguration schedulerConfig = _serverConf.subset(CommonConstants.PINOT_QUERY_SCHEDULER_PREFIX);
-    _queryKillingManager = QueryKillingManager.init(schedulerConfig, ServerMetrics.get());
 
     SendStatsPredicate sendStatsPredicate = SendStatsPredicate.create(_serverConf, _helixManager);
     KeepPipelineBreakerStatsPredicate keepPipelineBreakerStatsPredicate =
@@ -767,23 +767,13 @@ public abstract class BaseServerStarter implements ServiceStartable {
             _threadAccountant, sendStatsPredicate, keepPipelineBreakerStatsPredicate, _reloadJobStatusCache);
 
     InstanceDataManager instanceDataManager = _serverInstance.getInstanceDataManager();
-    instanceDataManager.setSupplierOfIsServerReadyToConsumeData(this::isServerReadyToConsumeData);
-    instanceDataManager.setSupplierOfIsServerReadyToServeQueries(this::isServerReadyToServeQueries);
+    instanceDataManager.setSupplierOfIsServerReadyToServeQueries(() -> _isServerReadyToServeQueries);
 
     // Enable Server level realtime ingestion rate limier
     RealtimeConsumptionRateManager.getInstance().createServerRateLimiter(_serverConf, _serverMetrics);
     PinotClusterConfigChangeListener serverRateLimitConfigChangeListener =
         new ServerRateLimitConfigChangeListener(_serverMetrics);
     _clusterConfigChangeHandler.registerClusterConfigChangeListener(serverRateLimitConfigChangeListener);
-    if (instanceDataManager instanceof HelixInstanceDataManager) {
-      _clusterConfigChangeHandler.registerClusterConfigChangeListener(
-          ((HelixInstanceDataManager) instanceDataManager).getServerIngestionOomProtectionThrottleState());
-    }
-
-    // Register query killing manager for dynamic config updates (threshold/mode changes via ZK)
-    if (_queryKillingManager != null) {
-      _clusterConfigChangeHandler.registerClusterConfigChangeListener(_queryKillingManager);
-    }
 
     initSegmentFetcher(_serverConf);
     StateModelFactory<?> stateModelFactory =
@@ -798,10 +788,6 @@ public abstract class BaseServerStarter implements ServiceStartable {
     _helixManager.connect();
     _helixAdmin = _helixManager.getClusterManagmentTool();
     updateInstanceConfigIfNeeded(serverConf);
-
-    // Get all workload budgets this instance should support (must be done after HelixManager is connected)
-    QueryWorkloadConfigUtils.getAndUpdateWorkloadBudgets(_instanceId, _helixManager,
-        status -> _serverMetrics.setValueOfGlobalGauge(ServerGauge.WORKLOAD_CONFIG_FETCH_STATUS, status));
 
     // Start a background task to monitor Helix message count
     int refreshIntervalSeconds = _serverConf.getProperty(Server.CONFIG_OF_MESSAGES_COUNT_REFRESH_INTERVAL_SECONDS,
@@ -910,7 +896,7 @@ public abstract class BaseServerStarter implements ServiceStartable {
     // querying the server pre-maturely.
     _serverInstance.startQueryServer();
     _helixAdmin.setConfig(_instanceConfigScope,
-        Map.of(Helix.IS_SHUTDOWN_IN_PROGRESS, Boolean.toString(false)));
+        Collections.singletonMap(Helix.IS_SHUTDOWN_IN_PROGRESS, Boolean.toString(false)));
     _isServerReadyToServeQueries = true;
     // Throttling for realtime consumption is disabled up to this point to allow maximum consumption during startup time
     RealtimeConsumptionRateManager.getInstance().enablePartitionRateLimiter();
@@ -958,14 +944,6 @@ public abstract class BaseServerStarter implements ServiceStartable {
     }
 
     NettyInspector.registerMetrics(_serverMetrics);
-  }
-
-  protected boolean isServerReadyToConsumeData() {
-    return true;
-  }
-
-  protected boolean isServerReadyToServeQueries() {
-    return _isServerReadyToServeQueries;
   }
 
   protected SegmentOperationsThrottler createMultiColumnIndexPreprocessThrottler() {
@@ -1022,9 +1000,18 @@ public abstract class BaseServerStarter implements ServiceStartable {
         false, ServerGauge.SEGMENT_DOWNLOAD_THROTTLE_THRESHOLD, ServerGauge.SEGMENT_DOWNLOAD_COUNT, "SegmentDownload");
   }
 
-  /// Can be overridden to perform operations before server starts serving queries.
+  /**
+   * Can be overridden to perform operations before server starts serving queries.
+   */
   protected void preServeQueries() {
     _segmentOperationsThrottlerSet.startServingQueries();
+  }
+
+  /**
+   * Can be overridden to create a custom WorkloadBudgetManager.
+   */
+  protected WorkloadBudgetManager createWorkloadBudgetManager(PinotConfiguration config) {
+    return new WorkloadBudgetManager(config);
   }
 
   @Override
@@ -1034,7 +1021,7 @@ public abstract class BaseServerStarter implements ServiceStartable {
 
     _adminApiApplication.startShuttingDown();
     _helixAdmin.setConfig(_instanceConfigScope,
-        Map.of(Helix.IS_SHUTDOWN_IN_PROGRESS, Boolean.toString(true)));
+        Collections.singletonMap(Helix.IS_SHUTDOWN_IN_PROGRESS, Boolean.toString(true)));
     if (_transitionThreadPoolManager != null) {
       _transitionThreadPoolManager.shutdown();
     }
@@ -1068,9 +1055,11 @@ public abstract class BaseServerStarter implements ServiceStartable {
     LOGGER.info("Finish shutting down Pinot server for {}", _instanceId);
   }
 
-  /// When shutting down the server, drains the queries (no incoming queries and all existing queries finished).
-  ///
-  /// @param endTimeMs Timeout for the check
+  /**
+   * When shutting down the server, drains the queries (no incoming queries and all existing queries finished).
+   *
+   * @param endTimeMs Timeout for the check
+   */
   private void shutdownQueryCheck(long endTimeMs) {
     LOGGER.info("Starting shutdown query check");
     long startTimeMs = System.currentTimeMillis();
@@ -1123,10 +1112,12 @@ public abstract class BaseServerStarter implements ServiceStartable {
     }
   }
 
-  /// When shutting down the server, waits for all the resources turn OFFLINE (all partitions served by the server are
-  /// neither ONLINE nor CONSUMING).
-  ///
-  /// @param endTimeMs Timeout for the check
+  /**
+   * When shutting down the server, waits for all the resources turn OFFLINE (all partitions served by the server are
+   * neither ONLINE nor CONSUMING).
+   *
+   * @param endTimeMs Timeout for the check
+   */
   private void shutdownResourceCheck(long endTimeMs) {
     LOGGER.info("Starting shutdown resource check");
     long startTimeMs = System.currentTimeMillis();
@@ -1241,10 +1232,12 @@ public abstract class BaseServerStarter implements ServiceStartable {
     return _serverInstance;
   }
 
-  /// Initialize the components to download segments from deep store. They used to be
-  /// initialized in SegmentFetcherAndLoader, which has been removed to consolidate
-  /// segment download functionality for both Offline and Realtime tables. So those
-  /// components are initialized where SegmentFetcherAndLoader was initialized.
+  /**
+   * Initialize the components to download segments from deep store. They used to be
+   * initialized in SegmentFetcherAndLoader, which has been removed to consolidate
+   * segment download functionality for both Offline and Realtime tables. So those
+   * components are initialized where SegmentFetcherAndLoader was initialized.
+   */
   private void initSegmentFetcher(PinotConfiguration config)
       throws Exception {
     PinotConfiguration pinotFSConfig = config.subset(CommonConstants.Server.PREFIX_OF_CONFIG_OF_PINOT_FS_FACTORY);
@@ -1262,51 +1255,22 @@ public abstract class BaseServerStarter implements ServiceStartable {
     return new AdminApiApplication(_serverInstance, _accessControlFactory, _reloadJobStatusCache, _serverConf);
   }
 
-  /// Creates the [SegmentMessageHandlerFactory] used to handle user-defined Helix messages for segments.
-  /// Subclasses can override to return a custom factory that handles additional message sub-types.
+  /**
+   * Creates the {@link SegmentMessageHandlerFactory} used to handle user-defined Helix messages for segments.
+   * Subclasses can override to return a custom factory that handles additional message sub-types.
+   */
   protected SegmentMessageHandlerFactory createSegmentMessageHandlerFactory(InstanceDataManager instanceDataManager,
       ServerMetrics serverMetrics) {
     return new SegmentMessageHandlerFactory(instanceDataManager, serverMetrics);
   }
 
-  /// Creates the [SegmentOnlineOfflineStateModelFactory] used to handle Helix state transitions for segments.
-  /// Subclasses can override to return a custom factory.
+  /**
+   * Creates the {@link SegmentOnlineOfflineStateModelFactory} used to handle Helix state transitions for segments.
+   * Subclasses can override to return a custom factory.
+   */
   protected SegmentOnlineOfflineStateModelFactory createSegmentOnlineOfflineStateModelFactory(
       InstanceDataManager instanceDataManager, StateTransitionThreadPoolManager transitionThreadPoolManager) {
     return new SegmentOnlineOfflineStateModelFactory(instanceDataManager, transitionThreadPoolManager);
-  }
-
-  /// Wraps a [ServiceStatus.ServiceStatusCallback] and records the elapsed time (in ms since this wrapper was
-  /// constructed) into the supplied gauge the first time the delegate reports [Status#GOOD]. Subsequent calls
-  /// leave the gauge value frozen. `getServiceStatus` can be called concurrently by the startup poll loop and
-  /// by HTTP threads (health/tables endpoints), so the record-once latch uses CAS for visibility.
-  private static final class TimeToHealthyTrackingCallback implements ServiceStatus.ServiceStatusCallback {
-    private final ServiceStatus.ServiceStatusCallback _delegate;
-    private final ServerGauge _gauge;
-    private final ServerMetrics _serverMetrics;
-    private final long _startNanos = System.nanoTime();
-    private final AtomicBoolean _recorded = new AtomicBoolean(false);
-
-    TimeToHealthyTrackingCallback(ServiceStatus.ServiceStatusCallback delegate, ServerGauge gauge,
-        ServerMetrics serverMetrics) {
-      _delegate = delegate;
-      _gauge = gauge;
-      _serverMetrics = serverMetrics;
-    }
-
-    @Override
-    public Status getServiceStatus() {
-      Status status = _delegate.getServiceStatus();
-      if (status == Status.GOOD && _recorded.compareAndSet(false, true)) {
-        _serverMetrics.setValueOfGlobalGauge(_gauge, TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - _startNanos));
-      }
-      return status;
-    }
-
-    @Override
-    public String getStatusDescription() {
-      return _delegate.getStatusDescription();
-    }
   }
 
   private void refreshMessageCount() {

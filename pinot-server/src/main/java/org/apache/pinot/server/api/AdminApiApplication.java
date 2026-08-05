@@ -132,12 +132,16 @@ public class AdminApiApplication extends ResourceConfig {
     return true;
   }
 
-  /// Starts shutting down the HTTP server, which rejects all requests except for the liveness check.
+  /**
+   * Starts shutting down the HTTP server, which rejects all requests except for the liveness check.
+   */
   public void startShuttingDown() {
     _shutDownInProgress.set(true);
   }
 
-  /// Stops the HTTP server.
+  /**
+   * Stops the HTTP server.
+   */
   public void stop() {
     _httpServer.shutdownNow();
   }

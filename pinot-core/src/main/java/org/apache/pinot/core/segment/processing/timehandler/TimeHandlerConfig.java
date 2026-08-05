@@ -18,7 +18,9 @@
  */
 package org.apache.pinot.core.segment.processing.timehandler;
 
-/// Config for TimeHandler.
+/**
+ * Config for TimeHandler.
+ */
 public class TimeHandlerConfig {
   private final TimeHandler.Type _type;
 

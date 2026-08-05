@@ -28,7 +28,9 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 
-/// Integration test that starts one broker with auto-discovered echo service and test it
+/**
+ * Integration test that starts one broker with auto-discovered echo service and test it
+ */
 public class BrokerServiceDiscoveryIntegrationTest extends BaseClusterIntegrationTestSet {
 
   @Override

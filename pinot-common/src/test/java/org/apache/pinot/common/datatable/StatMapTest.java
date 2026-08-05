@@ -22,9 +22,6 @@ import com.google.common.io.ByteArrayDataInput;
 import com.google.common.io.ByteArrayDataOutput;
 import com.google.common.io.ByteStreams;
 import java.io.IOException;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Set;
 import org.apache.pinot.common.response.broker.BrokerResponseNativeV2;
 import org.testng.Assert;
 import org.testng.SkipException;
@@ -73,15 +70,6 @@ public class StatMapTest {
     statMap.merge(stat, "foo");
   }
 
-  @Test(dataProvider = "allTypeStats", expectedExceptions = IllegalArgumentException.class)
-  public void dynamicTypeCheckPutStringSet(MyStats stat) {
-    if (stat.getType() == StatMap.Type.STRING_SET) {
-      throw new SkipException("Skipping STRING_SET test");
-    }
-    StatMap<MyStats> statMap = new StatMap<>(MyStats.class);
-    statMap.merge(stat, Set.of("foo"));
-  }
-
   @Test(dataProvider = "allTypeStats")
   public void singleEncodeDecode(MyStats stat)
       throws IOException {
@@ -98,9 +86,6 @@ public class StatMapTest {
         break;
       case STRING:
         statMap.merge(stat, "foo");
-        break;
-      case STRING_SET:
-        statMap.merge(stat, Set.of("foo"));
         break;
       default:
         throw new IllegalStateException();
@@ -126,26 +111,11 @@ public class StatMapTest {
         case STRING:
           statMap.merge(stat, "foo");
           break;
-        case STRING_SET:
-          statMap.merge(stat, Set.of("foo"));
-          break;
         default:
           throw new IllegalStateException();
       }
     }
     testSerializeDeserialize(statMap);
-  }
-
-  @Test
-  public void stringSetPreservesOrderAndDeduplicates() {
-    StatMap<MyStats> statMap = new StatMap<>(MyStats.class)
-        .merge(MyStats.STR_SET_KEY, stringSet("foo", "bar"))
-        .merge(MyStats.STR_SET_KEY, stringSet("foo", "baz"));
-
-    Assert.assertEquals(List.copyOf(statMap.getStringSet(MyStats.STR_SET_KEY)), List.of("foo", "bar", "baz"));
-    Assert.assertEquals(statMap.asJson().get("strSetKey").get(0).asText(), "foo");
-    Assert.assertEquals(statMap.asJson().get("strSetKey").get(1).asText(), "bar");
-    Assert.assertEquals(statMap.asJson().get("strSetKey").get(2).asText(), "baz");
   }
 
   private <K extends Enum<K> & StatMap.Key> void testSerializeDeserialize(StatMap<K> statMap)
@@ -183,26 +153,22 @@ public class StatMapTest {
         .merge(MyStats.BOOL_KEY, true)
         .merge(MyStats.LONG_KEY, 1L)
         .merge(MyStats.INT_KEY, 1)
-        .merge(MyStats.STR_KEY, "foo")
-        .merge(MyStats.STR_SET_KEY, stringSet("foo", "bar")),
+        .merge(MyStats.STR_KEY, "foo"),
       new StatMap<>(MyStats.class)
         .merge(MyStats.BOOL_KEY, false)
         .merge(MyStats.LONG_KEY, 1L)
         .merge(MyStats.INT_KEY, 1)
-        .merge(MyStats.STR_KEY, "foo")
-        .merge(MyStats.STR_SET_KEY, stringSet("foo", "bar")),
+        .merge(MyStats.STR_KEY, "foo"),
       new StatMap<>(MyStats.class)
         .merge(MyStats.BOOL_KEY, true)
         .merge(MyStats.LONG_KEY, 0L)
         .merge(MyStats.INT_KEY, 1)
-        .merge(MyStats.STR_KEY, "foo")
-        .merge(MyStats.STR_SET_KEY, stringSet("foo", "bar")),
+        .merge(MyStats.STR_KEY, "foo"),
       new StatMap<>(MyStats.class)
         .merge(MyStats.BOOL_KEY, false)
         .merge(MyStats.LONG_KEY, 1L)
         .merge(MyStats.INT_KEY, 0)
-        .merge(MyStats.STR_KEY, "foo")
-        .merge(MyStats.STR_SET_KEY, stringSet("foo", "bar")),
+        .merge(MyStats.STR_KEY, "foo"),
       new StatMap<>(MyStats.class)
         .merge(MyStats.BOOL_KEY, false)
         .merge(MyStats.LONG_KEY, 1L)
@@ -222,16 +188,11 @@ public class StatMapTest {
     return MyStats.values();
   }
 
-  private static Set<String> stringSet(String... values) {
-    return new LinkedHashSet<>(List.of(values));
-  }
-
   public enum MyStats implements StatMap.Key {
     BOOL_KEY(StatMap.Type.BOOLEAN),
     LONG_KEY(StatMap.Type.LONG),
     INT_KEY(StatMap.Type.INT),
-    STR_KEY(StatMap.Type.STRING),
-    STR_SET_KEY(StatMap.Type.STRING_SET);
+    STR_KEY(StatMap.Type.STRING);
 
     private final StatMap.Type _type;
 

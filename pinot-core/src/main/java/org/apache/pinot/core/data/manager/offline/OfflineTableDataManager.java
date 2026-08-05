@@ -33,7 +33,9 @@ import org.apache.pinot.spi.config.table.TableConfig;
 import org.apache.pinot.spi.data.Schema;
 
 
-/// Table data manager for OFFLINE table.
+/**
+ * Table data manager for OFFLINE table.
+ */
 @ThreadSafe
 public class OfflineTableDataManager extends BaseTableDataManager {
 

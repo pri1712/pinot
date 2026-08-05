@@ -32,13 +32,9 @@ public class PlusScalarFunction extends BaseBinaryArithmeticScalarFunction {
 
   static {
     try {
-      FunctionInfo longPlus =
+      TYPE_FUNCTION_INFO_MAP.put(ColumnDataType.LONG,
           new FunctionInfo(PlusScalarFunction.class.getMethod("longPlus", long.class, long.class),
-              PlusScalarFunction.class, false);
-      // INT has no dedicated overload; widen it to LONG so whole-number arithmetic stays
-      // integral instead of falling back to DOUBLE.
-      TYPE_FUNCTION_INFO_MAP.put(ColumnDataType.INT, longPlus);
-      TYPE_FUNCTION_INFO_MAP.put(ColumnDataType.LONG, longPlus);
+              PlusScalarFunction.class, false));
       TYPE_FUNCTION_INFO_MAP.put(ColumnDataType.DOUBLE,
           new FunctionInfo(PlusScalarFunction.class.getMethod("doublePlus", double.class, double.class),
               PlusScalarFunction.class, false));
@@ -51,7 +47,7 @@ public class PlusScalarFunction extends BaseBinaryArithmeticScalarFunction {
   protected FunctionInfo functionInfoForType(ColumnDataType argumentType) {
     FunctionInfo functionInfo = TYPE_FUNCTION_INFO_MAP.get(argumentType);
 
-    // Fall back to double based arithmetic by default
+    // Fall back to double based comparison by default
     return functionInfo != null ? functionInfo : TYPE_FUNCTION_INFO_MAP.get(ColumnDataType.DOUBLE);
   }
 

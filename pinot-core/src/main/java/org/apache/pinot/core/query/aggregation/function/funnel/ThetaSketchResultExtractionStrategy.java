@@ -21,14 +21,13 @@ package org.apache.pinot.core.query.aggregation.function.funnel;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import org.apache.datasketches.theta.ThetaSketch;
-import org.apache.datasketches.theta.UpdatableThetaSketch;
-import org.apache.datasketches.theta.UpdatableThetaSketchBuilder;
+import org.apache.datasketches.theta.Sketch;
+import org.apache.datasketches.theta.UpdateSketch;
+import org.apache.datasketches.theta.UpdateSketchBuilder;
 
 
-class ThetaSketchResultExtractionStrategy
-    implements ResultExtractionStrategy<UpdatableThetaSketch[], List<ThetaSketch>> {
-  private static final ThetaSketch EMPTY_SKETCH = new UpdatableThetaSketchBuilder().build().compact();
+class ThetaSketchResultExtractionStrategy implements ResultExtractionStrategy<UpdateSketch[], List<Sketch>> {
+  private static final Sketch EMPTY_SKETCH = new UpdateSketchBuilder().build().compact();
 
   protected final int _numSteps;
 
@@ -37,7 +36,7 @@ class ThetaSketchResultExtractionStrategy
   }
 
   @Override
-  public List<ThetaSketch> extractIntermediateResult(UpdatableThetaSketch[] stepsSketches) {
+  public List<Sketch> extractIntermediateResult(UpdateSketch[] stepsSketches) {
     if (stepsSketches == null) {
       return Collections.nCopies(_numSteps, EMPTY_SKETCH);
     }

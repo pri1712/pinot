@@ -20,6 +20,7 @@ package org.apache.pinot.client.grpc;
 
 import com.google.protobuf.ByteString;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -70,7 +71,7 @@ public class GrpcConnectionTest {
 
     @Override
     public List<String> getBrokers() {
-      return List.of(_broker);
+      return Collections.singletonList(_broker);
     }
 
     @Override
@@ -82,14 +83,14 @@ public class GrpcConnectionTest {
     private final List<Broker.BrokerRequest> _submittedRequests = new ArrayList<>();
 
     private RecordingBrokerStreamingQueryClient() {
-      super(new GrpcConfig(Map.of()));
+      super(new GrpcConfig(Collections.emptyMap()));
     }
 
     @Override
     public Iterator<Broker.BrokerResponse> submit(String brokerHost, int brokerGrpcPort,
         Broker.BrokerRequest brokerRequest) {
       _submittedRequests.add(brokerRequest);
-      return List.of(Broker.BrokerResponse.newBuilder()
+      return Collections.singletonList(Broker.BrokerResponse.newBuilder()
           .setPayload(ByteString.copyFromUtf8("{}"))
           .build()).iterator();
     }

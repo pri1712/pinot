@@ -36,7 +36,9 @@ import org.apache.pinot.segment.spi.index.metadata.SegmentMetadataImpl;
 import org.apache.pinot.spi.data.readers.GenericRow;
 
 
-/// The `PinotSegmentToParquetConverter` class is the tool to convert Pinot segment to Parquet format.
+/**
+ * The <code>PinotSegmentToParquetConverter</code> class is the tool to convert Pinot segment to Parquet format.
+ */
 public class PinotSegmentToParquetConverter implements PinotSegmentConverter {
   private final String _segmentDir;
   private final String _outputFile;
@@ -67,7 +69,6 @@ public class PinotSegmentToParquetConverter implements PinotSegmentConverter {
     try (pinotSegmentRecordReader) {
       try (ParquetWriter<Record> parquetWriter =
           AvroParquetWriter.<Record>builder(outputFile).withSchema(avroSchema)
-              .withDataModel(SegmentProcessorAvroUtils.getAvroDataModel())
               .withCompressionCodec(_compressionCodec)
               .withConf(hadoopConf).build()) {
         GenericRow row = new GenericRow();

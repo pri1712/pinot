@@ -37,9 +37,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 
-/// The `RemoteClusterBrokerRoutingManager` manages the routing for a single remote Pinot cluster available for
-/// federation. It periodically checks for changes in the set of tables available in the remote cluster and updates the
-/// routing accordingly.
+/**
+ * The {@code RemoteClusterBrokerRoutingManager} manages the routing for a single remote Pinot cluster available for
+ * federation. It periodically checks for changes in the set of tables available in the remote cluster and updates the
+ * routing accordingly.
+ */
 public class RemoteClusterBrokerRoutingManager extends BaseBrokerRoutingManager {
   private static final Logger LOGGER = LoggerFactory.getLogger(RemoteClusterBrokerRoutingManager.class);
   private static final long ROUTING_CHANGE_DETECTION_INTERVAL_MS = 10_000L;
@@ -115,7 +117,7 @@ public class RemoteClusterBrokerRoutingManager extends BaseBrokerRoutingManager 
       }
     } catch (Exception e) {
       LOGGER.error("Caught exception while dropping routing for table: {} in cluster: {}", table, _remoteClusterName,
-          e);
+        e);
     }
   }
 

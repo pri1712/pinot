@@ -20,6 +20,7 @@ package org.apache.pinot.tools;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -74,12 +75,12 @@ public class SingleStageResourceTrackingQuickStart extends Quickstart {
   }
 
   protected Map<String, String> getQueryOptions() {
-    return Map.of();
+    return Collections.emptyMap();
   }
 
   @Override
   public List<String> types() {
-    return List.of("SINGLE_STAGE_RESOURCE_TRACKING");
+    return Collections.singletonList("SINGLE_STAGE_RESOURCE_TRACKING");
   }
 
   public static void main(String[] args)

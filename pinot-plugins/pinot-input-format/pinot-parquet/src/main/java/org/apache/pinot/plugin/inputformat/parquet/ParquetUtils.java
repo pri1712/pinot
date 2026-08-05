@@ -54,7 +54,9 @@ public class ParquetUtils {
 
   private static final long NANOS_PER_DAY = TimeUnit.DAYS.toNanos(1);
 
-  /// Returns a ParquetReader with the given path.
+  /**
+   * Returns a ParquetReader with the given path.
+   */
   public static ParquetReader<GenericRecord> getParquetAvroReader(Path path)
       throws IOException {
     InputFile inputFile = HadoopInputFile.fromPath(path, getParquetHadoopConfiguration());
@@ -62,7 +64,9 @@ public class ParquetUtils {
         .build();
   }
 
-  /// Returns the schema for the given Parquet file path.
+  /**
+   * Returns the schema for the given Parquet file path.
+   */
   public static Schema getParquetAvroSchema(Path path)
       throws IOException {
     InputFile inputFile = HadoopInputFile.fromPath(path, getParquetHadoopConfiguration());

@@ -20,10 +20,10 @@ package org.apache.pinot.integration.tests;
 
 import java.io.File;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import javax.annotation.Nullable;
 import org.apache.commons.io.FileUtils;
 import org.apache.helix.task.TaskState;
@@ -63,9 +63,11 @@ import static org.testng.Assert.assertNull;
 import static org.testng.Assert.assertTrue;
 
 
-/// Integration test for minion task of type "RealtimeToOfflineSegmentsTask"
-/// With every task run, a new segment is created in the offline table for 1 day. Watermark also keeps progressing
-/// accordingly.
+/**
+ * Integration test for minion task of type "RealtimeToOfflineSegmentsTask"
+ * With every task run, a new segment is created in the offline table for 1 day. Watermark also keeps progressing
+ * accordingly.
+ */
 public class RealtimeToOfflineSegmentsMinionClusterIntegrationTest extends BaseClusterIntegrationTestSet {
   private PinotHelixTaskResourceManager _taskResourceManager;
   private PinotTaskManager _taskManager;
@@ -113,23 +115,23 @@ public class RealtimeToOfflineSegmentsMinionClusterIntegrationTest extends BaseC
     TableConfig realtimeTableConfig = createRealtimeTableConfig(avroFiles.get(0));
     IngestionConfig ingestionConfig = new IngestionConfig();
     ingestionConfig.setTransformConfigs(
-        List.of(new TransformConfig("ts", "fromEpochDays(DaysSinceEpoch)")));
+        Collections.singletonList(new TransformConfig("ts", "fromEpochDays(DaysSinceEpoch)")));
     realtimeTableConfig.setIngestionConfig(ingestionConfig);
     FieldConfig tsFieldConfig =
         new FieldConfig("ts", FieldConfig.EncodingType.DICTIONARY, FieldConfig.IndexType.TIMESTAMP, null, null,
             new TimestampConfig(Arrays.asList(TimestampIndexGranularity.HOUR, TimestampIndexGranularity.DAY,
                 TimestampIndexGranularity.WEEK, TimestampIndexGranularity.MONTH)), null);
-    realtimeTableConfig.setFieldConfigList(List.of(tsFieldConfig));
+    realtimeTableConfig.setFieldConfigList(Collections.singletonList(tsFieldConfig));
 
     Map<String, String> taskConfigs = new HashMap<>();
     taskConfigs.put(BatchConfigProperties.OVERWRITE_OUTPUT, "true");
     taskConfigs.put(MinionConstants.SEGMENT_DOWNLOAD_PARALLELISM, "3");
     realtimeTableConfig.setTaskConfig(new TableTaskConfig(
-        Map.of(MinionConstants.RealtimeToOfflineSegmentsTask.TASK_TYPE, taskConfigs)));
+        Collections.singletonMap(MinionConstants.RealtimeToOfflineSegmentsTask.TASK_TYPE, taskConfigs)));
     addTableConfig(realtimeTableConfig);
 
     TableConfig offlineTableConfig = createOfflineTableConfig();
-    offlineTableConfig.setFieldConfigList(List.of(tsFieldConfig));
+    offlineTableConfig.setFieldConfigList(Collections.singletonList(tsFieldConfig));
     addTableConfig(offlineTableConfig);
 
     Map<String, String> taskConfigsWithMetadata = new HashMap<>();
@@ -141,15 +143,15 @@ public class RealtimeToOfflineSegmentsMinionClusterIntegrationTest extends BaseC
     schema.setSchemaName(tableWithMetadataPush);
     addSchema(schema);
     TableConfig realtimeMetadataTableConfig = createRealtimeTableConfig(avroFiles.get(0), tableWithMetadataPush,
-        new TableTaskConfig(Map.of(MinionConstants.RealtimeToOfflineSegmentsTask.TASK_TYPE,
+        new TableTaskConfig(Collections.singletonMap(MinionConstants.RealtimeToOfflineSegmentsTask.TASK_TYPE,
             taskConfigsWithMetadata)));
     realtimeMetadataTableConfig.setIngestionConfig(ingestionConfig);
-    realtimeMetadataTableConfig.setFieldConfigList(List.of(tsFieldConfig));
+    realtimeMetadataTableConfig.setFieldConfigList(Collections.singletonList(tsFieldConfig));
     addTableConfig(realtimeMetadataTableConfig);
 
     TableConfig offlineMetadataTableConfig =
         createOfflineTableConfig(tableWithMetadataPush, null, getSegmentPartitionConfig());
-    offlineMetadataTableConfig.setFieldConfigList(List.of(tsFieldConfig));
+    offlineMetadataTableConfig.setFieldConfigList(Collections.singletonList(tsFieldConfig));
     addTableConfig(offlineMetadataTableConfig);
 
     // Push data into Kafka
@@ -232,14 +234,14 @@ public class RealtimeToOfflineSegmentsMinionClusterIntegrationTest extends BaseC
     for (int i = 0; i < 3; i++) {
       // Schedule task
       assertNotNull(_taskManager.scheduleTasks(new TaskSchedulingContext()
-              .setTablesToSchedule(Set.of(_realtimeTableName)))
+              .setTablesToSchedule(Collections.singleton(_realtimeTableName)))
           .get(MinionConstants.RealtimeToOfflineSegmentsTask.TASK_TYPE));
       assertTrue(_taskResourceManager.getTaskQueues().contains(
           PinotHelixTaskResourceManager.getHelixJobQueueName(MinionConstants.RealtimeToOfflineSegmentsTask.TASK_TYPE)));
       // Should not generate more tasks
       MinionTaskTestUtils.assertNoTaskSchedule(new TaskSchedulingContext()
-              .setTablesToSchedule(Set.of(_realtimeTableName))
-              .setTasksToSchedule(Set.of(MinionConstants.RealtimeToOfflineSegmentsTask.TASK_TYPE)),
+              .setTablesToSchedule(Collections.singleton(_realtimeTableName))
+              .setTasksToSchedule(Collections.singleton(MinionConstants.RealtimeToOfflineSegmentsTask.TASK_TYPE)),
           _taskManager);
 
       // Wait at most 600 seconds for all tasks COMPLETED
@@ -287,14 +289,14 @@ public class RealtimeToOfflineSegmentsMinionClusterIntegrationTest extends BaseC
     for (int i = 0; i < 3; i++) {
       // Schedule task
       assertNotNull(_taskManager.scheduleTasks(new TaskSchedulingContext()
-              .setTablesToSchedule(Set.of(_realtimeMetadataTableName)))
+              .setTablesToSchedule(Collections.singleton(_realtimeMetadataTableName)))
           .get(MinionConstants.RealtimeToOfflineSegmentsTask.TASK_TYPE));
       assertTrue(_taskResourceManager.getTaskQueues().contains(
           PinotHelixTaskResourceManager.getHelixJobQueueName(MinionConstants.RealtimeToOfflineSegmentsTask.TASK_TYPE)));
       // Should not generate more tasks
       MinionTaskTestUtils.assertNoTaskSchedule(new TaskSchedulingContext()
-              .setTablesToSchedule(Set.of(_realtimeMetadataTableName))
-              .setTasksToSchedule(Set.of(MinionConstants.RealtimeToOfflineSegmentsTask.TASK_TYPE)),
+              .setTablesToSchedule(Collections.singleton(_realtimeMetadataTableName))
+              .setTasksToSchedule(Collections.singleton(MinionConstants.RealtimeToOfflineSegmentsTask.TASK_TYPE)),
           _taskManager);
 
       // Wait at most 600 seconds for all tasks COMPLETED

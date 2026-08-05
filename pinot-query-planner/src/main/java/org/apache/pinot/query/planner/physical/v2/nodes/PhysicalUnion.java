@@ -33,7 +33,9 @@ import org.apache.pinot.query.planner.physical.v2.PinotDataDistribution;
 public class PhysicalUnion extends Union implements PRelNode {
   private final int _nodeId;
   private final List<PRelNode> _pRelInputs;
-  /// See javadocs for [PhysicalExchange].
+  /**
+   * See javadocs for {@link PhysicalExchange}.
+   */
   @Nullable
   private final PinotDataDistribution _pinotDataDistribution;
 

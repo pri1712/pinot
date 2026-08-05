@@ -27,7 +27,9 @@ import org.apache.pinot.spi.utils.CommonConstants.Segment.BuiltInVirtualColumn;
 import org.apache.pinot.spi.utils.NetUtils;
 
 
-/// Factory for virtual column providers.
+/**
+ * Factory for virtual column providers.
+ */
 public class VirtualColumnProviderFactory {
   private VirtualColumnProviderFactory() {
   }

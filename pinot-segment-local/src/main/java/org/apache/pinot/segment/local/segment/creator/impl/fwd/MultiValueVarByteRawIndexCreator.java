@@ -29,26 +29,30 @@ import org.apache.pinot.segment.local.io.writer.impl.VarByteChunkWriter;
 import org.apache.pinot.segment.spi.V1Constants.Indexes;
 import org.apache.pinot.segment.spi.compression.ChunkCompressionType;
 import org.apache.pinot.segment.spi.index.ForwardIndexConfig;
+import org.apache.pinot.segment.spi.index.creator.ForwardIndexCreator;
 import org.apache.pinot.spi.data.FieldSpec.DataType;
 
 
-/// Raw (non-dictionary-encoded) forward index creator for multi-value column of variable length data type (STRING,
-/// BYTES).
-public class MultiValueVarByteRawIndexCreator implements CompressionStatsTrackingForwardIndexCreator {
+/**
+ * Raw (non-dictionary-encoded) forward index creator for multi-value column of variable length data type (STRING,
+ * BYTES).
+ */
+public class MultiValueVarByteRawIndexCreator implements ForwardIndexCreator {
 
   private final VarByteChunkWriter _indexWriter;
   private final DataType _valueType;
-  private final ChunkCompressionType _chunkCompressionType;
 
-  /// Create a var-byte raw index creator for the given column
-  ///
-  /// @param baseIndexDir Index directory
-  /// @param compressionType Type of compression to use
-  /// @param column Name of column to index
-  /// @param totalDocs Total number of documents to index
-  /// @param valueType Type of the values
-  /// @param maxRowLengthInBytes the length in bytes of the largest row
-  /// @param maxNumberOfElements the maximum number of elements in a row
+  /**
+   * Create a var-byte raw index creator for the given column
+   *
+   * @param baseIndexDir Index directory
+   * @param compressionType Type of compression to use
+   * @param column Name of column to index
+   * @param totalDocs Total number of documents to index
+   * @param valueType Type of the values
+   * @param maxRowLengthInBytes the length in bytes of the largest row
+   * @param maxNumberOfElements the maximum number of elements in a row
+   */
   public MultiValueVarByteRawIndexCreator(File baseIndexDir, ChunkCompressionType compressionType, String column,
       int totalDocs, DataType valueType, int maxRowLengthInBytes, int maxNumberOfElements)
       throws IOException {
@@ -57,16 +61,18 @@ public class MultiValueVarByteRawIndexCreator implements CompressionStatsTrackin
         ForwardIndexConfig.getDefaultTargetDocsPerChunk());
   }
 
-  /// Create a var-byte raw index creator for the given column
-  ///
-  /// @param baseIndexDir Index directory
-  /// @param compressionType Type of compression to use
-  /// @param column Name of column to index
-  /// @param totalDocs Total number of documents to index
-  /// @param valueType Type of the values
-  /// @param maxRowLengthInBytes the size in bytes of the largest row, the chunk size cannot be smaller than this
-  /// @param maxNumberOfElements the maximum number of elements in a row
-  /// @param writerVersion writer format version
+  /**
+   * Create a var-byte raw index creator for the given column
+   *
+   * @param baseIndexDir Index directory
+   * @param compressionType Type of compression to use
+   * @param column Name of column to index
+   * @param totalDocs Total number of documents to index
+   * @param valueType Type of the values
+   * @param maxRowLengthInBytes the size in bytes of the largest row, the chunk size cannot be smaller than this
+   * @param maxNumberOfElements the maximum number of elements in a row
+   * @param writerVersion writer format version
+   */
   public MultiValueVarByteRawIndexCreator(File baseIndexDir, ChunkCompressionType compressionType, String column,
       int totalDocs, DataType valueType, int writerVersion, int maxRowLengthInBytes, int maxNumberOfElements,
       int targetMaxChunkSizeBytes, int targetDocsPerChunk)
@@ -90,7 +96,6 @@ public class MultiValueVarByteRawIndexCreator implements CompressionStatsTrackin
       _indexWriter = new VarByteChunkForwardIndexWriterV4(file, compressionType, chunkSize);
     }
     _valueType = valueType;
-    _chunkCompressionType = compressionType;
   }
 
   @Override
@@ -129,44 +134,35 @@ public class MultiValueVarByteRawIndexCreator implements CompressionStatsTrackin
     _indexWriter.close();
   }
 
-  @Override
-  public long getRawForwardIndexUncompressedValueSizeInBytes() {
-    return _indexWriter.getRawForwardIndexUncompressedValueSizeInBytes();
-  }
-
-  @Override
-  public ChunkCompressionType getRawForwardIndexChunkCompressionType() {
-    return _chunkCompressionType;
-  }
-
-  @Override
-  public void enableRawForwardIndexUncompressedValueSizeTracking() {
-    _indexWriter.enableRawForwardIndexUncompressedValueSizeTracking();
-  }
-
-  /// The actual content in an MV array is prepended with 2 prefixes:
-  /// 1. elementLengthStoragePrefixInBytes - bytes required to store the length of each element in the largest array
-  /// 2. numElementsStoragePrefixInBytes - Number of elements in the array
-  ///
-  /// This function returns the total bytes needed to store (1) elementLengthStoragePrefixInBytes
+  /**
+   * The actual content in an MV array is prepended with 2 prefixes:
+   * 1. elementLengthStoragePrefixInBytes - bytes required to store the length of each element in the largest array
+   * 2. numElementsStoragePrefixInBytes - Number of elements in the array
+   *
+   * This function returns the total bytes needed to store (1) elementLengthStoragePrefixInBytes
+   */
   public static int getElementLengthStoragePrefixInBytes(int maxNumberOfElements) {
     return Integer.BYTES * maxNumberOfElements;
   }
 
-  /// The actual content in an MV array is prepended with 2 prefixes:
-  /// 1. elementLengthStoragePrefixInBytes - bytes required to store the length of each element in the largest array
-  /// 2. numElementsStoragePrefixInBytes - Number of elements in the array
-  ///
-  /// This function returns the bytes needed to store (2) numElementsStoragePrefixInBytes
+  /**
+   * The actual content in an MV array is prepended with 2 prefixes:
+   * 1. elementLengthStoragePrefixInBytes - bytes required to store the length of each element in the largest array
+   * 2. numElementsStoragePrefixInBytes - Number of elements in the array
+   *
+   * This function returns the bytes needed to store (2) numElementsStoragePrefixInBytes
+   */
   public static int getNumElementsStoragePrefix() {
     return Integer.BYTES;
   }
 
-  /// The actual content in an MV array is prepended with 2 prefixes:
-  /// 1. elementLengthStoragePrefixInBytes - bytes required to store the length of each element in the largest array
-  /// 2. numElementsStoragePrefixInBytes - Number of elements in the array
-  ///
-  /// This function returns the bytes needed to store the (1), (2) and the actual content.
+  /**
+   * The actual content in an MV array is prepended with 2 prefixes:
+   * 1. elementLengthStoragePrefixInBytes - bytes required to store the length of each element in the largest array
+   * 2. numElementsStoragePrefixInBytes - Number of elements in the array
+   *
+   * This function returns the bytes needed to store the (1), (2) and the actual content.
+   */
   public static int getTotalRowStorageBytes(int maxNumberOfElements, int maxRowDataLengthInBytes) {
     int elementLengthStoragePrefixInBytes = getElementLengthStoragePrefixInBytes(maxNumberOfElements);
     int numElementsStoragePrefixInBytes = getNumElementsStoragePrefix();
@@ -178,11 +174,13 @@ public class MultiValueVarByteRawIndexCreator implements CompressionStatsTrackin
     return totalMaxLength;
   }
 
-  /// The actual content in an MV array is prepended with 2 prefixes:
-  /// 1. elementLengthStoragePrefixInBytes - bytes required to store the length of each element in the largest array
-  /// 2. numberOfElementsStoragePrefix - Number of elements in the array
-  ///
-  /// This function returns the bytes needed to store the actual content.
+  /**
+   * The actual content in an MV array is prepended with 2 prefixes:
+   * 1. elementLengthStoragePrefixInBytes - bytes required to store the length of each element in the largest array
+   * 2. numberOfElementsStoragePrefix - Number of elements in the array
+   *
+   * This function returns the bytes needed to store the actual content.
+   */
   public static int getMaxRowDataLengthInBytes(int totalMaxLength, int maxNumberOfElements) {
     return totalMaxLength - getNumElementsStoragePrefix() - getElementLengthStoragePrefixInBytes(maxNumberOfElements);
   }

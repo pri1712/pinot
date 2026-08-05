@@ -28,14 +28,18 @@ public class SchemaSerDeUtils {
   private SchemaSerDeUtils() {
   }
 
-  /// Fetch [Schema] from a [ZNRecord].
+  /**
+   * Fetch {@link Schema} from a {@link ZNRecord}.
+   */
   public static Schema fromZNRecord(ZNRecord record)
       throws IOException {
     String schemaJSON = record.getSimpleField("schemaJSON");
     return Schema.fromString(schemaJSON);
   }
 
-  /// Wrap [Schema] into a [ZNRecord].
+  /**
+   * Wrap {@link Schema} into a {@link ZNRecord}.
+   */
   public static ZNRecord toZNRecord(Schema schema) {
     ZNRecord record = new ZNRecord(schema.getSchemaName());
     record.setSimpleField("schemaJSON", schema.toSingleLineJsonString());

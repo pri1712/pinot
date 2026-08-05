@@ -92,7 +92,9 @@ public class TableViews {
   @Inject
   PinotHelixResourceManager _pinotHelixResourceManager;
 
-  /// @deprecated Use [org.apache.pinot.common.restlet.resources.TableView] directly.
+  /**
+   * @deprecated Use {@link org.apache.pinot.common.restlet.resources.TableView} directly.
+   */
   @Deprecated
   public static class TableView extends org.apache.pinot.common.restlet.resources.TableView {
   }

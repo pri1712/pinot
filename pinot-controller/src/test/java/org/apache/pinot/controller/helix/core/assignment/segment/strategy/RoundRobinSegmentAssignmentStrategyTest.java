@@ -18,6 +18,7 @@
  */
 package org.apache.pinot.controller.helix.core.assignment.segment.strategy;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
@@ -63,7 +64,7 @@ public class RoundRobinSegmentAssignmentStrategyTest {
   public void setUp() {
     TableConfig tableConfig =
         new TableConfigBuilder(TableType.OFFLINE).setTableName(RAW_TABLE_NAME).setNumReplicas(NUM_REPLICAS)
-            .setSegmentAssignmentConfigMap(Map.of(InstancePartitionsType.OFFLINE.toString(),
+            .setSegmentAssignmentConfigMap(Collections.singletonMap(InstancePartitionsType.OFFLINE.toString(),
                 new SegmentAssignmentConfig(AssignmentStrategy.ROUND_ROBIN_SEGMENT_ASSIGNMENT_STRATEGY))).build();
     _segmentAssignment = SegmentAssignmentFactory.getSegmentAssignment(null, tableConfig, null);
 
@@ -73,7 +74,7 @@ public class RoundRobinSegmentAssignmentStrategyTest {
     // }
     InstancePartitions instancePartitions = new InstancePartitions(INSTANCE_PARTITIONS_NAME);
     instancePartitions.setInstances(0, 0, INSTANCES);
-    _instancePartitionsMap = Map.of(InstancePartitionsType.OFFLINE, instancePartitions);
+    _instancePartitionsMap = Collections.singletonMap(InstancePartitionsType.OFFLINE, instancePartitions);
   }
 
   @Test
@@ -127,7 +128,7 @@ public class RoundRobinSegmentAssignmentStrategyTest {
     InstancePartitions newInstancePartitions = new InstancePartitions(INSTANCE_PARTITIONS_NAME);
     newInstancePartitions.setInstances(0, 0, newInstances);
     Map<InstancePartitionsType, InstancePartitions> newInstancePartitionsMap =
-        Map.of(InstancePartitionsType.OFFLINE, newInstancePartitions);
+        Collections.singletonMap(InstancePartitionsType.OFFLINE, newInstancePartitions);
 
     // Counter after the first assignment is prevInstanceId. Next compute advances by NUM_REPLICAS modulo the new size.
     int expectedStartIdx = (prevInstanceId + NUM_REPLICAS) % newNumInstances;

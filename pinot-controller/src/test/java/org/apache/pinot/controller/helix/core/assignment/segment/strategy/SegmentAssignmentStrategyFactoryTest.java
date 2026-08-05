@@ -35,7 +35,9 @@ import org.testng.Assert;
 import org.testng.annotations.Test;
 
 
-/// Tests the [SegmentAssignmentStrategyFactory#getSegmentAssignmentStrategy] method
+/**
+ * Tests the {@link SegmentAssignmentStrategyFactory#getSegmentAssignmentStrategy} method
+ */
 public class SegmentAssignmentStrategyFactoryTest {
 
   private static final int NUM_REPLICAS = 3;

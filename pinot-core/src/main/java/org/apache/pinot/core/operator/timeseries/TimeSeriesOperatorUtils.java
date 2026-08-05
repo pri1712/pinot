@@ -19,6 +19,7 @@
 package org.apache.pinot.core.operator.timeseries;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -72,7 +73,7 @@ public class TimeSeriesOperatorUtils {
     BaseTimeSeriesBuilder seriesBuilder = (BaseTimeSeriesBuilder) aggregationResultsBlock.getResults().get(0);
     long seriesHash = TimeSeries.hash(new Object[0]);
     List<TimeSeries> timeSeriesList = new ArrayList<>(1);
-    timeSeriesList.add(seriesBuilder.buildWithTagOverrides(List.of(), new Object[]{}));
+    timeSeriesList.add(seriesBuilder.buildWithTagOverrides(Collections.emptyList(), new Object[]{}));
     Map<Long, List<TimeSeries>> timeSeriesMap = new HashMap<>();
     timeSeriesMap.put(seriesHash, timeSeriesList);
     return new TimeSeriesBlock(timeBuckets, timeSeriesMap, responseMetadata);

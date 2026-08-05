@@ -37,8 +37,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 
-/// The `BaseExponentialBackoffRetryFailureDetector` is a base failure detector implementation that retries the
-/// unhealthy servers with exponential increasing delays.
+/**
+ * The {@code BaseExponentialBackoffRetryFailureDetector} is a base failure detector implementation that retries the
+ * unhealthy servers with exponential increasing delays.
+ */
 @ThreadSafe
 public abstract class BaseExponentialBackoffRetryFailureDetector implements FailureDetector {
   private static final Logger LOGGER = LoggerFactory.getLogger(BaseExponentialBackoffRetryFailureDetector.class);
@@ -177,7 +179,9 @@ public abstract class BaseExponentialBackoffRetryFailureDetector implements Fail
     }
   }
 
-  /// Encapsulates the retry related information.
+  /**
+   * Encapsulates the retry related information.
+   */
   protected class RetryInfo implements Delayed {
     final String _instanceId;
     final String _hostName;

@@ -34,7 +34,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 
-/// A [PartitionGroupConsumer] implementation for the Pulsar stream
+/**
+ * A {@link PartitionGroupConsumer} implementation for the Pulsar stream
+ */
 public class PulsarPartitionLevelConsumer extends PulsarPartitionLevelConnectionHandler
     implements PartitionGroupConsumer {
   private static final Logger LOGGER = LoggerFactory.getLogger(PulsarPartitionLevelConsumer.class);

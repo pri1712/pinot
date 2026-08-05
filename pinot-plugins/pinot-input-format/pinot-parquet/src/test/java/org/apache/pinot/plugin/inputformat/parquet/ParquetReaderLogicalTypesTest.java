@@ -40,7 +40,9 @@ import org.testng.annotations.Test;
 import static org.testng.Assert.assertEquals;
 
 
-/// TODO: add test for other logical types
+/**
+ * TODO: add test for other logical types
+ */
 public class ParquetReaderLogicalTypesTest {
 
   @Test
@@ -92,7 +94,9 @@ public class ParquetReaderLogicalTypesTest {
     }
   }
 
-  /// Write the given row object to a random parquet file and return the path of the file
+  /**
+   * Write the given row object to a random parquet file and return the path of the file
+   */
   private String writeToFile(String schemaStr, Map<String, Object> rowObject)
       throws IOException {
     Path outputPath = new Path(FileUtils.getTempDirectory().toString(), "example.parquet");

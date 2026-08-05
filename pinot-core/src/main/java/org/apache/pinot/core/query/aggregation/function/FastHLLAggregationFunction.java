@@ -34,7 +34,9 @@ import org.apache.pinot.core.query.aggregation.groupby.ObjectGroupByResultHolder
 import org.apache.pinot.segment.spi.AggregationFunctionType;
 
 
-/// Use [DistinctCountHLLAggregationFunction] on byte\[\] for serialized HyperLogLog.
+/**
+ * Use {@link DistinctCountHLLAggregationFunction} on byte[] for serialized HyperLogLog.
+ */
 @Deprecated
 public class FastHLLAggregationFunction extends BaseSingleInputAggregationFunction<HyperLogLog, Long> {
   public static final int DEFAULT_LOG2M = 8;

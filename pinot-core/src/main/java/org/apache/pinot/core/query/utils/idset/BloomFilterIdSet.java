@@ -29,8 +29,10 @@ import java.nio.ByteBuffer;
 import org.apache.pinot.spi.data.FieldSpec.DataType;
 
 
-/// The `BloomFilterIdSet` is an IdSet backed by the [BloomFilter], and can be used to store all types of
-/// ids.
+/**
+ * The {@code BloomFilterIdSet} is an IdSet backed by the {@link BloomFilter}, and can be used to store all types of
+ * ids.
+ */
 @SuppressWarnings({"rawtypes", "unchecked", "UnstableApiUsage"})
 public class BloomFilterIdSet implements IdSet {
 
@@ -174,9 +176,10 @@ public class BloomFilterIdSet implements IdSet {
     return byteArrayOutputStream.toByteArray();
   }
 
-  /// Deserializes the BloomFilterIdSet from a ByteBuffer.
-  ///
-  /// NOTE: The ByteBuffer does not include the IdSet.Type byte.
+  /**
+   * Deserializes the BloomFilterIdSet from a ByteBuffer.
+   * <p>NOTE: The ByteBuffer does not include the IdSet.Type byte.
+   */
   static BloomFilterIdSet fromByteBuffer(ByteBuffer byteBuffer)
       throws IOException {
     Preconditions.checkArgument(byteBuffer.hasArray(),

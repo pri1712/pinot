@@ -19,6 +19,7 @@
 package org.apache.pinot.core.operator.query;
 
 import com.google.common.base.CaseFormat;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.apache.pinot.common.request.context.ExpressionContext;
@@ -32,10 +33,11 @@ import org.apache.pinot.core.query.distinct.DistinctExecutor;
 import org.apache.pinot.core.query.distinct.DistinctExecutorFactory;
 import org.apache.pinot.core.query.request.context.QueryContext;
 import org.apache.pinot.segment.spi.IndexSegment;
-import org.apache.pinot.spi.query.QueryScanCostContext;
 
 
-/// Operator for distinct queries on a single segment.
+/**
+ * Operator for distinct queries on a single segment.
+ */
 public class DistinctOperator extends BaseOperator<DistinctResultsBlock> {
   private static final String EXPLAIN_NAME = "DISTINCT";
 
@@ -58,12 +60,6 @@ public class DistinctOperator extends BaseOperator<DistinctResultsBlock> {
     ValueBlock valueBlock;
     while ((valueBlock = _projectOperator.nextBlock()) != null) {
       _numDocsScanned += valueBlock.getNumDocs();
-      QueryScanCostContext scanCost = getScanCostContext();
-      if (scanCost != null) {
-        scanCost.addDocsScanned(valueBlock.getNumDocs());
-        scanCost.addEntriesScannedPostFilter(
-            (long) valueBlock.getNumDocs() * _projectOperator.getNumColumnsProjected());
-      }
       if (executor.process(valueBlock)) {
         break;
       }
@@ -75,7 +71,7 @@ public class DistinctOperator extends BaseOperator<DistinctResultsBlock> {
 
   @Override
   public List<BaseProjectOperator<?>> getChildOperators() {
-    return List.of(_projectOperator);
+    return Collections.singletonList(_projectOperator);
   }
 
   @Override

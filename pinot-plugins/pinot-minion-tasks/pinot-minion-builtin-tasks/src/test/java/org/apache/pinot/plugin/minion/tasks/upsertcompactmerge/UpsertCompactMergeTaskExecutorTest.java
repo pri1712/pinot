@@ -22,6 +22,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -190,7 +191,9 @@ public class UpsertCompactMergeTaskExecutorTest {
     _taskExecutor.getMaxZKCreationTimeFromConfig(configs);
   }
 
-  /// Tests partition ID validation with null partition IDs.
+  /**
+   * Tests partition ID validation with null partition IDs.
+   */
   @Test(expectedExceptions = IllegalStateException.class,
       expectedExceptionsMessageRegExp = ".*Partition id not found.*")
   public void testGetCommonPartitionIDForSegmentsWithNullPartitionId() {
@@ -202,7 +205,9 @@ public class UpsertCompactMergeTaskExecutorTest {
     _taskExecutor.getCommonPartitionIDForSegments(segmentMetadataList);
   }
 
-  /// Tests CRC validation with null CRC values.
+  /**
+   * Tests CRC validation with null CRC values.
+   */
   @Test(expectedExceptions = IllegalStateException.class)
   public void testValidateCRCForInputSegmentsWithNullCrc() {
     SegmentMetadataImpl segment1 = Mockito.mock(SegmentMetadataImpl.class);
@@ -215,14 +220,18 @@ public class UpsertCompactMergeTaskExecutorTest {
     _taskExecutor.validateCRCForInputSegments(segmentMetadataList, expectedCRCList);
   }
 
-  /// Tests handling of empty segment lists.
+  /**
+   * Tests handling of empty segment lists.
+   */
   @Test(expectedExceptions = NoSuchElementException.class)
   public void testGetCommonPartitionIDForEmptySegmentList() {
-    List<SegmentMetadataImpl> segmentMetadataList = List.of();
+    List<SegmentMetadataImpl> segmentMetadataList = Collections.emptyList();
     _taskExecutor.getCommonPartitionIDForSegments(segmentMetadataList);
   }
 
-  /// Tests validation with mismatched list sizes.
+  /**
+   * Tests validation with mismatched list sizes.
+   */
   @Test(expectedExceptions = IndexOutOfBoundsException.class)
   public void testValidateCRCWithMismatchedListSizes() {
     SegmentMetadataImpl segment1 = Mockito.mock(SegmentMetadataImpl.class);
@@ -237,7 +246,9 @@ public class UpsertCompactMergeTaskExecutorTest {
     _taskExecutor.validateCRCForInputSegments(segmentMetadataList, expectedCRCList);
   }
 
-  /// Tests handling of segments with special characters in names.
+  /**
+   * Tests handling of segments with special characters in names.
+   */
   @Test
   public void testGetCommonPartitionIDWithSpecialCharacters() {
     SegmentMetadataImpl segment1 = Mockito.mock(SegmentMetadataImpl.class);
@@ -253,7 +264,9 @@ public class UpsertCompactMergeTaskExecutorTest {
     Assert.assertEquals(partitionID, 5);
   }
 
-  /// Tests max creation time with boundary values.
+  /**
+   * Tests max creation time with boundary values.
+   */
   @Test
   public void testGetMaxZKCreationTimeFromConfigBoundaryValues() {
     Map<String, String> configs = new HashMap<>();
@@ -270,7 +283,9 @@ public class UpsertCompactMergeTaskExecutorTest {
     Assert.assertEquals(result, 1L);
   }
 
-  /// Tests CRC validation with whitespace and empty strings.
+  /**
+   * Tests CRC validation with whitespace and empty strings.
+   */
   @Test(expectedExceptions = IllegalStateException.class)
   public void testValidateCRCWithEmptyString() {
     SegmentMetadataImpl segment1 = Mockito.mock(SegmentMetadataImpl.class);
@@ -285,7 +300,9 @@ public class UpsertCompactMergeTaskExecutorTest {
 
   // Helper methods for testing
 
-  /// Creates simple test segments (for backward compatibility with existing tests).
+  /**
+   * Creates simple test segments (for backward compatibility with existing tests).
+   */
   private List<File> createTestSegments()
       throws IOException {
     List<File> segmentDirs = new ArrayList<>();

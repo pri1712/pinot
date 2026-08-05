@@ -21,13 +21,16 @@ package org.apache.pinot.core.operator.transform.function;
 import org.apache.pinot.common.function.TransformFunctionType;
 
 
-/// The `AndOperatorTransformFunction` extends `LogicalOperatorTransformFunction` to
-/// implement the logical operator 'AND'.
-///
-/// The results are in boolean format and stored as an integer array with 1 represents true and 0 represents false.
-///
-/// SQL Syntax:
-///    exprA AND exprB
+/**
+ * The <code>AndOperatorTransformFunction</code> extends <code>LogicalOperatorTransformFunction</code> to
+ * implement the logical operator 'AND'.
+ *
+ * The results are in boolean format and stored as an integer array with 1 represents true and 0 represents false.
+ *
+ * SQL Syntax:
+ *    exprA AND exprB
+ *
+ */
 public class AndOperatorTransformFunction extends LogicalOperatorTransformFunction {
 
   @Override

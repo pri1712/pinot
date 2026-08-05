@@ -36,7 +36,9 @@ import static org.mockito.Mockito.when;
 import static org.testng.Assert.*;
 
 
-/// Tests for [MinionTaskMetadataUtils]
+/**
+ * Tests for {@link MinionTaskMetadataUtils}
+ */
 public class MinionTaskMetadataUtilsTest {
   private static final String TABLE_NAME_WITH_TYPE = "TestTable_OFFLINE";
   private static final String TASK_TYPE = "TestTaskType";

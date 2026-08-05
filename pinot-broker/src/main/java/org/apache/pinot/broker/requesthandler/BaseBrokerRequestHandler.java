@@ -36,14 +36,6 @@ import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
-import org.apache.calcite.sql.SqlBasicCall;
-import org.apache.calcite.sql.SqlIdentifier;
-import org.apache.calcite.sql.SqlLiteral;
-import org.apache.calcite.sql.SqlNode;
-import org.apache.calcite.sql.SqlOrderBy;
-import org.apache.calcite.sql.SqlSelect;
-import org.apache.calcite.sql.fun.SqlStdOperatorTable;
-import org.apache.calcite.sql.parser.SqlParserPos;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hc.client5.http.io.HttpClientConnectionManager;
 import org.apache.pinot.broker.api.AccessControl;
@@ -66,22 +58,17 @@ import org.apache.pinot.spi.accounting.ThreadAccountant;
 import org.apache.pinot.spi.auth.AuthorizationResult;
 import org.apache.pinot.spi.auth.TableAuthorizationResult;
 import org.apache.pinot.spi.auth.broker.RequesterIdentity;
-import org.apache.pinot.spi.config.table.SegmentsValidationAndRetentionConfig;
-import org.apache.pinot.spi.config.table.TableConfig;
-import org.apache.pinot.spi.data.DateTimeFieldSpec;
-import org.apache.pinot.spi.data.DateTimeFormatSpec;
-import org.apache.pinot.spi.data.Schema;
 import org.apache.pinot.spi.env.PinotConfiguration;
 import org.apache.pinot.spi.eventlistener.query.BrokerQueryEventListener;
 import org.apache.pinot.spi.eventlistener.query.BrokerQueryEventListenerFactory;
 import org.apache.pinot.spi.exception.BadQueryRequestException;
 import org.apache.pinot.spi.exception.QueryErrorCode;
+import org.apache.pinot.spi.exception.QueryException;
 import org.apache.pinot.spi.trace.RequestContext;
 import org.apache.pinot.spi.utils.CommonConstants.Broker;
 import org.apache.pinot.spi.utils.CommonConstants.Broker.Request.QueryOptionKey;
 import org.apache.pinot.spi.utils.builder.TableNameBuilder;
 import org.apache.pinot.sql.parsers.SqlNodeAndOptions;
-import org.apache.pinot.sql.parsers.parser.TableNameExtractor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -113,9 +100,13 @@ public abstract class BaseBrokerRequestHandler implements BrokerRequestHandler {
   @Nullable
   protected final MultiClusterRoutingContext _multiClusterRoutingContext;
 
-  /// Maps broker-generated query id to the query string.
+  /**
+   * Maps broker-generated query id to the query string.
+   */
   protected final Map<Long, String> _queriesById;
-  /// Maps broker-generated query id to client-provided query id.
+  /**
+   * Maps broker-generated query id to client-provided query id.
+   */
   protected final Map<Long, String> _clientQueryIds;
 
   public BaseBrokerRequestHandler(PinotConfiguration config, String brokerId,
@@ -198,8 +189,6 @@ public abstract class BaseBrokerRequestHandler implements BrokerRequestHandler {
       }
     }
 
-    //check if we need to add extra time based pruning.
-    applySkipOutOfRetentionValuesIfNeeded(sqlNodeAndOptions);
     // check app qps before doing anything
     String application = sqlNodeAndOptions.getOptions().get(QueryOptionKey.APPLICATION_NAME);
     if (application != null && !_queryQuotaManager.acquireApplication(application)) {
@@ -235,11 +224,13 @@ public abstract class BaseBrokerRequestHandler implements BrokerRequestHandler {
     return brokerResponse;
   }
 
-  /// Called after every successfully executed query with the fully-populated [RequestContext]
-  /// and [BrokerResponse]. The default implementation fires the configured
-  /// [org.apache.pinot.spi.eventlistener.query.BrokerQueryEventListener]. Subclasses may
-  /// override to intercept the complete response (e.g. for async query-log pipelines) while still
-  /// calling `super` to preserve the SPI listener behaviour.
+  /**
+   * Called after every successfully executed query with the fully-populated {@link RequestContext}
+   * and {@link BrokerResponse}. The default implementation fires the configured
+   * {@link org.apache.pinot.spi.eventlistener.query.BrokerQueryEventListener}. Subclasses may
+   * override to intercept the complete response (e.g. for async query-log pipelines) while still
+   * calling {@code super} to preserve the SPI listener behaviour.
+   */
   protected void onQueryCompletion(RequestContext requestContext, BrokerResponse brokerResponse) {
     _brokerQueryEventListener.onQueryCompletion(requestContext);
   }
@@ -249,7 +240,9 @@ public abstract class BaseBrokerRequestHandler implements BrokerRequestHandler {
       @Nullable HttpHeaders httpHeaders, AccessControl accessControl)
       throws Exception;
 
-  /// Validates whether the requester has access to all the tables.
+  /**
+   * Validates whether the requester has access to all the tables.
+   */
   protected TableAuthorizationResult hasTableAccess(RequesterIdentity requesterIdentity, Set<String> tableNames,
       RequestContext requestContext, HttpHeaders httpHeaders) {
     final long startTimeNs = System.nanoTime();
@@ -280,14 +273,15 @@ public abstract class BaseBrokerRequestHandler implements BrokerRequestHandler {
     return tableAuthorizationResult;
   }
 
-  /// Validates that tables can be queried with enableMultiClusterRouting if and only if they are logical tables.
-  /// Physical tables are cluster-specific and cannot be federated across clusters.
-  /// Multi-cluster routing is only supported for logical tables.
-  ///
-  /// @param tableNames Set of table names to validate
-  /// @param queryOptions Map of query options
-  /// @throws org.apache.pinot.spi.exception.QueryException if any physical table is queried with
-  ///         enableMultiClusterRouting=true
+  /**
+   * Validates that tables can be queried with enableMultiClusterRouting if and only if they are logical tables.
+   * Physical tables are cluster-specific and cannot be federated across clusters.
+   * Multi-cluster routing is only supported for logical tables.
+   *
+   * @param tableNames Set of table names to validate
+   * @param queryOptions Map of query options
+   * @throws QueryException if any physical table is queried with enableMultiClusterRouting=true
+   */
   protected void validatePhysicalTablesWithMultiClusterRouting(Set<String> tableNames,
       Map<String, String> queryOptions) {
     Preconditions.checkNotNull(tableNames, "Table names cannot be null when validating multi-cluster routing");
@@ -307,7 +301,9 @@ public abstract class BaseBrokerRequestHandler implements BrokerRequestHandler {
     }
   }
 
-  /// Returns true if the QPS quota of query tables, database or application has been exceeded.
+  /**
+   * Returns true if the QPS quota of query tables, database or application has been exceeded.
+   */
   protected boolean hasExceededQPSQuota(@Nullable String database, Set<String> tableNames,
       RequestContext requestContext) {
     if (database != null && !_queryQuotaManager.acquireDatabase(database)) {
@@ -334,8 +330,10 @@ public abstract class BaseBrokerRequestHandler implements BrokerRequestHandler {
     }
   }
 
-  /// Attempts to cancel an ongoing query identified by its broker-generated id.
-  /// @return true if the query was successfully cancelled, false otherwise.
+  /**
+   * Attempts to cancel an ongoing query identified by its broker-generated id.
+   * @return true if the query was successfully cancelled, false otherwise.
+   */
   protected abstract boolean handleCancel(long queryId, int timeoutMs, Executor executor,
       HttpClientConnectionManager connMgr, Map<String, Integer> serverResponses)
       throws Exception;
@@ -353,7 +351,6 @@ public abstract class BaseBrokerRequestHandler implements BrokerRequestHandler {
     statistics.setNumExceptions(numExceptions);
     statistics.setGroupsTrimmed(response.isGroupsTrimmed());
     statistics.setNumGroupsLimitReached(response.isNumGroupsLimitReached());
-    statistics.setMseLiteLeafStageLimitReached(response.isMseLiteLeafStageLimitReached());
     statistics.setProcessingTimeMillis(response.getTimeUsedMs());
     statistics.setNumDocsScanned(response.getNumDocsScanned());
     statistics.setTotalDocs(response.getTotalDocs());
@@ -453,10 +450,12 @@ public abstract class BaseBrokerRequestHandler implements BrokerRequestHandler {
     return sqlNodeAndOptions.getOptions().get(QueryOptionKey.CLIENT_QUERY_ID);
   }
 
-  /// Called when a query starts
-  /// TODO: This method was created to keep track of running queries for cancellation, but it is useful for other uses.
-  ///   But right now the semantics are not clear. For example, while MSE calls this method once, SSE calls it once per
-  ///   query AND subquery, which means this method is called multiple times for the same query.
+  /**
+   * Called when a query starts
+   * TODO: This method was created to keep track of running queries for cancellation, but it is useful for other uses.
+   *   But right now the semantics are not clear. For example, while MSE calls this method once, SSE calls it once per
+   *   query AND subquery, which means this method is called multiple times for the same query.
+   */
   protected void onQueryStart(long requestId, @Nullable String clientRequestId, String query, Object... extras) {
     if (isQueryCancellationEnabled()) {
       _queriesById.put(requestId, query);
@@ -479,105 +478,5 @@ public abstract class BaseBrokerRequestHandler implements BrokerRequestHandler {
 
   protected boolean isQueryCancellationEnabled() {
     return _enableQueryCancellation;
-  }
-
-  /**
-   * Appends a where clause to the query to filter out of retention data if SKIP_OUT_OF_RETENTION_VALUES is
-   * set to True in query Options.
-   * @param sqlNodeAndOptions
-   */
-  private void applySkipOutOfRetentionValuesIfNeeded(SqlNodeAndOptions sqlNodeAndOptions) {
-    Map<String, String> options = sqlNodeAndOptions.getOptions();
-    if (!Boolean.parseBoolean(options.get(QueryOptionKey.SKIP_OUT_OF_RETENTION_VALUES))) {
-      return;
-    }
-    SegmentsValidationAndRetentionConfig validationAndRetentionConfig = new SegmentsValidationAndRetentionConfig();
-    SqlNode sqlNode = sqlNodeAndOptions.getSqlNode();
-    if (sqlNode == null) {
-      return;
-    }
-
-    // Resolve the inner SqlSelect, unwrapping SqlOrderBy if needed.
-    // SqlWith (CTEs) and other statement types are not supported.
-    SqlSelect sqlSelect;
-    if (sqlNode instanceof SqlSelect) {
-      sqlSelect = (SqlSelect) sqlNode;
-    } else if (sqlNode instanceof SqlOrderBy) {
-      SqlNode query = ((SqlOrderBy) sqlNode).query;
-      if (!(query instanceof SqlSelect)) {
-        return;
-      }
-      sqlSelect = (SqlSelect) query;
-    } else {
-      return;
-    }
-
-    TableNameExtractor tableNameExtractor = new TableNameExtractor();
-    tableNameExtractor.extractTableNames(sqlSelect);
-    Set<String> tableNames = tableNameExtractor.getTableNames();
-    if (tableNames.isEmpty()) {
-      return;
-    }
-
-    // Multi-table queries (JOINs) are not supported: it is ambiguous which table's retention
-    // applies, and injecting a filter with the wrong table's time column would produce
-    // incorrect results. Callers must issue separate single-table queries.
-    if (tableNames.size() > 1) {
-      LOGGER.debug("skipOutOfRetentionValues is not supported for multi-table queries; skipping filter injection");
-      return;
-    }
-
-    String rawTableName = TableNameBuilder.extractRawTableName(tableNames.iterator().next());
-
-    TableConfig tableConfig = _tableCache.getTableConfig(rawTableName);
-    Schema schema = _tableCache.getSchema(rawTableName);
-    if (tableConfig == null || schema == null || tableConfig.getValidationConfig() == null) {
-      return;
-    }
-
-    //get timestamp column and retention details
-    String timeColumnName = tableConfig.getValidationConfig().getTimeColumnName();
-    try {
-      long retentionTimeMs = validationAndRetentionConfig.getRetentionTimeMillis();
-      long cutoffMs = System.currentTimeMillis() - retentionTimeMs;
-      DateTimeFieldSpec timeFieldSpec = schema.getSpecForTimeColumn(timeColumnName);
-      if (timeFieldSpec == null) {
-        return;
-      }
-
-      DateTimeFormatSpec formatSpec = new DateTimeFormatSpec(timeFieldSpec.getFormat());
-      String formattedCutoffTime = formatSpec.fromMillisToFormat(cutoffMs);
-
-      //add where clause to the AST
-      SqlIdentifier timeColNode = new SqlIdentifier(timeColumnName, SqlParserPos.ZERO);
-      SqlLiteral cutoffNode;
-      if (timeFieldSpec.getDataType().isNumeric()) {
-        cutoffNode = SqlLiteral.createExactNumeric(formattedCutoffTime, SqlParserPos.ZERO);
-      } else {
-        cutoffNode = SqlLiteral.createCharString(formattedCutoffTime, SqlParserPos.ZERO);
-      }
-
-      SqlBasicCall rangeFilter = new SqlBasicCall(
-          SqlStdOperatorTable.GREATER_THAN_OR_EQUAL, List.of(timeColNode, cutoffNode),
-          SqlParserPos.ZERO);
-
-      SqlNode existingWhere = sqlSelect.getWhere();
-      if (existingWhere != null) {
-        //add an AND if the where exists
-        SqlBasicCall andExpr = new SqlBasicCall(
-            SqlStdOperatorTable.AND,
-            List.of(existingWhere, rangeFilter),
-            SqlParserPos.ZERO
-        );
-        sqlSelect.setWhere(andExpr);
-      } else {
-        sqlSelect.setWhere(rangeFilter);
-      }
-      LOGGER.debug("Injected Calcite AST filter for skipOutOfRetentionValues on table: {}. Cutoff: {}", rawTableName,
-          formattedCutoffTime);
-      LOGGER.debug("final sql statement: {}", sqlSelect);
-    } catch (RuntimeException e) {
-      throw new IllegalStateException("Failed to apply skipOutOfRetentionValues on table: " + rawTableName, e);
-    }
   }
 }

@@ -94,18 +94,16 @@ public class PlanNodeSerializer {
 
     @Override
     public Void visitAggregate(AggregateNode node, Plan.PlanNode.Builder builder) {
-      Plan.AggregateNode.Builder aggregateNodeBuilder = Plan.AggregateNode.newBuilder()
+      Plan.AggregateNode aggregateNode = Plan.AggregateNode.newBuilder()
           .addAllAggCalls(convertFunctionCalls(node.getAggCalls()))
           .addAllFilterArgs(node.getFilterArgs())
           .addAllGroupKeys(node.getGroupKeys())
           .setAggType(convertAggType(node.getAggType()))
           .setLeafReturnFinalResult(node.isLeafReturnFinalResult())
           .addAllCollations(convertCollations(node.getCollations()))
-          .setLimit(node.getLimit());
-      for (List<Integer> groupingSet : node.getGroupingSets()) {
-        aggregateNodeBuilder.addGroupingSets(Plan.GroupingSet.newBuilder().addAllGroupKeyIndexes(groupingSet).build());
-      }
-      builder.setAggregateNode(aggregateNodeBuilder.build());
+          .setLimit(node.getLimit())
+          .build();
+      builder.setAggregateNode(aggregateNode);
       return null;
     }
 
@@ -134,7 +132,6 @@ public class PlanNodeSerializer {
       return null;
     }
 
-    @Deprecated(forRemoval = true, since = "1.6.0")
     @Override
     public Void visitEnrichedJoin(EnrichedJoinNode node, Plan.PlanNode.Builder builder) {
       Plan.EnrichedJoinNode.Builder enrichedJoinNode = Plan.EnrichedJoinNode.newBuilder()
@@ -264,7 +261,6 @@ public class PlanNodeSerializer {
           .setWindowFrameType(convertWindowFrameType(node.getWindowFrameType()))
           .setLowerBound(node.getLowerBound())
           .setUpperBound(node.getUpperBound())
-          .setExclude(convertWindowExclusion(node.getExclude()))
           .addAllConstants(convertLiterals(node.getConstants()))
           .build();
       builder.setWindowNode(windowNode);
@@ -291,9 +287,7 @@ public class PlanNodeSerializer {
           .addAllArrayExprs(convertExpressions(node.getArrayExprs()))
           .setWithOrdinality(context.isWithOrdinality())
           .addAllElementIndexes(context.getElementIndexes())
-          .setOrdinalityIndex(context.getOrdinalityIndex())
-          .addAllPassthroughInputIndexes(context.getPassthroughInputIndexes())
-          .setPrunedPassthrough(context.isPrunedPassthrough());
+          .setOrdinalityIndex(context.getOrdinalityIndex());
       builder.setUnnestNode(unnestNodeBuilder.build());
       return null;
     }
@@ -481,21 +475,6 @@ public class PlanNodeSerializer {
           return Plan.WindowFrameType.RANGE;
         default:
           throw new IllegalStateException("Unsupported WindowFrameType: " + windowFrameType);
-      }
-    }
-
-    private static Plan.WindowExclusion convertWindowExclusion(WindowNode.WindowExclusion exclude) {
-      switch (exclude) {
-        case NO_OTHERS:
-          return Plan.WindowExclusion.EXCLUDE_NO_OTHERS;
-        case CURRENT_ROW:
-          return Plan.WindowExclusion.EXCLUDE_CURRENT_ROW;
-        case GROUP:
-          return Plan.WindowExclusion.EXCLUDE_GROUP;
-        case TIES:
-          return Plan.WindowExclusion.EXCLUDE_TIES;
-        default:
-          throw new IllegalStateException("Unsupported WindowExclusion: " + exclude);
       }
     }
   }

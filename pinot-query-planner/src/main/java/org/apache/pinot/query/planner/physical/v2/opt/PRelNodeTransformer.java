@@ -21,7 +21,9 @@ package org.apache.pinot.query.planner.physical.v2.opt;
 import org.apache.pinot.query.planner.physical.v2.PRelNode;
 
 
-/// Transforms the tree rooted at the given PRelNode.
+/**
+ * Transforms the tree rooted at the given PRelNode.
+ */
 public interface PRelNodeTransformer {
   PRelNode execute(PRelNode currentNode);
 }

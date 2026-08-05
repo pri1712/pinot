@@ -30,7 +30,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 
-/// A class to track if the server is queries disabled.
+/**
+ * A class to track if the server is queries disabled.
+ */
 public class ServerQueriesDisabledTracker {
   private static final Logger LOGGER = LoggerFactory.getLogger(ServerQueriesDisabledTracker.class);
   private static final long FETCH_INTERVAL_MINS = 10L;

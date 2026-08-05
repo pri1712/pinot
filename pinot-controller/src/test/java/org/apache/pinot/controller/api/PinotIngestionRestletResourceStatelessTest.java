@@ -26,7 +26,6 @@ import java.util.List;
 import java.util.Map;
 import org.apache.commons.io.FileUtils;
 import org.apache.pinot.client.admin.PinotAdminClient;
-import org.apache.pinot.controller.ControllerConf;
 import org.apache.pinot.controller.helix.ControllerTest;
 import org.apache.pinot.spi.config.table.TableConfig;
 import org.apache.pinot.spi.config.table.TableType;
@@ -43,7 +42,10 @@ import static org.testng.Assert.assertFalse;
 import static org.testng.Assert.assertTrue;
 
 
-/// Tests for the ingestion restlet
+/**
+ * Tests for the ingestion restlet
+ *
+ */
 @Test(groups = "stateless")
 public class PinotIngestionRestletResourceStatelessTest extends ControllerTest {
   private static final String TABLE_NAME = "testTable";
@@ -54,9 +56,7 @@ public class PinotIngestionRestletResourceStatelessTest extends ControllerTest {
   public void setUp()
       throws Exception {
     startZk();
-    Map<String, Object> controllerConfig = getDefaultControllerConfiguration();
-    controllerConfig.put(ControllerConf.INGEST_FROM_URI_ALLOW_LOCAL_FILE_SYSTEM, true);
-    startController(controllerConfig);
+    startController();
     addFakeBrokerInstancesToAutoJoinHelixCluster(1, true);
     addFakeServerInstancesToAutoJoinHelixCluster(1, true);
 

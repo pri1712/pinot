@@ -30,7 +30,9 @@ import org.apache.pinot.spi.tasks.MinionTaskObserverStorageManager;
 import static org.testng.Assert.assertTrue;
 
 
-/// Event observer factory for [SimpleMinionClusterIntegrationTest].
+/**
+ * Event observer factory for {@link SimpleMinionClusterIntegrationTest}.
+ */
 @EventObserverFactory
 public class TestEventObserverFactory implements MinionEventObserverFactory {
 

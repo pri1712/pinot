@@ -18,6 +18,7 @@
  */
 package org.apache.pinot.tools;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -29,7 +30,7 @@ import org.apache.pinot.spi.utils.CommonConstants;
 public class JfrQuickstart extends Quickstart {
   @Override
   public List<String> types() {
-    return List.of("JFR");
+    return Collections.singletonList("JFR");
   }
 
   @Override

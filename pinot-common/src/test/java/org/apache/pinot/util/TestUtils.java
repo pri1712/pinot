@@ -33,7 +33,10 @@ import org.testng.Assert;
 import org.testng.SkipException;
 
 
-/// Various utilities for unit tests.
+/**
+ * Various utilities for unit tests.
+ *
+ */
 public class TestUtils {
   private TestUtils() {
   }
@@ -59,10 +62,12 @@ public class TestUtils {
     }
   }
 
-  /// Ensure the given directories exist and are empty.
-  ///
-  /// @param dirs Directories to be cleared
-  /// @throws IOException
+  /**
+   * Ensure the given directories exist and are empty.
+   *
+   * @param dirs Directories to be cleared
+   * @throws IOException
+   */
   public static void ensureDirectoriesExistAndEmpty(File... dirs)
       throws IOException {
     for (File dir : dirs) {
@@ -71,12 +76,14 @@ public class TestUtils {
     }
   }
 
-  /// Wait for a condition to be met.
-  ///
-  /// @param condition Condition to be met
-  /// @param checkIntervalMs Check interval in milliseconds
-  /// @param timeoutMs Timeout in milliseconds
-  /// @param errorMessage Error message if condition is not met before timed out
+  /**
+   * Wait for a condition to be met.
+   *
+   * @param condition Condition to be met
+   * @param checkIntervalMs Check interval in milliseconds
+   * @param timeoutMs Timeout in milliseconds
+   * @param errorMessage Error message if condition is not met before timed out
+   */
   public static void waitForCondition(Function<Void, Boolean> condition, long checkIntervalMs, long timeoutMs,
       @Nullable String errorMessage) {
     waitForCondition(condition, checkIntervalMs, timeoutMs, errorMessage, true);
@@ -151,24 +158,28 @@ public class TestUtils {
     }
   }
 
-  /// Wait for a result to be returned
-  ///
-  /// @param supplier result value supplier
-  /// @param timeoutMs timeout
-  /// @return result value (non-throwable)
-  /// @throws InterruptedException if `Thread.sleep()` is interrupted
+  /**
+   * Wait for a result to be returned
+   *
+   * @param supplier result value supplier
+   * @param timeoutMs timeout
+   * @return result value (non-throwable)
+   * @throws InterruptedException if {@code Thread.sleep()} is interrupted
+   */
   public static <T> T waitForResult(SupplierWithException<T> supplier, long timeoutMs)
       throws InterruptedException {
     return waitForResult(supplier, timeoutMs, null);
   }
 
-  /// Like [#waitForResult(SupplierWithException, long)], but optionally prints in stderr the first error found
-  /// every given log period.
-  /// @param supplier result value supplier
-  /// @param timeoutMs timeout
-  /// @param logPeriod how often logs will be printed. The longer the duration, the fewer the logs.
-  /// @return result value (non-throwable)
-  /// @throws InterruptedException if `Thread.sleep()` is interrupted
+  /**
+   * Like {@link #waitForResult(SupplierWithException, long)}, but optionally prints in stderr the first error found
+   * every given log period.
+   * @param supplier result value supplier
+   * @param timeoutMs timeout
+   * @param logPeriod how often logs will be printed. The longer the duration, the fewer the logs.
+   * @return result value (non-throwable)
+   * @throws InterruptedException if {@code Thread.sleep()} is interrupted
+   */
   public static <T> T waitForResult(SupplierWithException<T> supplier, long timeoutMs, @Nullable Duration logPeriod)
       throws InterruptedException {
     long tEnd = System.currentTimeMillis() + timeoutMs;

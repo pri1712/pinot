@@ -61,7 +61,9 @@ import static org.testng.Assert.assertNull;
 import static org.testng.Assert.assertTrue;
 
 
-/// Tests for async segment refresh enabled
+/**
+ * Tests for async segment refresh enabled
+ */
 public class BaseTableDataManagerEnqueueSegmentToReplaceTest {
   private static final File TEMP_DIR =
       new File(FileUtils.getTempDirectory(), "BaseTableDataManagerEnqueueSegmentToReplaceTest");
@@ -132,7 +134,9 @@ public class BaseTableDataManagerEnqueueSegmentToReplaceTest {
     FileUtils.deleteDirectory(TEMP_DIR);
   }
 
-  /// Test successful enqueueing and execution of segment replacement
+  /**
+   * Test successful enqueueing and execution of segment replacement
+   */
   @Test
   public void testEnqueueSegmentToReplaceSuccess() throws Exception {
     // Setup mocks for successful segment replacement
@@ -180,7 +184,9 @@ public class BaseTableDataManagerEnqueueSegmentToReplaceTest {
     verify(_tableDataManager, times(1)).fetchIndexLoadingConfig();
   }
 
-  /// Test behavior when table manager is shut down
+  /**
+   * Test behavior when table manager is shut down
+   */
   @Test
   public void testEnqueueSegmentToReplaceWhenShutDown() throws Exception {
     // Shutdown the table data manager
@@ -202,7 +208,9 @@ public class BaseTableDataManagerEnqueueSegmentToReplaceTest {
     verify(_tableDataManager, never()).replaceSegmentIfCrcMismatch(any(), any(), any());
   }
 
-  /// Test exception handling during segment replacement and metric increment
+  /**
+   * Test exception handling during segment replacement and metric increment
+   */
   @Test
   public void testEnqueueSegmentToReplaceWithException() throws Exception {
     // Setup mocks to throw exception during replacement
@@ -248,7 +256,9 @@ public class BaseTableDataManagerEnqueueSegmentToReplaceTest {
     assertNull(caughtException.get());
   }
 
-  /// Test that executor is properly used for async execution
+  /**
+   * Test that executor is properly used for async execution
+   */
   @Test
   public void testExecutorUsage() throws Exception {
     ExecutorService mockExecutor = mock(ExecutorService.class);
@@ -261,7 +271,9 @@ public class BaseTableDataManagerEnqueueSegmentToReplaceTest {
     verify(mockExecutor, times(1)).submit(any(Runnable.class));
   }
 
-  /// Test with null segment refresh executor should trigger assertion error
+  /**
+   * Test with null segment refresh executor should trigger assertion error
+   */
   @Test(expectedExceptions = AssertionError.class)
   public void testEnqueueSegmentToReplaceWithAsyncSegmentRefreshDisabled() {
     // Create a table data manager without segment refresh executor
@@ -274,7 +286,9 @@ public class BaseTableDataManagerEnqueueSegmentToReplaceTest {
     tableDataManagerWithoutExecutor.enqueueSegmentToReplace(SEGMENT_NAME);
   }
 
-  /// Test multiple concurrent enqueue operations
+  /**
+   * Test multiple concurrent enqueue operations
+   */
   @Test
   public void testConcurrentEnqueueOperations() throws Exception {
     int numConcurrentOperations = 5;

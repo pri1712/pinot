@@ -88,13 +88,6 @@ public class KafkaIncreaseDecreasePartitionsIntegrationTest extends BaseRealtime
   }
 
   @Test(enabled = false)
-  @Override
-  public void testQueriesDisabled() {
-    // Routing-table-dependent test that does not apply to this partition-change test setup.
-    // Mirrors the testInstanceShutdown override above.
-  }
-
-  @Test(enabled = false)
   public void testQueriesFromQueryFile(boolean useMultiStageQueryEngine) {
     // Do nothing
   }

@@ -98,15 +98,13 @@ public class LogicalTableRouteInfo implements TableRouteInfo {
 
     Map<ServerRoutingInstance, InstanceRequest> requestMap = new HashMap<>();
 
-    ServerInstance.RoutingType routingType =
-        preferTls ? ServerInstance.RoutingType.NETTY_TLS : ServerInstance.RoutingType.NETTY;
     for (Map.Entry<ServerInstance, List<TableSegmentsInfo>> entry : offlineTableRouteInfo.entrySet()) {
-      requestMap.put(entry.getKey().toServerRoutingInstance(TableType.OFFLINE, routingType),
+      requestMap.put(entry.getKey().toServerRoutingInstance(TableType.OFFLINE, preferTls),
           getInstanceRequest(requestId, brokerId, _offlineBrokerRequest, entry.getValue()));
     }
 
     for (Map.Entry<ServerInstance, List<TableSegmentsInfo>> entry : realtimeTableRouteInfo.entrySet()) {
-      requestMap.put(entry.getKey().toServerRoutingInstance(TableType.REALTIME, routingType),
+      requestMap.put(entry.getKey().toServerRoutingInstance(TableType.REALTIME, preferTls),
           getInstanceRequest(requestId, brokerId, _realtimeBrokerRequest, entry.getValue()));
     }
 

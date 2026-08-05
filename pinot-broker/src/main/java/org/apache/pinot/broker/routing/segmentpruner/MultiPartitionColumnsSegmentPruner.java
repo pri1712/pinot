@@ -38,8 +38,10 @@ import org.apache.pinot.common.request.context.RequestContextUtils;
 import org.apache.pinot.sql.FilterKind;
 
 
-/// The `MultiPartitionColumnsSegmentPruner` prunes segments based on their partition metadata stored in ZK. The
-/// pruner supports queries with filter (or nested filter) of EQUALITY and IN predicates.
+/**
+ * The {@code MultiPartitionColumnsSegmentPruner} prunes segments based on their partition metadata stored in ZK. The
+ * pruner supports queries with filter (or nested filter) of EQUALITY and IN predicates.
+ */
 public class MultiPartitionColumnsSegmentPruner implements SegmentPruner {
   private final String _tableNameWithType;
   private final Set<String> _partitionColumns;

@@ -32,13 +32,9 @@ public class MinusScalarFunction extends BaseBinaryArithmeticScalarFunction {
 
   static {
     try {
-      FunctionInfo longMinus =
+      TYPE_FUNCTION_INFO_MAP.put(ColumnDataType.LONG,
           new FunctionInfo(MinusScalarFunction.class.getMethod("longMinus", long.class, long.class),
-              MinusScalarFunction.class, false);
-      // INT has no dedicated overload; widen it to LONG so whole-number arithmetic stays
-      // integral instead of falling back to DOUBLE.
-      TYPE_FUNCTION_INFO_MAP.put(ColumnDataType.INT, longMinus);
-      TYPE_FUNCTION_INFO_MAP.put(ColumnDataType.LONG, longMinus);
+              MinusScalarFunction.class, false));
       TYPE_FUNCTION_INFO_MAP.put(ColumnDataType.DOUBLE,
           new FunctionInfo(MinusScalarFunction.class.getMethod("doubleMinus", double.class, double.class),
               MinusScalarFunction.class, false));
@@ -51,7 +47,7 @@ public class MinusScalarFunction extends BaseBinaryArithmeticScalarFunction {
   protected FunctionInfo functionInfoForType(ColumnDataType argumentType) {
     FunctionInfo functionInfo = TYPE_FUNCTION_INFO_MAP.get(argumentType);
 
-    // Fall back to double based arithmetic by default
+    // Fall back to double based comparison by default
     return functionInfo != null ? functionInfo : TYPE_FUNCTION_INFO_MAP.get(ColumnDataType.DOUBLE);
   }
 

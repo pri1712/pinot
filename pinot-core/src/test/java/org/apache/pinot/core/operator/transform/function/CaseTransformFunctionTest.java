@@ -21,6 +21,7 @@ package org.apache.pinot.core.operator.transform.function;
 import java.math.BigDecimal;
 import java.sql.Timestamp;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Random;
 import java.util.stream.Stream;
@@ -295,7 +296,7 @@ public class CaseTransformFunctionTest extends BaseTransformFunctionTest {
     }
     // Literal upcast INT to LONG
     {
-      List<String> expressions = List.of(
+      List<String> expressions = Collections.singletonList(
           String.format("CASE WHEN %s THEN %s ELSE %d END", predicate, INT_SV_COLUMN, 10L + Integer.MAX_VALUE));
       long[] expectedValues = new long[NUM_ROWS];
       for (int i = 0; i < NUM_ROWS; i++) {
@@ -329,7 +330,7 @@ public class CaseTransformFunctionTest extends BaseTransformFunctionTest {
     }
     {
       List<String> expressions =
-          List.of(String.format("CASE WHEN %s THEN %s ELSE '1.23' END", predicate, FLOAT_SV_COLUMN));
+          Collections.singletonList(String.format("CASE WHEN %s THEN %s ELSE '1.23' END", predicate, FLOAT_SV_COLUMN));
       float[] expectedValues = new float[NUM_ROWS];
       for (int i = 0; i < NUM_ROWS; i++) {
         expectedValues[i] = predicateResults[i] ? _floatSVValues[i] : 1.23f;
@@ -433,7 +434,7 @@ public class CaseTransformFunctionTest extends BaseTransformFunctionTest {
     // Literal upcast INT/LONG/FLOAT to DOUBLE
     {
       List<String> expressions =
-          List.of(String.format("CASE WHEN %s THEN %s ELSE 1.23 END", predicate, INT_SV_COLUMN));
+          Collections.singletonList(String.format("CASE WHEN %s THEN %s ELSE 1.23 END", predicate, INT_SV_COLUMN));
       double[] expectedValues = new double[NUM_ROWS];
       for (int i = 0; i < NUM_ROWS; i++) {
         expectedValues[i] = predicateResults[i] ? _intSVValues[i] : 1.23;
@@ -442,7 +443,7 @@ public class CaseTransformFunctionTest extends BaseTransformFunctionTest {
     }
     {
       List<String> expressions =
-          List.of(String.format("CASE WHEN %s THEN %s ELSE 1.23 END", predicate, LONG_SV_COLUMN));
+          Collections.singletonList(String.format("CASE WHEN %s THEN %s ELSE 1.23 END", predicate, LONG_SV_COLUMN));
       double[] expectedValues = new double[NUM_ROWS];
       for (int i = 0; i < NUM_ROWS; i++) {
         expectedValues[i] = predicateResults[i] ? _longSVValues[i] : 1.23;
@@ -451,7 +452,7 @@ public class CaseTransformFunctionTest extends BaseTransformFunctionTest {
     }
     {
       List<String> expressions =
-          List.of(String.format("CASE WHEN %s THEN %s ELSE 1.23 END", predicate, FLOAT_SV_COLUMN));
+          Collections.singletonList(String.format("CASE WHEN %s THEN %s ELSE 1.23 END", predicate, FLOAT_SV_COLUMN));
       double[] expectedValues = new double[NUM_ROWS];
       for (int i = 0; i < NUM_ROWS; i++) {
         expectedValues[i] = predicateResults[i] ? _floatSVValues[i] : 1.23;
@@ -547,7 +548,7 @@ public class CaseTransformFunctionTest extends BaseTransformFunctionTest {
     // STRING
     {
       List<String> expressions =
-          List.of(String.format("CASE WHEN %s THEN %s ELSE '10' END", predicate, STRING_SV_COLUMN));
+          Collections.singletonList(String.format("CASE WHEN %s THEN %s ELSE '10' END", predicate, STRING_SV_COLUMN));
       String[] expectedValues = new String[NUM_ROWS];
       for (int i = 0; i < NUM_ROWS; i++) {
         expectedValues[i] = predicateResults[i] ? _stringSVValues[i] : "10";
@@ -556,7 +557,7 @@ public class CaseTransformFunctionTest extends BaseTransformFunctionTest {
     }
     {
       List<String> expressions =
-          List.of(String.format("CASE WHEN %s THEN '100' ELSE %s END", predicate, STRING_SV_COLUMN));
+          Collections.singletonList(String.format("CASE WHEN %s THEN '100' ELSE %s END", predicate, STRING_SV_COLUMN));
       String[] expectedValues = new String[NUM_ROWS];
       for (int i = 0; i < NUM_ROWS; i++) {
         expectedValues[i] = predicateResults[i] ? "100" : _stringSVValues[i];
@@ -565,7 +566,7 @@ public class CaseTransformFunctionTest extends BaseTransformFunctionTest {
     }
     // Cast INT to STRING
     {
-      List<String> expressions = List.of(
+      List<String> expressions = Collections.singletonList(
           String.format("CASE WHEN %s THEN CAST(%s AS STRING) ELSE '10' END", predicate, INT_SV_COLUMN));
       String[] expectedValues = new String[NUM_ROWS];
       for (int i = 0; i < NUM_ROWS; i++) {
@@ -577,7 +578,7 @@ public class CaseTransformFunctionTest extends BaseTransformFunctionTest {
     // BYTES
     {
       List<String> expressions =
-          List.of(String.format("CASE WHEN %s THEN %s ELSE '10' END", predicate, BYTES_SV_COLUMN));
+          Collections.singletonList(String.format("CASE WHEN %s THEN %s ELSE '10' END", predicate, BYTES_SV_COLUMN));
       byte[][] expectedValues = new byte[NUM_ROWS][];
       for (int i = 0; i < NUM_ROWS; i++) {
         expectedValues[i] = predicateResults[i] ? _bytesSVValues[i] : BytesUtils.toBytes("10");

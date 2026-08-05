@@ -24,7 +24,9 @@ import javax.annotation.Nullable;
 import javax.net.ssl.SSLContext;
 
 
-/// The `ControllerContext` class is a singleton class which contains all controller related context.
+/**
+ * The <code>ControllerContext</code> class is a singleton class which contains all controller related context.
+ */
 public class ControllerContext {
   private static final ControllerContext INSTANCE = new ControllerContext();
 

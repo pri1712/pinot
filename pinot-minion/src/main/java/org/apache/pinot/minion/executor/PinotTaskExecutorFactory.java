@@ -21,15 +21,29 @@ package org.apache.pinot.minion.executor;
 import org.apache.pinot.minion.MinionConf;
 
 
-/// Factory for [PinotTaskExecutor].
+/**
+ * Factory for {@link PinotTaskExecutor}.
+ */
 public interface PinotTaskExecutorFactory {
 
-  /// Initializes the task executor factory.
+  /**
+   * Initializes the task executor factory.
+   */
+  @Deprecated
+  void init(MinionTaskZkMetadataManager zkMetadataManager);
+
+  /**
+   * Initializes the task executor factory.
+   */
   void init(MinionTaskZkMetadataManager zkMetadataManager, MinionConf minionConf);
 
-  /// Returns the task type of the executor.
+  /**
+   * Returns the task type of the executor.
+   */
   String getTaskType();
 
-  /// Creates a new task executor.
+  /**
+   * Creates a new task executor.
+   */
   PinotTaskExecutor create();
 }

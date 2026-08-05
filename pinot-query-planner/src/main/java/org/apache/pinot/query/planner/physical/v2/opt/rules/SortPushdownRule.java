@@ -37,11 +37,12 @@ import org.apache.pinot.query.planner.physical.v2.opt.PRelOptRuleCall;
 import org.apache.pinot.query.type.TypeFactory;
 
 
-/// # Overview
-///
-/// When a Sort node is on top of an Exchange, it may make sense to add a copy of the Sort under the Exchange too for
-/// performance reasons. E.g. if the Sort has a fetch of 50 rows, then it makes sense to trim the amount of rows
-/// sent across the Exchange too.
+/**
+ * <h1>Overview</h1>
+ * When a Sort node is on top of an Exchange, it may make sense to add a copy of the Sort under the Exchange too for
+ * performance reasons. E.g. if the Sort has a fetch of 50 rows, then it makes sense to trim the amount of rows
+ * sent across the Exchange too.
+ */
 public class SortPushdownRule extends PRelOptRule {
   private static final TypeFactory TYPE_FACTORY = new TypeFactory();
   private static final RexBuilder REX_BUILDER = new RexBuilder(TYPE_FACTORY);

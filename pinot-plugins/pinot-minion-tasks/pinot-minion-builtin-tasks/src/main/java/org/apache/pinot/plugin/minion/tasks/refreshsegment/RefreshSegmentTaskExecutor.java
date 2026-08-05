@@ -19,6 +19,7 @@
 package org.apache.pinot.plugin.minion.tasks.refreshsegment;
 
 import java.io.File;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
@@ -33,7 +34,6 @@ import org.apache.pinot.segment.local.segment.creator.impl.SegmentIndexCreationD
 import org.apache.pinot.segment.local.segment.index.loader.IndexLoadingConfig;
 import org.apache.pinot.segment.local.segment.readers.PinotSegmentRecordReader;
 import org.apache.pinot.segment.spi.ColumnMetadata;
-import org.apache.pinot.segment.spi.ImmutableSegment;
 import org.apache.pinot.segment.spi.creator.SegmentGeneratorConfig;
 import org.apache.pinot.segment.spi.index.metadata.SegmentMetadataImpl;
 import org.apache.pinot.segment.spi.loader.SegmentDirectoryLoaderContext;
@@ -43,6 +43,7 @@ import org.apache.pinot.spi.config.instance.InstanceType;
 import org.apache.pinot.spi.config.table.TableConfig;
 import org.apache.pinot.spi.data.FieldSpec;
 import org.apache.pinot.spi.data.Schema;
+import org.apache.pinot.spi.env.PinotConfiguration;
 import org.apache.pinot.spi.utils.Obfuscator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -53,10 +54,12 @@ public class RefreshSegmentTaskExecutor extends BaseSingleSegmentConversionExecu
 
   private long _taskStartTime;
 
-  /// The code here currently covers segment refresh for the following cases:
-  /// 1. Process newly added columns.
-  /// 2. Addition/removal of indexes.
-  /// 3. Compatible datatype change for existing columns
+  /**
+   * The code here currently covers segment refresh for the following cases:
+   * 1. Process newly added columns.
+   * 2. Addition/removal of indexes.
+   * 3. Compatible datatype change for existing columns
+   */
   @Override
   protected SegmentConversionResult convert(PinotTaskConfig pinotTaskConfig, File indexDir, File workingDir)
       throws Exception {
@@ -80,14 +83,15 @@ public class RefreshSegmentTaskExecutor extends BaseSingleSegmentConversionExecu
 
     IndexLoadingConfig indexLoadingConfig = new IndexLoadingConfig(tableConfig, schema);
     SegmentMetadataImpl segmentMetadata = new SegmentMetadataImpl(indexDir);
-    SegmentDirectoryLoaderContext segmentLoaderContext = new SegmentDirectoryLoaderContext.Builder()
-        .setReadMode(indexLoadingConfig.getReadMode())
-        .setTableConfig(indexLoadingConfig.getTableConfig())
-        .setSchema(schema)
-        .setInstanceId(indexLoadingConfig.getInstanceId())
-        .setSegmentName(segmentMetadata.getName())
-        .setSegmentCrc(segmentMetadata.getCrc())
-        .build();
+    PinotConfiguration segmentDirectoryConfigs = indexLoadingConfig.getSegmentDirectoryConfigs();
+    SegmentDirectoryLoaderContext segmentLoaderContext =
+        new SegmentDirectoryLoaderContext.Builder().setTableConfig(indexLoadingConfig.getTableConfig())
+            .setSchema(schema)
+            .setInstanceId(indexLoadingConfig.getInstanceId())
+            .setSegmentName(segmentMetadata.getName())
+            .setSegmentCrc(segmentMetadata.getCrc())
+            .setSegmentDirectoryConfigs(segmentDirectoryConfigs)
+            .build();
     SegmentDirectory segmentDirectory =
         SegmentDirectoryLoaderRegistry.getDefaultSegmentDirectoryLoader().load(indexDir.toURI(), segmentLoaderContext);
 
@@ -141,11 +145,8 @@ public class RefreshSegmentTaskExecutor extends BaseSingleSegmentConversionExecu
 
     // Refresh the segment. Segment reload is achieved by generating a new segment from scratch using the updated schema
     // and table configs.
-    // Load with the table-config-derived IndexLoadingConfig so column readers configured via the table config are
-    // honored (needPreprocess=false: read-only).
-    ImmutableSegment segment = ImmutableSegmentLoader.load(indexDir, indexLoadingConfig, false);
     try (PinotSegmentRecordReader recordReader = new PinotSegmentRecordReader()) {
-      recordReader.init(segment);
+      recordReader.init(indexDir, null, null);
       SegmentGeneratorConfig config = getSegmentGeneratorConfig(workingDir, tableConfig, segmentMetadata, segmentName,
           getSchema(tableNameWithType));
       SegmentIndexCreationDriverImpl driver = new SegmentIndexCreationDriverImpl();
@@ -154,8 +155,6 @@ public class RefreshSegmentTaskExecutor extends BaseSingleSegmentConversionExecu
       _eventObserver.notifyProgress(pinotTaskConfig,
           "Segment processing stats - incomplete rows:" + driver.getIncompleteRowsFound() + ", dropped rows:"
               + driver.getSkippedRowsFound() + ", sanitized rows:" + driver.getSanitizedRowsFound());
-    } finally {
-      segment.destroy();
     }
 
     File refreshedSegmentFile = new File(workingDir, segmentName);
@@ -210,7 +209,7 @@ public class RefreshSegmentTaskExecutor extends BaseSingleSegmentConversionExecu
   protected SegmentZKMetadataCustomMapModifier getSegmentZKMetadataCustomMapModifier(PinotTaskConfig pinotTaskConfig,
       SegmentConversionResult segmentConversionResult) {
     return new SegmentZKMetadataCustomMapModifier(SegmentZKMetadataCustomMapModifier.ModifyMode.UPDATE,
-        Map.of(MinionConstants.RefreshSegmentTask.TASK_TYPE + MinionConstants.TASK_TIME_SUFFIX,
+        Collections.singletonMap(MinionConstants.RefreshSegmentTask.TASK_TYPE + MinionConstants.TASK_TIME_SUFFIX,
             MinionTaskUtils.toUTCString(_taskStartTime)));
   }
 }

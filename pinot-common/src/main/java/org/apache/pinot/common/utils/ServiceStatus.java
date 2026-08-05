@@ -40,7 +40,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 
-/// Utility class to obtain the status of the Pinot instance running in this JVM.
+/**
+ * Utility class to obtain the status of the Pinot instance running in this JVM.
+ */
 @SuppressWarnings("unused")
 public class ServiceStatus {
   private ServiceStatus() {
@@ -121,7 +123,9 @@ public class ServiceStatus {
     NOT_STARTED, STARTING, GOOD, BAD, SHUTTING_DOWN
   }
 
-  /// Callback that returns the status of the service.
+  /**
+   * Callback that returns the status of the service.
+   */
   public interface ServiceStatusCallback {
 
     Status getServiceStatus();
@@ -170,18 +174,16 @@ public class ServiceStatus {
 
     @Override
     public Status getServiceStatus() {
-      // Iterate through all callbacks so each one is invoked (callers may wrap delegates to observe transitions),
-      // but report the first non-GOOD status encountered, matching the original contract.
-      Status firstNonGood = null;
+      // Iterate through all callbacks, returning the first non GOOD one as the service status
       for (ServiceStatusCallback statusCallback : _statusCallbacks) {
         final Status serviceStatus = statusCallback.getServiceStatus();
-        if (serviceStatus != Status.GOOD && firstNonGood == null) {
-          firstNonGood = serviceStatus;
+        if (serviceStatus != Status.GOOD) {
+          return serviceStatus;
         }
       }
 
       // All callbacks report good, therefore we're good too
-      return firstNonGood == null ? Status.GOOD : firstNonGood;
+      return Status.GOOD;
     }
 
     @Override
@@ -233,12 +235,14 @@ public class ServiceStatus {
     }
   }
 
-  /// Service status callback that checks whether realtime consumption has caught up
-  /// An offset based consumption status checker is being added in two phases. First phase adds the new status checker,
-  /// but it doesn't apply its output. Instead it only logs its behavior. When the behavior is analysed and approved
-  /// for different tables with different consumption rates, we can safely use the new status checker.
-  /// (Another approach would be to define a new config and disable it by default. Since this feature is not urgent,
-  /// we decided to not define yet another config and go with this two phase approach)
+  /**
+   * Service status callback that checks whether realtime consumption has caught up
+   * An offset based consumption status checker is being added in two phases. First phase adds the new status checker,
+   * but it doesn't apply its output. Instead it only logs its behavior. When the behavior is analysed and approved
+   * for different tables with different consumption rates, we can safely use the new status checker.
+   * (Another approach would be to define a new config and disable it by default. Since this feature is not urgent,
+   * we decided to not define yet another config and go with this two phase approach)
+   */
   public static class RealtimeConsumptionCatchupServiceStatusCallback implements ServiceStatusCallback {
 
     private final long _endWaitTime;
@@ -246,7 +250,9 @@ public class ServiceStatus {
     private final Supplier<Integer> _getNumConsumingSegmentsNotReachedTheirLatestOffset;
     String _statusDescription = STATUS_DESCRIPTION_INIT;
 
-    /// Realtime consumption catchup service which adds a static wait time for consuming segments to catchup
+    /**
+     * Realtime consumption catchup service which adds a static wait time for consuming segments to catchup
+     */
     public RealtimeConsumptionCatchupServiceStatusCallback(HelixManager helixManager, String clusterName,
         String instanceName, long realtimeConsumptionCatchupWaitMs,
         Supplier<Integer> getNumConsumingSegmentsNotReachedTheirLatestOffset) {
@@ -292,8 +298,10 @@ public class ServiceStatus {
     }
   }
 
-  /// Service status callback that compares ideal state with another Helix state. Used to share most of the logic
-  /// between the ideal state/external view comparison and ideal state/current state comparison.
+  /**
+   * Service status callback that compares ideal state with another Helix state. Used to share most of the logic between
+   * the ideal state/external view comparison and ideal state/current state comparison.
+   */
   private static abstract class IdealStateMatchServiceStatusCallback<T extends HelixProperty>
       implements ServiceStatusCallback {
 
@@ -505,9 +513,11 @@ public class ServiceStatus {
     }
   }
 
-  /// Service status callback that reports starting until all resources relevant to this instance have a matching
-  /// external view and current state. This callback considers the ERROR state in the current view to be equivalent to
-  /// the ideal state value.
+  /**
+   * Service status callback that reports starting until all resources relevant to this instance have a matching
+   * external view and current state. This callback considers the ERROR state in the current view to be equivalent to
+   * the ideal state value.
+   */
   public static class IdealStateAndCurrentStateMatchServiceStatusCallback
       extends IdealStateMatchServiceStatusCallback<CurrentState> {
     private static final String MATCH_NAME = "CurrentStateMatch";
@@ -517,8 +527,10 @@ public class ServiceStatus {
       super(helixManager, clusterName, instanceName, resourcesToMonitor, minResourcesStartPercent);
     }
 
-    /// Returns the current state for the given resource, or `null` if instance is not live or current state does
-    /// not exist.
+    /**
+     * Returns the current state for the given resource, or {@code null} if instance is not live or current state does
+     * not exist.
+     */
     @Nullable
     @Override
     protected CurrentState getState(String resourceName) {
@@ -543,9 +555,11 @@ public class ServiceStatus {
     }
   }
 
-  /// Service status callback that reports starting until all resources relevant to this instance have a matching
-  /// external view and ideal state. This callback considers the ERROR state in the external view to be equivalent to
-  /// the ideal state value.
+  /**
+   * Service status callback that reports starting until all resources relevant to this instance have a matching
+   * external view and ideal state. This callback considers the ERROR state in the external view to be equivalent to the
+   * ideal state value.
+   */
   public static class IdealStateAndExternalViewMatchServiceStatusCallback
       extends IdealStateMatchServiceStatusCallback<ExternalView> {
     private static final String MATCH_NAME = "ExternalViewMatch";

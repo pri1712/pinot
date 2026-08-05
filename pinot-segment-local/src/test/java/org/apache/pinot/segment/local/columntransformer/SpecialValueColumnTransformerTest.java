@@ -30,7 +30,9 @@ import static org.testng.Assert.assertSame;
 import static org.testng.Assert.assertTrue;
 
 
-/// Tests for SpecialValueColumnTransformer.
+/**
+ * Tests for SpecialValueColumnTransformer.
+ */
 public class SpecialValueColumnTransformerTest {
 
   @Test

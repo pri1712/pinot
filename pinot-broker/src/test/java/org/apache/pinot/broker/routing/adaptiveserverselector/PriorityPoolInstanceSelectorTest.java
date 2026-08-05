@@ -19,6 +19,7 @@
 package org.apache.pinot.broker.routing.adaptiveserverselector;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.pinot.broker.routing.instanceselector.SegmentInstanceCandidate;
@@ -45,7 +46,7 @@ public class PriorityPoolInstanceSelectorTest {
 
   @Test
   public void testSelectWithEmptyCandidates() {
-    SegmentInstanceCandidate result = _selector.select(_context, List.of());
+    SegmentInstanceCandidate result = _selector.select(_context, Collections.emptyList());
     assertNull(result);
   }
 
@@ -63,7 +64,7 @@ public class PriorityPoolInstanceSelectorTest {
         createCandidate("server2", 2),
         createCandidate("server3", 3)
     );
-    when(_context.getOrderedPreferredPools()).thenReturn(List.of());
+    when(_context.getOrderedPreferredPools()).thenReturn(Collections.emptyList());
     when(_adaptiveServerSelector.select(any())).thenReturn("server2");
 
     // Execute
@@ -135,7 +136,7 @@ public class PriorityPoolInstanceSelectorTest {
 
   @Test
   public void testRankWithEmptyCandidates() {
-    List<String> result = _selector.rank(_context, List.of());
+    List<String> result = _selector.rank(_context, Collections.emptyList());
     assertTrue(result.isEmpty());
   }
 
@@ -148,7 +149,7 @@ public class PriorityPoolInstanceSelectorTest {
         createCandidate("server3", 1),
         createCandidate("server4", -1)
     );
-    when(_context.getOrderedPreferredPools()).thenReturn(List.of());
+    when(_context.getOrderedPreferredPools()).thenReturn(Collections.emptyList());
     when(_adaptiveServerSelector.fetchServerRankingsWithScores(any())).thenReturn(Arrays.asList(
         Pair.of("server1", 0.1),
         Pair.of("server2", 0.2),

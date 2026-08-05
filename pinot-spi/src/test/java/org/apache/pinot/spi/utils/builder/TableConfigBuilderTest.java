@@ -25,7 +25,9 @@ import org.testng.Assert;
 import org.testng.annotations.Test;
 
 
-/// Tests for the validations in [TableConfigBuilder]
+/**
+ * Tests for the validations in {@link TableConfigBuilder}
+ */
 public class TableConfigBuilderTest {
 
   private static final String TABLE_NAME = "testTable";

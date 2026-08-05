@@ -27,10 +27,12 @@ import org.apache.pinot.common.metrics.ServerMetrics;
 import org.apache.pinot.spi.metrics.PinotMetric;
 
 
-/// Yammer-specific test utility for reading gauge values directly from the Yammer metrics registry.
-/// Unlike the generic MetricValueUtils in pinot-common (which reads from AbstractMetrics.\_gaugeValues),
-/// this class reads via [YammerSettableGauge], supporting supplier-based gauges set via
-/// [AbstractMetrics#setOrUpdateGauge].
+/**
+ * Yammer-specific test utility for reading gauge values directly from the Yammer metrics registry.
+ * Unlike the generic MetricValueUtils in pinot-common (which reads from AbstractMetrics._gaugeValues),
+ * this class reads via {@link YammerSettableGauge}, supporting supplier-based gauges set via
+ * {@link AbstractMetrics#setOrUpdateGauge}.
+ */
 public class YammerMetricValueUtils {
   private YammerMetricValueUtils() {
   }

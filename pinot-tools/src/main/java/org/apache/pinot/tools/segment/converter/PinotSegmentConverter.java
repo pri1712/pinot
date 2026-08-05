@@ -20,9 +20,11 @@ package org.apache.pinot.tools.segment.converter;
 
 public interface PinotSegmentConverter {
 
-  /// Convert Pinot Segment into another format.
-  ///
-  /// @throws Exception
+  /**
+   * Convert Pinot Segment into another format.
+   *
+   * @throws Exception
+   */
   void convert()
       throws Exception;
 }

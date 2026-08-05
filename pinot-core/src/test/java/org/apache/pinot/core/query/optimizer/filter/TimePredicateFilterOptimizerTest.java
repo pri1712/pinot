@@ -206,7 +206,9 @@ public class TimePredicateFilterOptimizerTest {
     testInvalidFilterOptimizer("453630 = datetrunc('DAY', col)");
   }
 
-  /// Helper method to test optimizing DATE_TRUNC on the given filter.
+  /**
+   * Helper method to test optimizing DATE_TRUNC on the given filter.
+   */
   private void testDateTrunc(String filterString, Range expectedRange) {
     Expression originalExpression = CalciteSqlParser.compileToExpression(filterString);
     Expression optimizedFilterExpression =
@@ -221,7 +223,9 @@ public class TimePredicateFilterOptimizerTest {
     assertEquals(rangeString, expectedRange.getRangeString());
   }
 
-  /// Helper method to test no-op TIME_CONVERT filter (same input and output time unit).
+  /**
+   * Helper method to test no-op TIME_CONVERT filter (same input and output time unit).
+   */
   private void testNoOpTimeConvert(String filterString) {
     Expression originalExpression = CalciteSqlParser.compileToExpression(filterString);
     Function originalFunction = originalExpression.getFunctionCall();
@@ -240,7 +244,9 @@ public class TimePredicateFilterOptimizerTest {
     }
   }
 
-  /// Helper method to test optimizing TIME_CONVERT/DATE_TIME_CONVERT on the given filter.
+  /**
+   * Helper method to test optimizing TIME_CONVERT/DATE_TIME_CONVERT on the given filter.
+   */
   private void testTimeConvert(String filterString, Range expectedRange) {
     Expression originalExpression = CalciteSqlParser.compileToExpression(filterString);
     Expression optimizedFilterExpression =
@@ -255,7 +261,9 @@ public class TimePredicateFilterOptimizerTest {
     assertEquals(rangeString, expectedRange.getRangeString());
   }
 
-  /// Helper method to test optimizing TIME_CONVERT/DATE_TIME_CONVERT/DATE_TRUNC with invalid time in filter.
+  /**
+   * Helper method to test optimizing TIME_CONVERT/DATE_TIME_CONVERT/DATE_TRUNC with invalid time in filter.
+   */
   private void testInvalidFilterOptimizer(String filterString) {
     Expression originalExpression = CalciteSqlParser.compileToExpression(filterString);
     Expression optimizedFilterExpression =

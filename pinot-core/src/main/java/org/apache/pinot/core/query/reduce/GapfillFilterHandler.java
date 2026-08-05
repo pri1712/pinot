@@ -32,7 +32,9 @@ import org.apache.pinot.core.query.reduce.filter.ValueExtractorFactory;
 import org.apache.pinot.core.util.GapfillUtils;
 
 
-/// Handler for Filter clause of GapFill.
+/**
+ * Handler for Filter clause of GapFill.
+ */
 public class GapfillFilterHandler implements ValueExtractorFactory {
   private final RowMatcher _rowMatcher;
   private final DataSchema _dataSchema;
@@ -50,12 +52,16 @@ public class GapfillFilterHandler implements ValueExtractorFactory {
     _rowMatcher = RowMatcherFactory.getRowMatcher(filter, this, false);
   }
 
-  /// Returns `true` if the given row matches the HAVING clause, `false` otherwise.
+  /**
+   * Returns {@code true} if the given row matches the HAVING clause, {@code false} otherwise.
+   */
   public boolean isMatch(Object[] row) {
     return _rowMatcher.isMatch(row);
   }
 
-  /// Returns a ValueExtractor based on the given expression.
+  /**
+   * Returns a ValueExtractor based on the given expression.
+   */
   @Override
   public ValueExtractor getValueExtractor(ExpressionContext expression) {
     expression = GapfillUtils.stripGapfill(expression);

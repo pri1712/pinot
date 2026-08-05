@@ -23,6 +23,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -66,7 +67,9 @@ import static org.testng.Assert.assertNotNull;
 import static org.testng.Assert.assertTrue;
 
 
-/// Queries test for FIRSTWITHTIME queries.
+/**
+ * Queries test for FIRSTWITHTIME queries.
+ */
 public class FirstWithTimeQueriesTest extends BaseQueriesTest {
   private static final File INDEX_DIR = new File(FileUtils.getTempDirectory(), "FirstQueriesTest");
   private static final String RAW_TABLE_NAME = "testTable";
@@ -256,7 +259,7 @@ public class FirstWithTimeQueriesTest extends BaseQueriesTest {
         _expectedResultFirstString
     };
     QueriesTestUtils.testInterSegmentsResult(brokerResponse, 4 * NUM_RECORDS, 0L, 4 * 7 * NUM_RECORDS,
-        4 * NUM_RECORDS, new ResultTable(expectedDataSchema, List.<Object[]>of(expectedResults)));
+        4 * NUM_RECORDS, new ResultTable(expectedDataSchema, Collections.singletonList(expectedResults)));
   }
 
   @Test
@@ -310,7 +313,7 @@ public class FirstWithTimeQueriesTest extends BaseQueriesTest {
         _expectedResultFirstString
     };
     QueriesTestUtils.testInterSegmentsResult(brokerResponse, 4 * NUM_RECORDS, 0L, 4 * 7 * NUM_RECORDS,
-        4 * NUM_RECORDS, new ResultTable(expectedDataSchema, List.<Object[]>of(expectedResults)));
+        4 * NUM_RECORDS, new ResultTable(expectedDataSchema, Collections.singletonList(expectedResults)));
   }
 
   @Test

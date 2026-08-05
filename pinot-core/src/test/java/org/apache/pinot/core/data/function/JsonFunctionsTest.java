@@ -32,7 +32,9 @@ import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 
-/// Tests the JSON scalar transform functions
+/**
+ * Tests the JSON scalar transform functions
+ */
 public class JsonFunctionsTest {
 
   private void testFunction(String functionExpression, List<String> expectedArguments, GenericRow row,

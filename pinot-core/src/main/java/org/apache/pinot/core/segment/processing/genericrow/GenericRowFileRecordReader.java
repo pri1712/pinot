@@ -18,7 +18,6 @@
  */
 package org.apache.pinot.core.segment.processing.genericrow;
 
-import com.google.common.base.Preconditions;
 import it.unimi.dsi.fastutil.Arrays;
 import java.io.File;
 import java.util.Set;
@@ -28,7 +27,9 @@ import org.apache.pinot.spi.data.readers.RecordReader;
 import org.apache.pinot.spi.data.readers.RecordReaderConfig;
 
 
-/// Record reader for the GenericRow file.
+/**
+ * Record reader for the GenericRow file.
+ */
 public class GenericRowFileRecordReader implements RecordReader {
   private final GenericRowFileReader _fileReader;
   private final int _startRowId;
@@ -68,12 +69,16 @@ public class GenericRowFileRecordReader implements RecordReader {
     _nextRowId = startRowId;
   }
 
-  /// Returns a record reader for the given row id range.
+  /**
+   * Returns a record reader for the given row id range.
+   */
   public GenericRowFileRecordReader getRecordReaderForRange(int startRowId, int endRowId) {
     return new GenericRowFileRecordReader(_fileReader, startRowId, endRowId, _sortedRowIds);
   }
 
-  /// Reads the data of the given row id into the given buffer row.
+  /**
+   * Reads the data of the given row id into the given buffer row.
+   */
   public void read(int rowId, GenericRow buffer) {
     if (_sortedRowIds != null) {
       rowId = _sortedRowIds[rowId];
@@ -81,16 +86,12 @@ public class GenericRowFileRecordReader implements RecordReader {
     _fileReader.read(rowId, buffer);
   }
 
-  /// Compares the records at the given row ids.
+  /**
+   * Compares the records at the given row ids.
+   */
   public int compare(int rowId1, int rowId2) {
-    Preconditions.checkState(_sortedRowIds != null, "Cannot compare rows on an unsorted reader");
+    assert _sortedRowIds != null;
     return _fileReader.compare(_sortedRowIds[rowId1], _sortedRowIds[rowId2]);
-  }
-
-  /// Compares the records at the given row ids. Only compare the values for the first `numFieldsToCompare` fields.
-  public int compare(int rowId1, int rowId2, int numFieldsToCompare) {
-    Preconditions.checkState(_sortedRowIds != null, "Cannot compare rows on an unsorted reader");
-    return _fileReader.compare(_sortedRowIds[rowId1], _sortedRowIds[rowId2], numFieldsToCompare);
   }
 
   @Override

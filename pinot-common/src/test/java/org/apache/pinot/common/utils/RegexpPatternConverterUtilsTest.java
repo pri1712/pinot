@@ -23,7 +23,9 @@ import org.testng.annotations.Test;
 import static org.testng.Assert.assertEquals;
 
 
-/// Tests for [RegexpPatternConverterUtils]
+/**
+ * Tests for {@link RegexpPatternConverterUtils}
+ */
 public class RegexpPatternConverterUtilsTest {
   private static final String LEADING_WILDCARD = "%++";
   private static final String TRAILING_WILDCARD = "C+%";

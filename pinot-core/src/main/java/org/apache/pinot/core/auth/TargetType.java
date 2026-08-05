@@ -19,7 +19,9 @@
 
 package org.apache.pinot.core.auth;
 
-/// Target object types used in fine grain access control of the rest endpoints
+/**
+ * Target object types used in fine grain access control of the rest endpoints
+ */
 public enum TargetType {
   CLUSTER, TABLE
 }

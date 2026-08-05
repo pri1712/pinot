@@ -22,13 +22,17 @@ import java.util.concurrent.ExecutorService;
 import org.apache.pinot.spi.env.PinotConfiguration;
 
 
-/// A provider for [ExecutorService] instances.
+/**
+ * A provider for {@link ExecutorService} instances.
+ */
 public interface ExecutorServiceProvider {
-  /// Creates a new [ExecutorService] instance.
-  ///
-  /// @param conf the configuration to use
-  /// @param confPrefix the prefix to use for the configuration
-  /// @param baseName the base name for the threads. A prefix that all threads will share.
-  /// @return a new [ExecutorService] instance
+  /**
+   * Creates a new {@link ExecutorService} instance.
+   *
+   * @param conf the configuration to use
+   * @param confPrefix the prefix to use for the configuration
+   * @param baseName the base name for the threads. A prefix that all threads will share.
+   * @return a new {@link ExecutorService} instance
+   */
   ExecutorService create(PinotConfiguration conf, String confPrefix, String baseName);
 }

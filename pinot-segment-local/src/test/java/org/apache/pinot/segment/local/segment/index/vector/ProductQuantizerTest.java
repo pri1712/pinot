@@ -21,7 +21,9 @@ package org.apache.pinot.segment.local.segment.index.vector;
 import org.testng.annotations.Test;
 
 
-/// Tests for [ProductQuantizer].
+/**
+ * Tests for {@link ProductQuantizer}.
+ */
 public class ProductQuantizerTest {
 
   @Test(expectedExceptions = IllegalArgumentException.class,

@@ -28,8 +28,10 @@ import org.apache.calcite.rel.hint.RelHint;
 import org.apache.calcite.rel.logical.LogicalTableScan;
 
 
-/// Same as [org.apache.calcite.rel.logical.LogicalTableScan], except that it doesn't drop provided traits
-/// in the [#copy] method.
+/**
+ * Same as {@link org.apache.calcite.rel.logical.LogicalTableScan}, except that it doesn't drop provided traits
+ * in the {@link #copy} method.
+ */
 public class PinotLogicalTableScan extends TableScan {
   protected PinotLogicalTableScan(RelOptCluster cluster, RelTraitSet traitSet, List<RelHint> hints, RelOptTable table) {
     super(cluster, traitSet, hints, table);

@@ -24,6 +24,7 @@ import java.net.URI;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -76,8 +77,10 @@ import static org.testng.Assert.assertNotNull;
 import static org.testng.Assert.assertTrue;
 
 
-/// Integration test for low-level Kafka consumer.
-/// TODO: Add separate module-level tests and remove the randomness of this test
+/**
+ * Integration test for low-level Kafka consumer.
+ * TODO: Add separate module-level tests and remove the randomness of this test
+ */
 public class LLCRealtimeClusterIntegrationTest extends BaseRealtimeClusterIntegrationTest {
   private static final String CONSUMER_DIRECTORY = "/tmp/consumer-test";
   private static final long RANDOM_SEED = System.currentTimeMillis();
@@ -173,7 +176,7 @@ public class LLCRealtimeClusterIntegrationTest extends BaseRealtimeClusterIntegr
   protected IngestionConfig getIngestionConfig() {
     IngestionConfig ingestionConfig = new IngestionConfig();
     ingestionConfig.setStreamIngestionConfig(
-        new StreamIngestionConfig(List.of(getStreamConfigMap())));
+        new StreamIngestionConfig(Collections.singletonList(getStreamConfigMap())));
     return ingestionConfig;
   }
 

@@ -18,8 +18,11 @@
  */
 package org.apache.pinot.spi.config.table;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.util.concurrent.TimeUnit;
 import org.apache.pinot.spi.config.BaseJsonConfig;
+import org.apache.pinot.spi.config.table.assignment.InstanceAssignmentConfig;
+import org.apache.pinot.spi.config.table.ingestion.IngestionConfig;
 import org.apache.pinot.spi.utils.TimeUtils;
 
 
@@ -96,16 +99,18 @@ public class SegmentsValidationAndRetentionConfig extends BaseJsonConfig {
     _deletedSegmentsRetentionPeriod = deletedSegmentsRetentionPeriod;
   }
 
-  /// Returns the retention period for segments replaced by a REFRESH ingestion job. Only applies to tables with
-  /// REFRESH ingestion type; for APPEND tables this setting is ignored and replaced segments are deleted immediately.
-  ///
-  /// When a lineage entry transitions to COMPLETED state, source segments are preserved for this duration before
-  /// being scheduled for deletion, providing a rollback window. Consumers of this config (e.g. the lineage manager)
-  /// treat a null or unparseable value as a 1 day default.
-  ///
-  /// Accepts a human-readable period string (e.g. `"7d"`, `"12h"`) as understood by
-  /// `TimeUtils.convertPeriodToMillis`. Setting this value too low (e.g. `"0d"`) eliminates the rollback
-  /// window; source segments will be deleted on the next retention pass after the lineage is COMPLETED.
+  /**
+   * Returns the retention period for segments replaced by a REFRESH ingestion job. Only applies to tables with
+   * REFRESH ingestion type; for APPEND tables this setting is ignored and replaced segments are deleted immediately.
+   *
+   * <p>When a lineage entry transitions to COMPLETED state, source segments are preserved for this duration before
+   * being scheduled for deletion, providing a rollback window. Consumers of this config (e.g. the lineage manager)
+   * treat a null or unparseable value as a 1 day default.
+   *
+   * <p>Accepts a human-readable period string (e.g. {@code "7d"}, {@code "12h"}) as understood by
+   * {@code TimeUtils.convertPeriodToMillis}. Setting this value too low (e.g. {@code "0d"}) eliminates the rollback
+   * window; source segments will be deleted on the next retention pass after the lineage is COMPLETED.
+   */
   public String getReplacedSegmentsRetentionPeriod() {
     return _replacedSegmentsRetentionPeriod;
   }
@@ -114,12 +119,14 @@ public class SegmentsValidationAndRetentionConfig extends BaseJsonConfig {
     _replacedSegmentsRetentionPeriod = replacedSegmentsRetentionPeriod;
   }
 
-  /// Returns the retention period before stale IN_PROGRESS or REVERTED lineage entries and their destination segments
-  /// are cleaned up. Consumers of this config (e.g. the lineage manager) treat a null or unparseable value as a
-  /// 1 day default.
-  ///
-  /// Accepts a human-readable period string (e.g. `"7d"`, `"12h"`) as understood by
-  /// `TimeUtils.convertPeriodToMillis`.
+  /**
+   * Returns the retention period before stale IN_PROGRESS or REVERTED lineage entries and their destination segments
+   * are cleaned up. Consumers of this config (e.g. the lineage manager) treat a null or unparseable value as a
+   * 1 day default.
+   *
+   * <p>Accepts a human-readable period string (e.g. {@code "7d"}, {@code "12h"}) as understood by
+   * {@code TimeUtils.convertPeriodToMillis}.
+   */
   public String getLineageEntryCleanupRetentionPeriod() {
     return _lineageEntryCleanupRetentionPeriod;
   }
@@ -128,8 +135,9 @@ public class SegmentsValidationAndRetentionConfig extends BaseJsonConfig {
     _lineageEntryCleanupRetentionPeriod = lineageEntryCleanupRetentionPeriod;
   }
 
-  /// @deprecated Use `segmentIngestionFrequency` from
-  ///     [org.apache.pinot.spi.config.table.ingestion.IngestionConfig#getBatchIngestionConfig()]
+  /**
+   * @deprecated Use {@code segmentIngestionFrequency} from {@link IngestionConfig#getBatchIngestionConfig()}
+   */
   @Deprecated
   public String getSegmentPushFrequency() {
     return _segmentPushFrequency;
@@ -140,8 +148,9 @@ public class SegmentsValidationAndRetentionConfig extends BaseJsonConfig {
     _segmentPushFrequency = segmentPushFrequency;
   }
 
-  /// @deprecated Use `segmentIngestionType` from
-  ///     [org.apache.pinot.spi.config.table.ingestion.IngestionConfig#getBatchIngestionConfig()]
+  /**
+   * @deprecated Use {@code segmentIngestionType} from {@link IngestionConfig#getBatchIngestionConfig()}
+   */
   @Deprecated
   public String getSegmentPushType() {
     return _segmentPushType;
@@ -152,7 +161,9 @@ public class SegmentsValidationAndRetentionConfig extends BaseJsonConfig {
     _segmentPushType = segmentPushType;
   }
 
-  /// Try to Use [TableConfig#getReplication()]
+  /**
+   * Try to Use {@link TableConfig#getReplication()}
+   */
   public String getReplication() {
     return _replication;
   }
@@ -161,24 +172,30 @@ public class SegmentsValidationAndRetentionConfig extends BaseJsonConfig {
     _replication = replication;
   }
 
-  /// Try to Use [TableConfig#getReplication()]
-  /// @deprecated Use \_replication instead
-  ///
-  /// Will be deleted in future version of Pinot
+  /**
+   * Try to Use {@link TableConfig#getReplication()}
+   * @deprecated Use _replication instead
+   *
+   * Will be deleted in future version of Pinot
+   */
   @Deprecated
   public String getReplicasPerPartition() {
     return _replicasPerPartition;
   }
 
-  /// Try to Use [SegmentsValidationAndRetentionConfig#setReplication(String)]
-  ///
-  /// Will be deleted in future version of Pinot
+  /**
+   * Try to Use {@link SegmentsValidationAndRetentionConfig#setReplication(String)}
+   *
+   * Will be deleted in future version of Pinot
+   */
   @Deprecated
   public void setReplicasPerPartition(String replicasPerPartition) {
     _replicasPerPartition = replicasPerPartition;
   }
 
-  /// @deprecated Use [org.apache.pinot.spi.config.table.assignment.InstanceAssignmentConfig] instead.
+  /**
+   * @deprecated Use {@link InstanceAssignmentConfig} instead.
+   */
   @Deprecated
   public ReplicaGroupStrategyConfig getReplicaGroupStrategyConfig() {
     return _replicaGroupStrategyConfig;
@@ -197,6 +214,26 @@ public class SegmentsValidationAndRetentionConfig extends BaseJsonConfig {
     _completionConfig = completionConfig;
   }
 
+  /**
+   * Try to Use {@link TableConfig#getReplication()}
+   */
+  @Deprecated
+  @JsonIgnore
+  public int getReplicationNumber() {
+    return Integer.parseInt(_replication);
+  }
+
+  /**
+   * Try to Use {@link TableConfig#getReplication()}
+   *
+   * Will be deleted in future version of Pinot
+   */
+  @Deprecated
+  @JsonIgnore
+  public int getReplicasPerPartitionNumber() {
+    return Integer.parseInt(_replicasPerPartition);
+  }
+
   public String getPeerSegmentDownloadScheme() {
     return _peerSegmentDownloadScheme;
   }
@@ -213,7 +250,9 @@ public class SegmentsValidationAndRetentionConfig extends BaseJsonConfig {
     _crypterClassName = crypterClassName;
   }
 
-  /// @deprecated Use [org.apache.pinot.spi.config.table.assignment.InstanceAssignmentConfig] instead
+  /**
+   * @deprecated Use {@link InstanceAssignmentConfig} instead
+   */
   @Deprecated
   public boolean isMinimizeDataMovement() {
     return _minimizeDataMovement;
@@ -246,9 +285,5 @@ public class SegmentsValidationAndRetentionConfig extends BaseJsonConfig {
 
   public void setUntrackedSegmentsRetentionTimeValue(String untrackedSegmentsRetentionTimeValue) {
     _untrackedSegmentsRetentionTimeValue = untrackedSegmentsRetentionTimeValue;
-  }
-
-  public long getRetentionTimeMillis() {
-    return TimeUnit.valueOf(_retentionTimeUnit.toUpperCase()).toMillis(Long.parseLong(_retentionTimeValue));
   }
 }

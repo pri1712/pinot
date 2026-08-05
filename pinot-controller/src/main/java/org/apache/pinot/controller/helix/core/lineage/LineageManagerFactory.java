@@ -23,7 +23,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 
-/// Factory class to create [LineageManager] based on controller configs
+/**
+ * Factory class to create {@link LineageManager} based on controller configs
+ */
 public class LineageManagerFactory {
   private static final Logger LOGGER = LoggerFactory.getLogger(LineageManagerFactory.class);
 

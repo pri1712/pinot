@@ -22,33 +22,34 @@ import java.time.DateTimeException;
 import java.time.ZoneId;
 import java.util.TimeZone;
 import java.util.concurrent.TimeUnit;
-import org.apache.pinot.common.function.FunctionUtils;
 import org.apache.pinot.spi.annotations.ScalarFunction;
 import org.apache.pinot.spi.data.DateTimeFieldSpec;
 import org.apache.pinot.spi.data.DateTimeFormatSpec;
 import org.apache.pinot.spi.data.DateTimeGranularitySpec;
-import org.apache.pinot.spi.utils.PinotDataType;
 import org.joda.time.DateTimeZone;
 import org.joda.time.MutableDateTime;
 import org.joda.time.format.DateTimeFormatter;
 
 
-/// Equivalent to `DateTimeConversionTransformFunction`.
+/**
+ * Equivalent to {@code DateTimeConversionTransformFunction}.
+ */
 public class DateTimeConvert {
   private DateTimeFormatSpec _inputFormatSpec;
   private DateTimeFormatSpec _outputFormatSpec;
   private DateTimeGranularitySpec _granularitySpec;
+  private DateTimeZone _bucketingTimeZone;
   private MutableDateTime _dateTime;
   private StringBuilder _buffer;
 
   @ScalarFunction
-  public Object dateTimeConvert(Object timeValue, String inputFormatStr, String outputFormatStr,
+  public Object dateTimeConvert(String timeValueStr, String inputFormatStr, String outputFormatStr,
       String outputGranularityStr) {
     if (_inputFormatSpec == null) {
       init(inputFormatStr, outputFormatStr, outputGranularityStr, null, false);
     }
 
-    long timeValueMs = fromInputFormatToMillis(timeValue);
+    long timeValueMs = _inputFormatSpec.fromFormatToMillis(timeValueStr);
     if (_outputFormatSpec.getTimeFormat() == DateTimeFieldSpec.TimeFormat.SIMPLE_DATE_FORMAT) {
       truncateDateTime(timeValueMs);
       return getFormattedDate();
@@ -65,13 +66,13 @@ public class DateTimeConvert {
   }
 
   @ScalarFunction
-  public Object dateTimeConvert(Object timeValue, String inputFormatStr, String outputFormatStr,
+  public Object dateTimeConvert(String timeValueStr, String inputFormatStr, String outputFormatStr,
       String outputGranularityStr, String bucketingTimeZone) {
     if (_inputFormatSpec == null) {
       init(inputFormatStr, outputFormatStr, outputGranularityStr, bucketingTimeZone, true);
     }
 
-    long timeValueMs = fromInputFormatToMillis(timeValue);
+    long timeValueMs = _inputFormatSpec.fromFormatToMillis(timeValueStr);
     truncateDateTime(timeValueMs);
 
     if (_outputFormatSpec.getTimeFormat() == DateTimeFieldSpec.TimeFormat.SIMPLE_DATE_FORMAT) {
@@ -83,20 +84,6 @@ public class DateTimeConvert {
     }
   }
 
-  /// Converts the input time value to millis since epoch:
-  /// - `SIMPLE_DATE_FORMAT` input, and any value that arrives as a `String`, are parsed via
-  ///   [DateTimeFormatSpec#fromFormatToMillis(String)], which tolerates decimal and scientific-notation numeric
-  ///   epoch strings (e.g. `"1.4988924E12"`) rather than requiring a strict integer literal.
-  /// - Other `EPOCH` / `TIMESTAMP` input types (numeric and date/time logical types) are read as a `LONG`.
-  private long fromInputFormatToMillis(Object timeValue) {
-    PinotDataType argumentType = FunctionUtils.getArgumentType(timeValue);
-    if (argumentType == PinotDataType.STRING
-        || _inputFormatSpec.getTimeFormat() == DateTimeFieldSpec.TimeFormat.SIMPLE_DATE_FORMAT) {
-      return _inputFormatSpec.fromFormatToMillis((String) PinotDataType.STRING.convert(timeValue, argumentType));
-    }
-    return _inputFormatSpec.fromFormatToMillis((Long) PinotDataType.LONG.convert(timeValue, argumentType));
-  }
-
   private void init(String inputFormatStr, String outputFormatStr, String outputGranularityStr,
       String bucketingTimeZone, boolean bucketTzRequired) {
     _inputFormatSpec = new DateTimeFormatSpec(inputFormatStr);
@@ -104,11 +91,13 @@ public class DateTimeConvert {
     _granularitySpec = new DateTimeGranularitySpec(outputGranularityStr);
 
     DateTimeZone timeZone;
+
     if (bucketTzRequired) {
       try {
         // we're not using TimeZone.getTimeZone() because it's globally synchronized
         // and returns default TZ when str makes no sense
-        timeZone = DateTimeZone.forTimeZone(TimeZone.getTimeZone(ZoneId.of(bucketingTimeZone)));
+        _bucketingTimeZone = DateTimeZone.forTimeZone(TimeZone.getTimeZone(ZoneId.of(bucketingTimeZone)));
+        timeZone = _bucketingTimeZone;
       } catch (DateTimeException dte) {
         throw new IllegalArgumentException("Error parsing bucketing time zone: " + dte.getMessage(), dte);
       }

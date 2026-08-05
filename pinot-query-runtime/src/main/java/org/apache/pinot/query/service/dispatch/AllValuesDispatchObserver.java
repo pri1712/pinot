@@ -25,7 +25,9 @@ import java.util.function.Consumer;
 import org.apache.pinot.query.routing.QueryServerInstance;
 
 
-/// A [StreamObserver] used by [DispatchClient] to subscribe to the response of a async Query Dispatch call.
+/**
+ * A {@link StreamObserver} used by {@link DispatchClient} to subscribe to the response of a async Query Dispatch call.
+ */
 class AllValuesDispatchObserver<E> implements StreamObserver<E> {
   private final QueryServerInstance _serverInstance;
   private final Consumer<AsyncResponse<List<E>>> _callback;

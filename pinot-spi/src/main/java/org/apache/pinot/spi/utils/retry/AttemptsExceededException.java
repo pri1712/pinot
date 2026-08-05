@@ -18,8 +18,10 @@
  */
 package org.apache.pinot.spi.utils.retry;
 
-/// The `AttemptsExceededException` indicates that the operation did not succeed within maximum number of
-/// attempts.
+/**
+ * The <code>AttemptsExceededException</code> indicates that the operation did not succeed within maximum number of
+ * attempts.
+ */
 public class AttemptsExceededException extends AttemptFailureException {
 
   public AttemptsExceededException(String message) {

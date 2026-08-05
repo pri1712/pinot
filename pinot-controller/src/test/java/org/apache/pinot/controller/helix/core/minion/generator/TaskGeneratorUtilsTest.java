@@ -18,6 +18,7 @@
  */
 package org.apache.pinot.controller.helix.core.minion.generator;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -57,7 +58,7 @@ public class TaskGeneratorUtilsTest {
     String taskID = System.currentTimeMillis() + "_0";
     when(mockClusterInfoAccessor.getTaskStates(taskType)).thenReturn(taskStatesMap);
     when(mockClusterInfoAccessor.getTaskConfigs(taskID))
-        .thenReturn(List.of(createTaskConfig(taskType, tableName, taskID)));
+        .thenReturn(Collections.singletonList(createTaskConfig(taskType, tableName, taskID)));
 
     int[] count = new int[1];
     TaskState[] nonFinalTaskStates = new TaskState[]{
@@ -115,7 +116,7 @@ public class TaskGeneratorUtilsTest {
     Map<String, String> tableTaskConfigs = getDummyTaskConfig();
     tableTaskConfigs.put(PinotTaskManager.MINION_INSTANCE_TAG_CONFIG, "minionInstance1");
     TableTaskConfig tableTaskConfig =
-        new TableTaskConfig(Map.of(MinionConstants.MergeRollupTask.TASK_TYPE, tableTaskConfigs));
+        new TableTaskConfig(Collections.singletonMap(MinionConstants.MergeRollupTask.TASK_TYPE, tableTaskConfigs));
     TableConfig tableConfig = new TableConfigBuilder(TableType.OFFLINE).setTableName("sampleTable")
         .setTaskConfig(tableTaskConfig).build();
     assertEquals(TaskGeneratorUtils.extractMinionInstanceTag(tableConfig,
@@ -124,7 +125,7 @@ public class TaskGeneratorUtilsTest {
     // no minionInstanceTag passed
     tableTaskConfigs = getDummyTaskConfig();
     tableTaskConfig =
-        new TableTaskConfig(Map.of(MinionConstants.MergeRollupTask.TASK_TYPE, tableTaskConfigs));
+        new TableTaskConfig(Collections.singletonMap(MinionConstants.MergeRollupTask.TASK_TYPE, tableTaskConfigs));
     tableConfig = new TableConfigBuilder(TableType.OFFLINE).setTableName("sampleTable")
         .setTaskConfig(tableTaskConfig).build();
     assertEquals(TaskGeneratorUtils.extractMinionInstanceTag(tableConfig,
@@ -235,7 +236,9 @@ public class TaskGeneratorUtilsTest {
             minionTenant, MinionConstants.DEFAULT_MAX_ATTEMPTS_PER_TASK, Integer.class, mockClusterInfoAccessor), 3);
   }
 
-  /// Test task generator that extends BaseTaskGenerator for testing purposes
+  /**
+   * Test task generator that extends BaseTaskGenerator for testing purposes
+   */
   private static class TestTaskGenerator extends BaseTaskGenerator {
     @Override
     public String getTaskType() {
@@ -244,7 +247,7 @@ public class TaskGeneratorUtilsTest {
 
     @Override
     public List<PinotTaskConfig> generateTasks(List<TableConfig> tableConfigs) {
-      return List.of();
+      return Collections.emptyList();
     }
   }
 }

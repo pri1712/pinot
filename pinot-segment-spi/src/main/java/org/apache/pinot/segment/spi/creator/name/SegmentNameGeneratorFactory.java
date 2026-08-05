@@ -37,7 +37,9 @@ public class SegmentNameGeneratorFactory {
   private SegmentNameGeneratorFactory() {
   }
 
-  /// Create the segment name generator given input configurations
+  /**
+   * Create the segment name generator given input configurations
+   */
   public static SegmentNameGenerator createSegmentNameGenerator(TableConfig tableConfig, Schema schema,
       @Nullable String prefix, @Nullable String postfix, @Nullable String fixedSegmentName, boolean excludeSequenceId) {
     String segmentNameGeneratorType = tableConfig.getIndexingConfig().getSegmentNameGeneratorType();

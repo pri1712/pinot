@@ -25,7 +25,9 @@ import com.google.common.base.Preconditions;
 import javax.annotation.Nullable;
 
 
-/// Config for the final segment generation phase of the SegmentProcessorFramework
+/**
+ * Config for the final segment generation phase of the SegmentProcessorFramework
+ */
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class SegmentConfig {
   public static final int DEFAULT_MAX_NUM_RECORDS_PER_SEGMENT = 5_000_000;
@@ -56,7 +58,9 @@ public class SegmentConfig {
     _maxDiskUsagePercentage = maxDiskUsagePercentage;
   }
 
-  /// The max number of records allowed per segment
+  /**
+   * The max number of records allowed per segment
+   */
   public int getMaxNumRecordsPerSegment() {
     return _maxNumRecordsPerSegment;
   }
@@ -84,7 +88,9 @@ public class SegmentConfig {
     return _maxDiskUsagePercentage;
   }
 
-  /// Builder for SegmentConfig
+  /**
+   * Builder for SegmentConfig
+   */
   public static class Builder {
     private int _maxNumRecordsPerSegment = DEFAULT_MAX_NUM_RECORDS_PER_SEGMENT;
     private long _segmentMapperFileSizeThresholdInBytes = DEFAULT_SEGMENT_MAPPER_FILE_SIZE_IN_BYTES;

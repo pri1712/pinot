@@ -21,6 +21,7 @@ package org.apache.pinot.plugin.inputformat.json.confluent;
 import io.confluent.kafka.serializers.json.KafkaJsonSchemaSerializerConfig;
 import java.time.Duration;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -96,7 +97,7 @@ public class JsonConfluentSchemaTest {
     consumerProps.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");
     consumerProps.put(ConsumerConfig.GROUP_ID_CONFIG, "foo_bar");
     KafkaConsumer<byte[], byte[]> kafkaConsumer = new KafkaConsumer<>(consumerProps);
-    kafkaConsumer.subscribe(List.of(TOPIC_JSON));
+    kafkaConsumer.subscribe(Collections.singletonList(TOPIC_JSON));
     ConsumerRecords<byte[], byte[]> consumerRecords = kafkaConsumer.poll(Duration.ofMillis(1000));
     Iterator<ConsumerRecord<byte[], byte[]>> iter = consumerRecords.iterator();
 

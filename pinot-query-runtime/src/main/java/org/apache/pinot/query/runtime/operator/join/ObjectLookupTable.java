@@ -24,7 +24,9 @@ import java.util.Set;
 import javax.annotation.Nullable;
 
 
-/// The `DoubleLookupTable` is a lookup table for non-primitive keys.
+/**
+ * The {@code DoubleLookupTable} is a lookup table for non-primitive keys.
+ */
 @SuppressWarnings("unchecked")
 public class ObjectLookupTable extends LookupTable {
   private final Map<Object, Object> _lookupTable = Maps.newHashMapWithExpectedSize(INITIAL_CAPACITY);

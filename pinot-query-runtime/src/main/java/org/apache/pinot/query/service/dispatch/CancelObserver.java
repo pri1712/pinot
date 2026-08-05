@@ -22,7 +22,9 @@ import io.grpc.stub.StreamObserver;
 import org.apache.pinot.common.proto.Worker;
 
 
-/// A no-op [StreamObserver] for cancellation requests.
+/**
+ * A no-op {@link StreamObserver} for cancellation requests.
+ */
 class CancelObserver implements StreamObserver<Worker.CancelResponse> {
   @Override
   public void onNext(Worker.CancelResponse cancelResponse) {

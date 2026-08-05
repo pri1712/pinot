@@ -22,6 +22,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.google.common.base.Function;
 import java.io.File;
 import java.net.URI;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -49,7 +50,9 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 
-/// Tests creating segments via the [SegmentWriter] implementations
+/**
+ * Tests creating segments via the {@link SegmentWriter} implementations
+ */
 public class SegmentWriterUploaderIntegrationTest extends BaseClusterIntegrationTest {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(SegmentWriterUploaderIntegrationTest.class);
@@ -86,13 +89,15 @@ public class SegmentWriterUploaderIntegrationTest extends BaseClusterIntegration
     batchConfigMap.put(BatchConfigProperties.PUSH_CONTROLLER_URI, getControllerBaseApiUrl());
     IngestionConfig ingestionConfig = new IngestionConfig();
     ingestionConfig.setBatchIngestionConfig(
-        new BatchIngestionConfig(List.of(batchConfigMap), "APPEND", "HOURLY"));
+        new BatchIngestionConfig(Collections.singletonList(batchConfigMap), "APPEND", "HOURLY"));
     return ingestionConfig;
   }
 
-  /// Write the records from 3 avro files into the Pinot table using the [FileBasedSegmentWriter]
-  /// Calls [SegmentWriter#flush()] after writing records from each avro file
-  /// Checks the number of segments created and total docs from the query
+  /**
+   * Write the records from 3 avro files into the Pinot table using the {@link FileBasedSegmentWriter}
+   * Calls {@link SegmentWriter#flush()} after writing records from each avro file
+   * Checks the number of segments created and total docs from the query
+   */
   @Test
   public void testFileBasedSegmentWriterAndDefaultUploader()
       throws Exception {

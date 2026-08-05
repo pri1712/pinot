@@ -22,6 +22,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import org.apache.commons.io.FileUtils;
@@ -58,7 +59,9 @@ import org.openjdk.jmh.runner.options.ChainedOptionsBuilder;
 import org.openjdk.jmh.runner.options.OptionsBuilder;
 
 
-/// Benchmark similar to BenchmarkQueries, but using multi-stage query engine.
+/**
+ * Benchmark similar to BenchmarkQueries, but using multi-stage query engine.
+ */
 @BenchmarkMode(Mode.AverageTime)
 @OutputTimeUnit(TimeUnit.MILLISECONDS)
 @Fork(1)
@@ -94,9 +97,9 @@ public class BenchmarkQueriesMSQE extends BaseClusterIntegrationTest {
       .setSortedColumn(SORTED_COL_NAME)
       .setRangeIndexColumns(List.of(INT_COL_NAME, LOW_CARDINALITY_STRING_COL))
       .setStarTreeIndexConfigs(
-          List.of(
+          Collections.singletonList(
               new StarTreeIndexConfig(List.of(SORTED_COL_NAME, INT_COL_NAME), null,
-                  List.of(
+                  Collections.singletonList(
                       new AggregationFunctionColumnPair(AggregationFunctionType.SUM, RAW_INT_COL_NAME).toColumnName()),
                   null, Integer.MAX_VALUE))).build();
 

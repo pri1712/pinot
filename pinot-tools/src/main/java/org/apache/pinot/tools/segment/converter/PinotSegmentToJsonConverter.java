@@ -29,7 +29,9 @@ import org.apache.pinot.spi.utils.BytesUtils;
 import org.apache.pinot.spi.utils.JsonUtils;
 
 
-/// The `PinotSegmentToJsonConverter` class is the tool to convert Pinot segment to JSON format.
+/**
+ * The <code>PinotSegmentToJsonConverter</code> class is the tool to convert Pinot segment to JSON format.
+ */
 public class PinotSegmentToJsonConverter implements PinotSegmentConverter {
   private final String _segmentDir;
   private final String _outputFile;

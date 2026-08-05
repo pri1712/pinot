@@ -30,6 +30,10 @@ import org.apache.pinot.spi.annotations.minion.TaskExecutorFactory;
 public class SegmentGenerationAndPushTaskExecutorFactory implements PinotTaskExecutorFactory {
 
   @Override
+  public void init(MinionTaskZkMetadataManager zkMetadataManager) {
+  }
+
+  @Override
   public void init(MinionTaskZkMetadataManager zkMetadataManager, MinionConf minionConf) {
   }
 

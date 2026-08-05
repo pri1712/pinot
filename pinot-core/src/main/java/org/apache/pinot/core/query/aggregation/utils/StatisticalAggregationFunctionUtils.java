@@ -26,9 +26,11 @@ import org.apache.pinot.core.common.BlockValSet;
 import org.apache.pinot.segment.spi.AggregationFunctionType;
 
 
-/// Util class for statistical aggregation functions
-///
-/// e.g. Variance, Covariance, Standard Deviation...
+/**
+ * Util class for statistical aggregation functions
+ *
+ * e.g. Variance, Covariance, Standard Deviation...
+ */
 public class StatisticalAggregationFunctionUtils {
   private StatisticalAggregationFunctionUtils() {
   }

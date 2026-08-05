@@ -29,9 +29,11 @@ import org.apache.pinot.common.function.sql.PinotSqlFunction;
 import org.apache.pinot.common.utils.DataSchema.ColumnDataType;
 
 
-/// Shared utilities for bitwise scalar functions.
-///
-/// This helper is stateless and thread-safe.
+/**
+ * Shared utilities for bitwise scalar functions.
+ *
+ * <p>This helper is stateless and thread-safe.
+ */
 final class BitFunctionUtils {
   private BitFunctionUtils() {
   }

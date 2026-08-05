@@ -34,7 +34,9 @@ import org.apache.pinot.spi.accounting.ThreadAccountant;
 import org.apache.pinot.spi.env.PinotConfiguration;
 
 
-/// The `ChannelHandlerFactory` provides all kinds of Netty ChannelHandlers
+/**
+ * The {@code ChannelHandlerFactory} provides all kinds of Netty ChannelHandlers
+ */
 public class ChannelHandlerFactory {
   public static final String SSL = "ssl";
   // The key is the hashCode of the TlsConfig, the value is the SslContext
@@ -49,40 +51,52 @@ public class ChannelHandlerFactory {
   private ChannelHandlerFactory() {
   }
 
-  /// The `getLengthFieldBasedFrameDecoder` return a decoder ChannelHandler that splits the received ByteBuffers
-  /// dynamically by the value of the length field in the message
+  /**
+   * The {@code getLengthFieldBasedFrameDecoder} return a decoder ChannelHandler that splits the received ByteBuffers
+   * dynamically by the value of the length field in the message
+   */
   public static ChannelHandler getLengthFieldBasedFrameDecoder() {
     return new LengthFieldBasedFrameDecoder(Integer.MAX_VALUE, 0, Integer.BYTES, 0, Integer.BYTES);
   }
 
-  /// The `getLengthFieldPrepender` return an encoder ChannelHandler that prepends the length of the message.
+  /**
+   * The {@code getLengthFieldPrepender} return an encoder ChannelHandler that prepends the length of the message.
+   */
   public static ChannelHandler getLengthFieldPrepender() {
     return new LengthFieldPrepender(Integer.BYTES);
   }
 
-  /// The `getClientTlsHandler` return a Client side Tls handler that encrypt and decrypt everything.
+  /**
+   * The {@code getClientTlsHandler} return a Client side Tls handler that encrypt and decrypt everything.
+   */
   public static ChannelHandler getClientTlsHandler(TlsConfig tlsConfig, SocketChannel ch) {
     SslContext sslContext = CLIENT_SSL_CONTEXTS_CACHE
         .computeIfAbsent(tlsConfig.hashCode(), tlsConfigHashCode -> TlsUtils.buildClientContext(tlsConfig));
     return sslContext.newHandler(ch.alloc());
   }
 
-  /// The `getServerTlsHandler` return a Server side Tls handler that encrypt and decrypt everything.
+  /**
+   * The {@code getServerTlsHandler} return a Server side Tls handler that encrypt and decrypt everything.
+   */
   public static ChannelHandler getServerTlsHandler(TlsConfig tlsConfig, SocketChannel ch) {
     SslContext sslContext = SERVER_SSL_CONTEXTS_CACHE.computeIfAbsent(
         tlsConfig.hashCode(), tlsConfigHashCode -> TlsUtils.buildServerContext(tlsConfig));
     return sslContext.newHandler(ch.alloc());
   }
 
-  /// The `getDataTableHandler` return a `DataTableHandler` Netty inbound handler on Pinot Broker side to
-  /// handle the serialized data table responses sent from Pinot Server.
+  /**
+   * The {@code getDataTableHandler} return a {@code DataTableHandler} Netty inbound handler on Pinot Broker side to
+   * handle the serialized data table responses sent from Pinot Server.
+   */
   public static ChannelHandler getDataTableHandler(QueryRouter queryRouter, ThreadAccountant threadAccountant,
       ServerRoutingInstance serverRoutingInstance) {
     return new DataTableHandler(queryRouter, threadAccountant, serverRoutingInstance);
   }
 
-  /// The `getInstanceRequestHandler` return a `InstanceRequestHandler` Netty inbound handler on Pinot
-  /// Server side to handle the serialized instance requests sent from Pinot Broker.
+  /**
+   * The {@code getInstanceRequestHandler} return a {@code InstanceRequestHandler} Netty inbound handler on Pinot
+   * Server side to handle the serialized instance requests sent from Pinot Broker.
+   */
   public static ChannelHandler getInstanceRequestHandler(String instanceName, PinotConfiguration config,
       QueryScheduler queryScheduler, AccessControl accessControl, ThreadAccountant threadAccountant) {
     return new InstanceRequestHandler(instanceName, config, queryScheduler, accessControl, threadAccountant);

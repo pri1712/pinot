@@ -34,8 +34,10 @@ import org.apache.pinot.spi.plugin.PluginManager;
 import org.apache.pinot.spi.stream.StreamMessageDecoder;
 
 
-/// An implementation of StreamMessageDecoder to read simple avro records from stream
-/// NOTE: Do not use schema in the implementation, as schema will be removed from the params
+/**
+ * An implementation of StreamMessageDecoder to read simple avro records from stream
+ * NOTE: Do not use schema in the implementation, as schema will be removed from the params
+ */
 @NotThreadSafe
 public class SimpleAvroMessageDecoder implements StreamMessageDecoder<byte[]> {
   private static final String SCHEMA = "schema";
@@ -82,17 +84,21 @@ public class SimpleAvroMessageDecoder implements StreamMessageDecoder<byte[]> {
     _avroRecordExtractor.init(fieldsToRead, config);
   }
 
-  /// {@inheritDoc}
-  ///
-  /// NOTE: the payload should contain message content only (without header).
+  /**
+   * {@inheritDoc}
+   *
+   * <p>NOTE: the payload should contain message content only (without header).
+   */
   @Override
   public GenericRow decode(byte[] payload, GenericRow destination) {
     return decode(payload, 0, payload.length, destination);
   }
 
-  /// {@inheritDoc}
-  ///
-  /// NOTE: the payload should contain message content only (without header).
+  /**
+   * {@inheritDoc}
+   *
+   * <p>NOTE: the payload should contain message content only (without header).
+   */
   @Override
   public GenericRow decode(byte[] payload, int offset, int length, GenericRow destination) {
     int effectiveOffset = offset + _leadingBytesToStrip;

@@ -21,6 +21,7 @@ package org.apache.pinot.connector.flink.sink;
 import java.io.File;
 import java.time.Duration;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -114,7 +115,7 @@ public class PinotSinkUpsertTableIntegrationTest extends BaseClusterIntegrationT
     batchConfigs.put(BatchConfigProperties.PUSH_CONTROLLER_URI, getControllerBaseApiUrl());
     IngestionConfig ingestionConfig = new IngestionConfig();
     ingestionConfig.setBatchIngestionConfig(
-        new BatchIngestionConfig(List.of(batchConfigs), "APPEND", "HOURLY"));
+        new BatchIngestionConfig(Collections.singletonList(batchConfigs), "APPEND", "HOURLY"));
 
     _tableConfig.setIngestionConfig(ingestionConfig);
   }

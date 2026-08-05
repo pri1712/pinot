@@ -34,7 +34,6 @@ import com.google.cloud.storage.StorageException;
 import com.google.cloud.storage.StorageOptions;
 import com.google.common.base.Strings;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UncheckedIOException;
@@ -43,7 +42,6 @@ import java.nio.channels.Channels;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.Iterator;
@@ -130,8 +128,9 @@ public class GcsPinotFS extends BasePinotFS {
       if (existsDirectoryOrBucket(gcsUri)) {
         return true;
       }
-      _storage.create(BlobInfo.newBuilder(BlobId.of(gcsUri.getBucketName(), directoryPath)).build(), new byte[0]);
-      return true;
+      Blob blob =
+          _storage.create(BlobInfo.newBuilder(BlobId.of(gcsUri.getBucketName(), directoryPath)).build(), new byte[0]);
+      return blob.exists();
     } catch (Exception e) {
       throw new IOException(e);
     }
@@ -248,10 +247,9 @@ public class GcsPinotFS extends BasePinotFS {
             new FileMetadata.Builder().setFilePath(GcsUri.createGcsUri(bucketName, blob.getName()).toString())
                 .setLength(blob.getSize()).setIsDirectory(isDirectory);
         if (!isDirectory) {
-          OffsetDateTime blobUpdateTime = blob.getUpdateTimeOffsetDateTime();
-          if (blobUpdateTime != null) {
-            fileBuilder.setLastModifiedTime(blobUpdateTime.toInstant().toEpochMilli());
-          }
+          // Note: if it's a directory, updateTime is set to null, and calling this getter leads to NPE.
+          // public Long getUpdateTime() { return updateTime; }. So skip this for directory.
+          fileBuilder.setLastModifiedTime(blob.getUpdateTime());
         }
         listBuilder.add(fileBuilder.build());
       }
@@ -296,9 +294,8 @@ public class GcsPinotFS extends BasePinotFS {
                 .setFilePath(filePath)
                 .setLength(blob.getSize())
                 .setIsDirectory(false);
-            OffsetDateTime blobUpdateTime = blob.getUpdateTimeOffsetDateTime();
-            if (blobUpdateTime != null) {
-              fileBuilder.setLastModifiedTime(blobUpdateTime.toInstant().toEpochMilli());
+            if (blob.getUpdateTime() != null) {
+              fileBuilder.setLastModifiedTime(blob.getUpdateTime());
             }
             result.add(fileBuilder.build());
             if (result.size() >= maxResults) {
@@ -346,12 +343,7 @@ public class GcsPinotFS extends BasePinotFS {
   @Override
   public long lastModified(URI uri)
       throws IOException {
-    Blob blob = getBlob(new GcsUri(uri));
-    if (blob == null) {
-      return 0L;
-    }
-    OffsetDateTime updateTime = blob.getUpdateTimeOffsetDateTime();
-    return updateTime != null ? updateTime.toInstant().toEpochMilli() : 0L;
+    return getBlob(new GcsUri(uri)).getUpdateTime();
   }
 
   @Override
@@ -361,16 +353,10 @@ public class GcsPinotFS extends BasePinotFS {
       LOGGER.info("touch {}", uri);
       GcsUri gcsUri = new GcsUri(uri);
       Blob blob = getBlob(gcsUri);
-      if (blob == null) {
-        // PinotFS contract: if the file does not exist, create an empty file
-        BlobInfo blobInfo = BlobInfo.newBuilder(BlobId.of(gcsUri.getBucketName(), gcsUri.getPath())).build();
-        _storage.create(blobInfo, new byte[0]);
-        return true;
-      }
-      // Any successful GCS objects.patch call advances the blob's updateTime server-side,
-      // so returning true on success (and propagating StorageException on failure) is correct.
+      long updateTime = blob.getUpdateTime();
       _storage.update(blob.toBuilder().setMetadata(blob.getMetadata()).build());
-      return true;
+      long newUpdateTime = getBlob(gcsUri).getUpdateTime();
+      return newUpdateTime > updateTime;
     } catch (StorageException e) {
       throw new IOException(e);
     }
@@ -381,9 +367,6 @@ public class GcsPinotFS extends BasePinotFS {
       throws IOException {
     try {
       Blob blob = getBlob(new GcsUri(uri));
-      if (blob == null) {
-        throw new FileNotFoundException("File '" + uri + "' does not exist");
-      }
       return Channels.newInputStream(blob.reader());
     } catch (StorageException e) {
       throw new IOException(e);
@@ -416,11 +399,13 @@ public class GcsPinotFS extends BasePinotFS {
     return gcsUri.getPath().endsWith(GcsUri.DELIMITER);
   }
 
-  /// Returns true if this is an existing directory
-  ///
-  /// @param gcsUri
-  /// @return true if the directory exists
-  /// @throws IOException
+  /**
+   * Returns true if this is an existing directory
+   *
+   * @param gcsUri
+   * @return true if the directory exists
+   * @throws IOException
+   */
   private boolean existsDirectoryOrBucket(GcsUri gcsUri)
       throws IOException {
     String prefix = gcsUri.getPrefix();
@@ -548,19 +533,17 @@ public class GcsPinotFS extends BasePinotFS {
   private boolean copyFile(GcsUri srcUri, GcsUri dstUri)
       throws IOException {
     Blob blob = getBlob(srcUri);
-    if (blob == null) {
-      throw new FileNotFoundException("Source file '" + srcUri + "' does not exist");
-    }
-    BlobId dstBlobId = BlobId.of(dstUri.getBucketName(), dstUri.getPath());
-    CopyWriter copyWriter = blob.copyTo(dstBlobId);
+    Blob newBlob =
+        _storage.create(BlobInfo.newBuilder(BlobId.of(dstUri.getBucketName(), dstUri.getPath())).build(), new byte[0]);
+    CopyWriter copyWriter = blob.copyTo(newBlob.getBlobId());
     copyWriter.getResult();
-    return copyWriter.isDone();
+    return copyWriter.isDone() && blob.exists();
   }
 
   private boolean copy(GcsUri srcUri, GcsUri dstUri)
       throws IOException {
     if (!exists(srcUri)) {
-      throw new IOException("Source URI '" + srcUri + "' does not exist");
+      throw new IOException(String.format("Source URI '%s' does not exist", srcUri));
     }
     if (srcUri.equals(dstUri)) {
       return true;
@@ -571,14 +554,16 @@ public class GcsPinotFS extends BasePinotFS {
     }
     // copy directory
     if (srcUri.hasSubpath(dstUri) || dstUri.hasSubpath(srcUri)) {
-      throw new IOException("Cannot copy from or to a subdirectory: '" + srcUri + "' -> '" + dstUri + "'");
+      throw new IOException(String.format("Cannot copy from or to a subdirectory: '%s' -> '%s'", srcUri, dstUri));
     }
-    /// If an non-empty blob exists and does not end with "/"
-    /// gcs will create a 0 length blob ending with "/".
-    /// So you can have something like a file with a subdirectory.
-    /// This is due to gcs behavior:
-    ///
-    /// @see https://cloud.google.com/storage/docs/gsutil/addlhelp/HowSubdirectoriesWork
+    /**
+     * If an non-empty blob exists and does not end with "/"
+     * gcs will create a 0 length blob ending with "/".
+     * So you can have something like a file with a subdirectory.
+     * This is due to gcs behavior:
+     *
+     * @see https://cloud.google.com/storage/docs/gsutil/addlhelp/HowSubdirectoriesWork
+     */
     if (!existsDirectoryOrBucket(dstUri)) {
       mkdir(dstUri.getUri());
     }

@@ -27,7 +27,9 @@ import org.apache.pinot.spi.config.table.TableType;
 import org.apache.pinot.spi.config.table.UpsertConfig;
 
 
-/// Factory for the [SegmentAssignment].
+/**
+ * Factory for the {@link SegmentAssignment}.
+ */
 public class SegmentAssignmentFactory {
   private SegmentAssignmentFactory() {
   }

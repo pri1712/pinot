@@ -31,7 +31,9 @@ import org.apache.pinot.spi.data.FieldSpec;
 import org.locationtech.jts.geom.Geometry;
 
 
-/// Base Binary geo transform functions that can take either one of the arguments as literal.
+/**
+ * Base Binary geo transform functions that can take either one of the arguments as literal.
+ */
 public abstract class BaseBinaryGeoTransformFunction extends BaseTransformFunction {
   private TransformFunction _firstArgument;
   private TransformFunction _secondArgument;

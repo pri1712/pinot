@@ -19,6 +19,7 @@
 package org.apache.pinot.core.operator.query;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import org.apache.pinot.core.common.Operator;
 import org.apache.pinot.core.operator.BaseOperator;
@@ -58,7 +59,7 @@ public class FastFilteredCountOperator extends BaseOperator<AggregationResultsBl
   @SuppressWarnings("rawtypes")
   @Override
   public List<Operator> getChildOperators() {
-    return List.of(_filterOperator);
+    return Collections.singletonList(_filterOperator);
   }
 
   @Override

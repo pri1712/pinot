@@ -23,6 +23,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Random;
 import org.apache.commons.io.FileUtils;
@@ -64,7 +65,9 @@ import static org.testng.Assert.assertNotNull;
 import static org.testng.Assert.assertTrue;
 
 
-/// Queries test for statistical queries (i.e Variance, Covariance, Standard Deviation etc)
+/**
+ * Queries test for statistical queries (i.e Variance, Covariance, Standard Deviation etc)
+ */
 public class StatisticalQueriesTest extends BaseQueriesTest {
   private static final File INDEX_DIR = new File(FileUtils.getTempDirectory(), "CovarianceQueriesTest");
   private static final String RAW_TABLE_NAME = "testTable";
@@ -167,7 +170,7 @@ public class StatisticalQueriesTest extends BaseQueriesTest {
   @Override
   protected List<List<IndexSegment>> getDistinctInstances() {
     if (_useIdenticalSegment) {
-      return List.of(_indexSegments);
+      return Collections.singletonList(_indexSegments);
     }
     return _distinctInstances;
   }

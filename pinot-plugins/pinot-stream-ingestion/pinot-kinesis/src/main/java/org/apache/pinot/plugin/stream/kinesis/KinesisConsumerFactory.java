@@ -25,7 +25,9 @@ import org.apache.pinot.spi.stream.StreamMetadataProvider;
 import org.apache.pinot.spi.stream.StreamPartitionMsgOffsetFactory;
 
 
-/// [StreamConsumerFactory] implementation for the Kinesis stream
+/**
+ * {@link StreamConsumerFactory} implementation for the Kinesis stream
+ */
 public class KinesisConsumerFactory extends StreamConsumerFactory {
 
   @Override

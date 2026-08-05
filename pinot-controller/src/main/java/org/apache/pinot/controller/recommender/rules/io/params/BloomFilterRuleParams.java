@@ -22,7 +22,9 @@ import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.annotation.Nulls;
 
 
-/// Thresholds and parameters used in BloomFilterRule
+/**
+ * Thresholds and parameters used in BloomFilterRule
+ */
 public class BloomFilterRuleParams {
   // The minimum percentage of queries using a EQ predicate on a given dimension, which we want to optimize with
   // BloomFilter

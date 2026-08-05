@@ -24,7 +24,9 @@ import javax.annotation.Nullable;
 import org.apache.pinot.spi.env.PinotConfiguration;
 
 
-/// A static SegmentPrunerProvider will give SegmentPruner instance based on prunerClassName and configuration.
+/**
+ * A static SegmentPrunerProvider will give SegmentPruner instance based on prunerClassName and configuration.
+ */
 public class SegmentPrunerProvider {
   private SegmentPrunerProvider() {
   }

@@ -19,13 +19,22 @@
 package org.apache.pinot.controller;
 
 import java.io.File;
+import org.apache.pinot.spi.env.PinotConfiguration;
 import org.apache.pinot.spi.utils.CommonConstants;
 
 
-/// Default controller startable implementation. Contains methods to start and stop the controller
+/**
+ * Default controller startable implementation. Contains methods to start and stop the controller
+ */
 public class ControllerStarter extends BaseControllerStarter {
 
   public ControllerStarter() {
+  }
+
+  @Deprecated
+  public ControllerStarter(PinotConfiguration pinotConfiguration)
+      throws Exception {
+    init(pinotConfiguration);
   }
 
   public static ControllerStarter startDefault()

@@ -37,16 +37,21 @@ import static org.testng.Assert.assertTrue;
 import static org.testng.Assert.expectThrows;
 
 
-/// Unit test for [PartitionFunction]
+/**
+ * Unit test for {@link PartitionFunction}
+ */
 public class PartitionFunctionTest {
   private static final int NUM_ROUNDS = 1000;
   private static final int MAX_NUM_PARTITIONS = 100;
 
-  /// Unit test for [ModuloPartitionFunction].
-  ///
-  /// - Builds an instance of the [ModuloPartitionFunction].
-  /// - Performs modulo operations on random numbers and asserts results returned by the partition function
-  ///      are as expected.
+  /**
+   * Unit test for {@link ModuloPartitionFunction}.
+   * <ul>
+   *   <li> Builds an instance of the {@link ModuloPartitionFunction}. </li>
+   *   <li> Performs modulo operations on random numbers and asserts results returned by the partition function
+   *        are as expected. </li>
+   * </ul>
+   */
   @Test
   public void testModulo() {
     long seed = System.currentTimeMillis();
@@ -83,9 +88,12 @@ public class PartitionFunctionTest {
     }
   }
 
-  /// Unit test for [MurmurPartitionFunction].
-  ///
-  /// - Tests that partition values are in expected range.
+  /**
+   * Unit test for {@link MurmurPartitionFunction}.
+   * <ul>
+   *   <li> Tests that partition values are in expected range. </li>
+   * </ul>
+   */
   @Test
   public void testMurmurPartitioner() {
     // Both Murmur and Murmur2 are aliases for MurmurPartitionFunction
@@ -112,12 +120,15 @@ public class PartitionFunctionTest {
     }
   }
 
-  /// Unit test for [Murmur3PartitionFunction].
-  ///
-  /// - Tests that partition values are in expected range.
-  /// - Tests that toString returns expected string.
-  /// - Tests the default behaviors when functionConfig is not provided or only one of the optional parameters of
-  ///   functionConfig is provided.
+  /**
+   * Unit test for {@link Murmur3PartitionFunction}.
+   * <ul>
+   *   <li> Tests that partition values are in expected range. </li>
+   *   <li> Tests that toString returns expected string. </li>
+   *   <li> Tests the default behaviors when functionConfig is not provided or only one of the optional parameters of
+   *   functionConfig is provided.</li>
+   * </ul>
+   */
   @Test
   public void testMurmur3Partitioner() {
     long seed = System.currentTimeMillis();
@@ -236,10 +247,13 @@ public class PartitionFunctionTest {
     }
   }
 
-  /// Unit test for [FnvPartitionFunction].
-  ///
-  /// - Tests that default and explicit-default configs behave identically.
-  /// - Tests that all supported variants return partitions in the expected range.
+  /**
+   * Unit test for {@link FnvPartitionFunction}.
+   * <ul>
+   *   <li> Tests that default and explicit-default configs behave identically. </li>
+   *   <li> Tests that all supported variants return partitions in the expected range. </li>
+   * </ul>
+   */
   @Test
   public void testFnvPartitioner() {
     long seed = System.currentTimeMillis();
@@ -347,9 +361,12 @@ public class PartitionFunctionTest {
     testMurmur3Hash(9001, expectedMurmurValuesFor32BitX86WithNonZeroSeed, false);
   }
 
-  /// Unit test for [MurmurPartitionFunction].
-  ///
-  /// - Tests that partition values are in expected range.
+  /**
+   * Unit test for {@link MurmurPartitionFunction}.
+   * <ul>
+   *   <li> Tests that partition values are in expected range. </li>
+   * </ul>
+   */
   @Test
   public void testByteArrayPartitioner() {
     long seed = System.currentTimeMillis();
@@ -444,9 +461,11 @@ public class PartitionFunctionTest {
     }
   }
 
-  /// Tests the equivalence of org.apache.kafka.common.utils.Utils::murmurHash2 and
-  /// [MurmurPartitionFunction#getPartition]
-  /// Our implementation of murmurHash2 has been copied over from Utils::murmurHash2
+  /**
+   * Tests the equivalence of org.apache.kafka.common.utils.Utils::murmurHash2 and
+   * {@link MurmurPartitionFunction#getPartition}
+   * Our implementation of murmurHash2 has been copied over from Utils::murmurHash2
+   */
   @Test
   public void testMurmurEquivalence() {
 
@@ -470,8 +489,10 @@ public class PartitionFunctionTest {
     }
   }
 
-  /// Tests the equivalence of partitioning using org.apache.kafka.common.utils.Utils::partition and
-  /// [MurmurPartitionFunction#getPartition]
+  /**
+   * Tests the equivalence of partitioning using org.apache.kafka.common.utils.Utils::partition and
+   * {@link MurmurPartitionFunction#getPartition}
+   */
   @Test
   public void testMurmurPartitionFunctionEquivalence() {
 
@@ -738,8 +759,10 @@ public class PartitionFunctionTest {
     testPartitionFunction(murmur3PartitionFunction4, expectedPartitions32BitsX86WithNonZeroSeed);
   }
 
-  /// Tests the equivalence of kafka.producer.ByteArrayPartitioner::partition and [`::getPartition`]
-  /// \[ByteArrayPartitionFunction\]
+  /**
+   * Tests the equivalence of kafka.producer.ByteArrayPartitioner::partition and {@link ByteArrayPartitionFunction
+   * ::getPartition}
+   */
   @Test
   public void testByteArrayPartitionFunctionEquivalence() {
     // 10 String values of size 7, were randomly generated, using {@link Random::nextBytes} with seed 100

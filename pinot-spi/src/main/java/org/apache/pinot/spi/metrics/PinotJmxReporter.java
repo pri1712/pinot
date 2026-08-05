@@ -18,7 +18,9 @@
  */
 package org.apache.pinot.spi.metrics;
 
-/// A reporter which exposes application metric as JMX MBeans in Pinot.
+/**
+ * A reporter which exposes application metric as JMX MBeans in Pinot.
+ */
 public interface PinotJmxReporter {
 
   void start();

@@ -19,9 +19,14 @@
 
 package org.apache.pinot.controller.recommender.io.metadata;
 
-/// This class is used in [SchemaWithMetaData] to add metadata to
-/// [org.apache.pinot.spi.data.DateTimeFieldSpec]. Without this object, json representation of
-/// [SchemaWithMetaData] object cannot be deserialized to [org.apache.pinot.spi.data.Schema] object.
+import org.apache.pinot.spi.data.DateTimeFieldSpec;
+import org.apache.pinot.spi.data.Schema;
+
+
+/**
+ * This class is used in {@link SchemaWithMetaData} to add metadata to {@link DateTimeFieldSpec}. Without this object,
+ * json representation of {@link SchemaWithMetaData} object cannot be deserialized to {@link Schema} object.
+ */
 public class DateTimeFieldSpecMetadata extends FieldMetadata {
   private String _format;
   private String _granularity;

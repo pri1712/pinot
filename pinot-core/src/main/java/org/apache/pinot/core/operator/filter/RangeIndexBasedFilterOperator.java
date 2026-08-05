@@ -19,6 +19,7 @@
 package org.apache.pinot.core.operator.filter;
 
 import com.google.common.base.CaseFormat;
+import java.util.Collections;
 import java.util.List;
 import org.apache.pinot.common.request.context.predicate.Predicate;
 import org.apache.pinot.core.common.BlockDocIdSet;
@@ -230,7 +231,7 @@ public class RangeIndexBasedFilterOperator extends BaseColumnFilterOperator {
 
   @Override
   public List<Operator> getChildOperators() {
-    return List.of();
+    return Collections.emptyList();
   }
 
   @Override

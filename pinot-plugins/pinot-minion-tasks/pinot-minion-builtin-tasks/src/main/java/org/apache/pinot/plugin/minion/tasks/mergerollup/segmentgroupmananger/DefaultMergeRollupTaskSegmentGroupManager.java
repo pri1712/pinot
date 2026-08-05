@@ -18,6 +18,7 @@
  */
 package org.apache.pinot.plugin.minion.tasks.mergerollup.segmentgroupmananger;
 
+import java.util.Collections;
 import java.util.List;
 import org.apache.pinot.common.metadata.segment.SegmentZKMetadata;
 import org.apache.pinot.controller.helix.core.minion.ClusterInfoAccessor;
@@ -29,6 +30,6 @@ public class DefaultMergeRollupTaskSegmentGroupManager implements MergeRollupTas
   @Override
   public List<List<SegmentZKMetadata>> getSegmentGroups(TableConfig tableConfig,
       ClusterInfoAccessor clusterInfoAccessor, List<SegmentZKMetadata> segments) {
-    return List.of(segments);
+    return Collections.singletonList(segments);
   }
 }

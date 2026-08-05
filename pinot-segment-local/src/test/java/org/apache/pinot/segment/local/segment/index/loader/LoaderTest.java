@@ -141,8 +141,10 @@ public class LoaderTest {
     testConversion();
   }
 
-  /// Format converter will leave stale directory around if there were conversion failures. This test checks loading in
-  /// that scenario.
+  /**
+   * Format converter will leave stale directory around if there were conversion failures. This test checks loading in
+   * that scenario.
+   */
   @Test
   public void testLoadWithStaleConversionDir()
       throws Exception {
@@ -224,7 +226,9 @@ public class LoaderTest {
     assertNotNull(indexSegment.getDataSource(BuiltInVirtualColumn.SEGMENTNAME));
   }
 
-  /// Tests loading default string column with empty ("") default null value.
+  /**
+   * Tests loading default string column with empty ("") default null value.
+   */
   @Test
   public void testDefaultEmptyValueStringColumn()
       throws Exception {

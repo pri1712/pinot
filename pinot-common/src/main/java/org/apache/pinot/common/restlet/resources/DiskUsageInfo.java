@@ -23,7 +23,9 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 
-/// A simple container class to hold disk usage information.
+/**
+ * A simple container class to hold disk usage information.
+ */
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class DiskUsageInfo {
   private final String _instanceId;
